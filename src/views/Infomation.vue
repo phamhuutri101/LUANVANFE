@@ -19,11 +19,7 @@
           <div class="row mb-3">
             <div class="col-md-2">Ảnh đại diện</div>
             <div class="col-md-10">
-              <img
-                src="../../public/img/hinh-anh-nguoi-go-buon-duoi-mua-dep-nhat_021807879.jpg"
-                alt="Ảnh đại diện"
-                class="img-fluid"
-              />
+              <img src="" alt="Ảnh đại diện" class="img-fluid" />
             </div>
           </div>
 
