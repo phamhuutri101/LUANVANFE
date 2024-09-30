@@ -1,9 +1,11 @@
 <template>
-  <router-view />
+  <footer></footer>
 </template>
 
 <script>
 export default {
-  components: {},
+  name: "Footer ",
 };
 </script>
+
+<style></style>

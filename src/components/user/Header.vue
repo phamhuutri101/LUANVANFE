@@ -25,7 +25,10 @@
     <div class="d-flex align-items-center">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <router-link to="/seller" class="text-decoration-none">
+          <router-link
+            to="/admin/ProductManagement"
+            class="text-decoration-none"
+          >
             <a class="nav-link text-light" href="#">
               <i class="fa-solid fa-shop"></i>
               <span> Trở thành người Bán </span>

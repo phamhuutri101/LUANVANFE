@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div class="container mt-5">
     <div class="row">
       <!-- Thanh menu bên trái -->
@@ -84,11 +85,18 @@
       </div>
     </div>
   </div>
+  <Footer />
 </template>
 
 <script>
+import Header from "@/components/user/Header.vue";
+import Footer from "@/components/user/Footer.vue";
 export default {
   name: "information",
+  components:{
+    Header,
+    Footer
+  }
 };
 </script>
 

@@ -2,12 +2,17 @@
   <div class="container mt-5">
     <p class="text-product">Dành cho bạn</p>
     <div class="row">
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
+      <div
+        class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main"
+        v-for="product in products"
+        :key="product.id"
+        @click="gotoDetailProduct(product._id)"
+      >
         <div class="card-product">
           <div class="card-header">
             <img
               class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
+              :src="product.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
               alt=""
             />
             <div class="icon-heart">
@@ -15,299 +20,13 @@
             </div>
           </div>
           <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
+            <span class="card-product-price">{{
+              prices[product._id] || "Đang cập nhật giá"
+            }}</span>
             <span class="card-product-price-reduced">400.3000đ</span>
           </div>
           <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
-            <p class="number-max">
-              <i class="fa-solid fa-location-dot"></i> Hà nội
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main">
-        <div class="card-product">
-          <div class="card-header">
-            <img
-              class="card-product-img"
-              src="../../../../public/img/product/pexels-karolina-grabowska-4495705.jpg"
-              alt=""
-            />
-            <div class="icon-heart">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-          </div>
-          <div class="card-product-body d-flex align-items-center">
-            <span class="card-product-price">323.3000đ</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
-          </div>
-          <div class="card-product-footer">
-            <span class="text-product-footer"
-              >Lorem ipsum dolor sit amet consectetur ...
-            </span>
+            <span class="text-product-footer">{{ product.NAME_PRODUCT }} </span>
             <p class="number-max">
               <i class="fa-solid fa-location-dot"></i> Hà nội
             </p>
@@ -319,7 +38,53 @@
 </template>
 
 <script>
-export default {};
+import priceServices from "@/services/price.services";
+import productServices from "@/services/product.services";
+export default {
+  data() {
+    return {
+      prices: [], // Lưu trữ giá cho từng sản phẩm
+      products: [],
+    };
+  },
+  async created() {
+    await this.loadPrices(); // Gọi hàm để tải giá khi component được tạo
+    await this.getProduct();
+    console.log(this.products);
+  },
+  methods: {
+    async getProduct() {
+      try {
+        const response = await productServices.getAllProduct();
+        if (response && response.data) {
+          this.products = response.data;
+        }
+      } catch (error) {
+        console.error("Error: " + error);
+      }
+    },
+    async loadPrices() {
+      // Lặp qua từng sản phẩm và lấy giá
+      for (const product of this.products) {
+        try {
+          const response = await priceServices.getDefaultPrice(product._id);
+
+          if (response && response.data && response.data[0]) {
+            this.$set(this.prices, product._id, response.data[0].PRICE_NUMBER);
+          } else {
+            this.$set(this.prices, product._id, "N/A"); // Nếu không có giá trị
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy giá cho sản phẩm", product._id, error);
+          this.$set(this.prices, product._id, "N/A"); // Đặt giá trị nếu lỗi
+        }
+      }
+    },
+    gotoDetailProduct(productId) {
+      this.$router.push({ name: "DetailView", params: { id: productId } });
+    },
+  },
+};
 </script>
 
 <style scoped>

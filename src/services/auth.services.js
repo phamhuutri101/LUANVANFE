@@ -18,7 +18,7 @@ class AuthService {
   async login(user) {
     try {
       const response = await this.api.post("/login", user);
-      console.log("Login response data:", response.data);
+      console.log("Login response data:", response);
       return response;
     } catch (error) {
       this.handleError(error);

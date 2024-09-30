@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div class="container">
     <div class="row">
       <div class="col-md-4">
@@ -43,11 +44,18 @@
       <div class="col-md-8">Nội dung Trang bán hàng</div>
     </div>
   </div>
+  <Footer />
 </template>
 
 <script>
+import Header from "@/components/user/Header.vue";
+import Footer from "@/components/user/Footer.vue";
 export default {
   name: "seller",
+  components: {
+    Header,
+    Footer,
+  },
 };
 </script>
 

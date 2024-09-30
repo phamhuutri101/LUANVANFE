@@ -3,11 +3,24 @@ import HomeView from "../views/HomeView.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import ActiveAccountView from "@/views/ActiveAccountView.vue";
+import DetailView from "@/views/DetailView.vue";
+import CartView from "@/views/CartView.vue";
+import test from "@/views/test.vue";
+import testFoodDetail from "@/views/test-foodDetail.vue";
+import AdminDashboardForECommerceSeller from "@/views/Admin Dashboard for E-commerce Seller.vue";
+import getCookieValue from "../utils/getCookie";
+import deleteCookie from "../utils/deleteCookie";
+import isTokenValid from "../utils/isTokenValid";
 const routes = [
   {
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/test-food",
+    name: "test-food-detail",
+    component: testFoodDetail,
   },
   {
     path: "/login",
@@ -23,6 +36,21 @@ const routes = [
     path: "/active",
     name: "ActiveAccount",
     component: ActiveAccountView,
+  },
+  {
+    path: "/details/:id",
+    name: "DetailView",
+    component: DetailView,
+  },
+  {
+    path: "/cart",
+    name: "CartView",
+    component: CartView,
+  },
+  {
+    path: "/test",
+    name: "test",
+    component: test,
   },
   {
     path: "/user",
@@ -42,11 +70,35 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/Sell.vue"),
   },
+  {
+    path: "/admin/ProductManagement",
+    name: "ProductManagement",
+    component: AdminDashboardForECommerceSeller,
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
+router.beforeEach((to, from, next) => {
+  const token = getCookieValue("access_token");
 
+  if (to.path === "/login" && token && isTokenValid(token)) {
+    return next("/");
+  } else if (to.meta.requiredAuth) {
+    if (token) {
+      if (isTokenValid(token)) {
+        next();
+      } else {
+        deleteCookie("access_token");
+        next("/login");
+      }
+    } else {
+      next("/login");
+    }
+  } else {
+    next();
+  }
+});
 export default router;
