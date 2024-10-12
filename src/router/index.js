@@ -11,6 +11,9 @@ import AdminDashboardForECommerceSeller from "@/views/Admin Dashboard for E-comm
 import getCookieValue from "../utils/getCookie";
 import deleteCookie from "../utils/deleteCookie";
 import isTokenValid from "../utils/isTokenValid";
+import AddProduct from "@/components/admin/sales management/AddProduct.vue";
+import CheckOutView from "@/views/CheckOutView.vue";
+
 const routes = [
   {
     path: "/",
@@ -48,6 +51,12 @@ const routes = [
     component: CartView,
   },
   {
+    path: "/checkout",
+    name: "checkoutView",
+    component: CheckOutView,
+  },
+
+  {
     path: "/test",
     name: "test",
     component: test,
@@ -74,6 +83,11 @@ const routes = [
     path: "/admin/ProductManagement",
     name: "ProductManagement",
     component: AdminDashboardForECommerceSeller,
+  },
+  {
+    path: "/admin/ProductManagement/addProduct",
+    name: "AddProductForm",
+    component: AddProduct,
   },
 ];
 

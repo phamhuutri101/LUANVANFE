@@ -11,10 +11,18 @@ class PriceService {
       console.log(error);
     }
   }
+  async getPriceRange(id) {
+    try {
+      const response = await this.api.get(`/range/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   async getPriceKeyValue(id, payload) {
     try {
-      const response = await this.api.get(`/${id}`, payload);
+      const response = await this.api.post(`/get_price/${id}`, payload);
       return response.data;
     } catch (error) {
       console.log(error);

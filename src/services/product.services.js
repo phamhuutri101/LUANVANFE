@@ -49,5 +49,13 @@ class ProductService {
       throw error;
     }
   }
+  async deleteProduct(id) {
+    try {
+      const response = await this.api.delete(`/${id}`);
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new ProductService();

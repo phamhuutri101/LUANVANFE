@@ -1,4 +1,4 @@
-import createApiClient from "./api.service";
+import createApiClient from "./api.services";
 class UserService {
   constructor(baseUrl = "/api/v1/user") {
     this.api = createApiClient(baseUrl);
@@ -23,6 +23,22 @@ class UserService {
     try {
       const response = await this.api.get("/");
       return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async updateAVTUser(img) {
+    try {
+      const response = await this.api.put("/", img);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async updateInfo(payload) {
+    try {
+      const response = await this.api.put("/updateProfile", payload);
+      return response;
     } catch (error) {
       console.error(error);
     }

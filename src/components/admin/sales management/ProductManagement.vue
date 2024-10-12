@@ -1,229 +1,162 @@
 <template>
-  <div class="add-product-form">
-    <h2>Thêm sản phẩm</h2>
-    <form @submit.prevent="submitForm">
-      <div class="card mb-3">
-        <div class="card-header">
-          <h5>Thông tin cơ bản</h5>
+  <div class="container">
+    <div class="product">
+      <div class="header pb-4 d-flex justify-content-between">
+        <h4>Quản lý sản phẩm</h4>
+        <button @click="switchToAddProduct" class="btn btn-primary">
+          Thêm sản phẩm
+        </button>
+      </div>
+
+      <div class="top-product">
+        <div class="row">
+          <div class="col-3 text-center">Thông tin sản phẩm</div>
+          <div class="col-3 text-center">Giá</div>
+          <div class="col-3 text-center">Kho</div>
+          <div class="col-3 text-center">Thao tác</div>
         </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label for="productName" class="form-label">Tên sản phẩm</label>
-            <input
-              type="text"
-              class="form-control"
-              id="productName"
-              v-model="product.name"
-              required
+      </div>
+      <div class="bottom-product">
+        <div
+          class="row border-bottom py-3"
+          v-for="item in products"
+          :key="item._id"
+        >
+          <div class="col-3 text-start">
+            <img
+              :src="item.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+              alt=""
+              class="img-product"
             />
-          </div>
-          <div class="mb-3">
-            <label for="category" class="form-label">Danh mục ngành hàng</label>
 
-            <select
-              class="form-select"
-              id="category"
-              v-model="product.category_id"
-            >
-              <option value="">Chọn danh mục</option>
-              <option
-                v-for="item in category"
-                :key="item._id"
-                :value="item._id"
-              >
-                {{ item.CATEGORY_NAME }}
-              </option>
-            </select>
+            <span class="px-2">{{ truncateName(item.NAME_PRODUCT) }}</span>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Ảnh đại diện sản phẩm</label>
-            <div class="d-flex align-items-center">
-              <input type="file" @change="uploadFile('avatar', $event)" />
-            </div>
+          <div class="col-3 text-center">
+            {{
+              getPrice(item._id).toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              })
+            }}
           </div>
-          <div class="mb-3">
-            <label class="form-label">Ảnh sản phẩm</label>
-            <div class="d-flex align-items-center">
-              <input type="file" @change="handleFiles($event)" multiple />
-            </div>
+          <div class="col-3 text-center">
+            {{ item.NUMBER_INVENTORY_PRODUCT }}
+          </div>
+          <div class="col-3 text-center">
+            <i class="fa-solid fa-pen-to-square"></i> |
+            <i class="fa-solid fa-trash" @click="removeProduct(item._id)"></i>
           </div>
         </div>
       </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <h5>Biến thể</h5>
-        </div>
-        <div class="card-body">
-          <div class="mb-3" v-for="(item, index) in metadata" :key="index">
-            <label for="attributeKey" class="form-label">Tên biến thể</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Ví dụ: Màu Sắc"
-              v-model="item.key"
-              required
-            />
-            <label for="attributeValue" class="form-label"
-              >Giá trị biến thể (ngăn cách bởi dấu phẩy)</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              v-model="item.rawValue"
-              placeholder="Ví dụ: Đỏ, Xanh, Vàng"
-              required
-            />
-          </div>
-          <button
-            type="button"
-            @click="addMetadata"
-            class="btn btn-outline-primary"
-          >
-            Thêm biến thể
-          </button>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <h5>Mô tả sản phẩm</h5>
-        </div>
-        <label for="" class="form-label">Mô tả ngắn</label>
-        <div class="card-body">
-          <input
-            type="text"
-            class="form-control"
-            v-model="product.short_desc"
-          />
-        </div>
-        <label for="" class="form-label">Mô tả chi tiết</label>
-        <div class="card-body">
-          <textarea
-            class="form-control"
-            rows="5"
-            v-model="product.desc_product"
-          ></textarea>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary">Đăng bán</button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 
 <script>
+import PriceService from "@/services/price.services";
 import productServices from "@/services/product.services";
-import uploadServices from "@/services/upload.services";
-import categoryServices from "@/services/category.services";
 export default {
-  name: "AddProductForm",
   data() {
     return {
-      category: [],
-      product: {
-        name: "",
-        category_id: "",
-        short_desc: "",
-        desc_product: "",
-        file_attachments: [],
-        file_attachmentsdefault: [],
-        metadata: [],
-      },
-      metadata: [
-        {
-          key: "",
-          rawValue: "", // lưu giá trị gốc trước khi tách thành mảng
-          value: [], // giá trị đã tách thành mảng
-        },
-      ],
+      prices: [],
+      products: [],
     };
   },
-  async created() {
-    console.log("file ", this.product);
-    await this.getCategory();
+  created() {
+    this.getProduct();
   },
   methods: {
-    async uploadFile(type, event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      if (file.size > 10 * 1024 * 1024) {
-        console.error("Tệp quá lớn. Vui lòng chọn tệp nhỏ hơn 10MB.");
-        return;
-      }
-
+    async getProduct() {
       try {
-        const response = await uploadServices.uploadFile(file);
-        console.log(response);
+        const response = await productServices.getAllProduct();
+        if (response && response.data) {
+          this.products = response.data;
 
-        this.product.file_attachmentsdefault[0] = response.data.url; // Lưu đường dẫn ảnh đại diện
+          await this.getPriceProduct();
+        }
       } catch (error) {
-        console.error("Failed to upload file:", error);
+        console.error(error);
       }
     },
-
-    async handleFiles(event) {
-      const files = Array.from(event.target.files); // Lấy tất cả file đã chọn
+    truncateName(name) {
+      if (name.length > 25) {
+        return name.substring(0, 25) + "...";
+      }
+      return name;
+    },
+    async getPriceProduct() {
       try {
-        const formData = new FormData();
-        files.forEach((file) => {
-          formData.append("imgs", file); // 'imgs' là tên trường file gửi đi
-        });
-
-        const response = await uploadServices.uploadFiles(formData);
-        this.product.file_attachments = response.data.map((file) => ({
-          file_url: file.url,
-          file_type: file.type,
-        }));
-        console.log(response);
+        // Kiểm tra nếu this.products là một mảng
+        if (Array.isArray(this.products)) {
+          const prices = {};
+          for (const product of this.products) {
+            const response = await PriceService.getDefaultPrice(product._id);
+            if (response && response.data && response.data[0]) {
+              prices[product._id] = response.data[0].PRICE_NUMBER;
+            } else {
+              console.error("Unexpected response structure:", response);
+            }
+          }
+          this.prices = prices; // Cập nhật trạng thái `prices`
+        } else {
+          console.error("products is not an array:", this.products);
+        }
       } catch (error) {
-        console.error("Failed to upload files:", error);
+        console.error("lỗi khi lấy giá:", error);
+        throw error; // Re-throw error to be caught by the caller
       }
     },
-    async getCategory() {
+    getPrice(productId) {
+      const price = this.prices[productId];
+      if (price) {
+        return price;
+      } else {
+        return "Đang cập nhật giá";
+      }
+    },
+    async removeProduct(productId) {
+      this.products = this.products.filter(
+        (product) => product._id !== productId
+      );
       try {
-        const response = await categoryServices.getAll();
-        this.category = response.data;
+        await productServices.deleteProduct(productId);
       } catch (error) {
-        console.error("Failed to get category:", error);
+        console.error(error);
       }
     },
-    // Tách chuỗi giá trị biến thể thành mảng
-    splitValues(index) {
-      this.metadata[index].value = this.metadata[index].rawValue
-        .split(",")
-        .map((v) => v.trim());
-    },
-
-    // Thêm thuộc tính mới
-    addMetadata() {
-      this.metadata.push({ key: "", rawValue: "", value: [] });
-    },
-
-    async submitForm() {
-      // Tách chuỗi rawValue thành mảng value cho mỗi thuộc tính trong metadata
-      this.product.metadata = this.metadata.map((item) => ({
-        key: item.key,
-        value: item.rawValue.split(",").map((v) => v.trim()), // Tách chuỗi và loại bỏ khoảng trắng
-      }));
-
-      try {
-        const response = await productServices.create(this.product);
-        console.log("Product created successfully:", response);
-      } catch (error) {
-        console.error("Failed to create product:", error);
-      }
+    switchToAddProduct() {
+      this.$router.push({ name: "AddProductForm" });
     },
   },
 };
 </script>
 
 <style scoped>
-.add-product-form {
-  max-width: 800px;
-  margin: 0 auto;
+.product {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #eeeeee;
+}
+.img-product {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.top-product {
+  border: 1px solid #eeeeee;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  padding: 15px;
+  background: #fbfcfd;
+}
+.bottom-product {
+  border: 1px solid #eeeeee;
+  border-top-style: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 15px;
 }
 </style>

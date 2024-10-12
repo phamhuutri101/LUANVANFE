@@ -4,9 +4,12 @@
     class="sticky-top navbar navbar-expand-lg navbar-main d-flex justify-content-around"
   >
     <!-- Search Bar Section -->
-    <div class="d-flex align-items-center">
-      <span>LOGO</span>
-    </div>
+    <router-link to="/" class="text-decoration-none">
+      <div class="d-flex align-items-center">
+        <span>LOGO</span>
+      </div>
+    </router-link>
+
     <div class="d-flex align-items-center position-relative">
       <form class="d-flex" role="search">
         <input
@@ -76,22 +79,31 @@
         </li>
       </ul>
     </div>
-    <div class="cart position-relative">
-      <span
-        class="position-absolute top-200 start-100 translate-middle badge rounded-pill bg-danger"
-      >
-        5
-        <!-- Replace this with your dynamic count -->
-      </span>
-      <i class="fa-solid fa-cart-shopping"></i>
+    <router-link to="/cart" class="text-decoration-none">
+      <div class="cart position-relative">
+        <span
+          class="position-absolute top-200 start-100 translate-middle badge rounded-pill bg-danger"
+        >
+          {{ count }}
+          <!-- Replace this with your dynamic count -->
+        </span>
+        <i class="fa-solid fa-cart-shopping"></i>
 
-      <span>Giỏ hàng</span>
-    </div>
+        <span>Giỏ hàng</span>
+      </div>
+    </router-link>
   </nav>
 </template>
 
 <script>
-export default {};
+export default {
+  computed: {
+    count() {
+      const count = this.$store.state.count;
+      return count;
+    },
+  },
+};
 </script>
 
 <style scoped>

@@ -6,19 +6,26 @@
       </p>
     </div>
     <div class="price">
-      <span>69.000đ - 129.000</span>
+      <span>{{ formatNumber(price) }}</span>
     </div>
     <div
-      v-for="(key, index) in product.LIST_PRODUCT_METADATA"
-      :key="index"
+      v-for="(key, keyIndex) in product.LIST_PRODUCT_METADATA"
+      :key="keyIndex"
       class="row key-value"
     >
       <div class="col-2 key">
         <span>{{ key.KEY }}</span>
       </div>
       <div class="col-10 d-flex">
-        <div class="value" v-for="(value, index) in key.VALUE" :key="index">
-          <span>{{ value }}</span>
+        <div
+          class="value"
+          v-for="(value, valueIndex) in key.VALUE"
+          :key="valueIndex"
+          @click="selectValue(key.KEY, value)"
+        >
+          <span :class="{ selected: isSelected(key.KEY, value) }">
+            {{ value }}
+          </span>
         </div>
       </div>
     </div>
@@ -29,17 +36,21 @@
       </div>
       <div class="col-10">
         <div class="add-cart d-flex">
-          <span>-</span>
-          <span>1</span>
-          <span>+</span>
-          <p class="product-available">
+          <span @click="decreaseQuantity">-</span>
+          <input class="quantity" type="text" :value="quantity" />
+          <span @click="increaseQuantity">+</span>
+          <p
+            v-if="product.NUMBER_INVENTORY_PRODUCT > 0"
+            class="product-available"
+          >
             {{ product.NUMBER_INVENTORY_PRODUCT }} sản phẩm có sẵn
           </p>
+          <p v-else class="product-not-available">Sản phẩm hết hàng</p>
         </div>
       </div>
     </div>
     <div class="add-to-cart-and-buy">
-      <button type="submit" class="add-cart">
+      <button @click="addToCart" type="submit" class="add-cart">
         <i class="fa-solid fa-cart-shopping"></i>Thêm Vào Giỏ Hàng
       </button>
       <button type="submit" class="buy">Mua Ngay</button>
@@ -48,6 +59,9 @@
 </template>
 
 <script>
+import priceServices from "@/services/price.services";
+import cartServices from "@/services/cart.services";
+import { formatNumber } from "@/utils/formatNumber";
 export default {
   props: {
     product: {
@@ -55,10 +69,164 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      price: null,
+      payload: {
+        key: [],
+        value: [],
+        number: 1,
+      },
+      quantity: 1,
+      priceRange: [],
+      priceMin: null,
+      priceMax: null,
+    };
+  },
+  computed: {
+    payload() {
+      return {
+        key: Object.keys(this.selectedValues), // Lấy danh sách các key
+        value: Object.values(this.selectedValues), // Lấy danh sách các value
+        number: this.quantity, // Số lượng sản phẩm
+      };
+    },
+  },
+  async created() {
+    // setTimeOut để chờ prop đổ dữ liệu xuống
+    setTimeout(async () => {
+      if (this.product && this.product._id) {
+        await this.fetchPrice(this.product._id);
+        await this.getPriceRange();
+      }
+    }, 100);
+    console.log("sản phẩm", this.product);
+  },
+  methods: {
+    async fetchPrice(id) {
+      try {
+        const response = await priceServices.getDefaultPrice(id);
+        console.log("API response:", response);
+        if (response) {
+          this.price = response.data[0].PRICE_NUMBER;
+        } else {
+          this.price = "Không có giá";
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy giá:", error);
+        this.price = "Lỗi khi lấy giá";
+      }
+    },
+    increaseQuantity() {
+      if (this.quantity < this.product.NUMBER_INVENTORY_PRODUCT) {
+        this.quantity++;
+      }
+    },
+    decreaseQuantity() {
+      if (this.quantity > 1) this.quantity--;
+    },
+    selectValue(key, value) {
+      const keyIndex = this.payload.key.indexOf(key);
+
+      if (keyIndex !== -1) {
+        // Nếu key đã tồn tại trong mảng, cập nhật giá trị tương ứng
+        this.payload.value[keyIndex] = value;
+      } else {
+        // Nếu key chưa tồn tại, thêm mới cả key và value
+        this.payload.key.push(key);
+        this.payload.value.push(value);
+      }
+      this.getPriceKV();
+      this.checkQuantity();
+    },
+    isSelected(key, value) {
+      const keyIndex = this.payload.key.indexOf(key);
+      return keyIndex !== -1 && this.payload.value[keyIndex] === value;
+    },
+    async addToCart() {
+      this.$store.dispatch("addToCart", {
+        product: this.product,
+        payload: this.payload,
+      });
+      const response = await cartServices.addToCart(
+        this.product._id,
+        this.payload
+      );
+    },
+    async getPriceKV() {
+      try {
+        const response = await priceServices.getPriceKeyValue(
+          this.product._id,
+          this.payload
+        );
+        if (response && response.data) {
+          this.price = response.data[0].PRICE_NUMBER;
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy giá:", error);
+      }
+    },
+    async getPriceRange() {
+      if (this.product && this.product._id) {
+        const priceRange = await priceServices.getPriceRange(this.product._id);
+        if (priceRange && priceRange.data) {
+          this.priceRange = priceRange.data;
+          this.priceMin = Math.min(
+            ...this.priceRange.map((priceMin) => priceMin.PRICE_NUMBER)
+          );
+          this.priceMax = Math.max(
+            ...this.priceRange.map((price) => price.PRICE_NUMBER)
+          );
+          this.price = `${this.priceMin.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          })} - ${this.priceMax.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          })}`;
+        } else {
+          console.error("Dữ liệu product hoặc product._id chưa sẵn sàng");
+        }
+      }
+    },
+    checkQuantity() {
+      const selectedKeys = this.payload.key;
+      const selectedValues = this.payload.value;
+
+      // Tìm sản phẩm có danh sách thuộc tính khớp với lựa chọn
+      const matchedProduct = this.product.QUANTITY_BY_KEY_VALUE.find(
+        (product) => {
+          return product.LIST_MATCH_KEY.every((matchKey) => {
+            const keyIndex = selectedKeys.indexOf(matchKey.KEY);
+            return (
+              keyIndex !== -1 && selectedValues[keyIndex] === matchKey.VALUE[0]
+            );
+          });
+        }
+      );
+
+      if (matchedProduct) {
+        // Nếu tìm thấy sản phẩm khớp, cập nhật số lượng
+        this.product.NUMBER_INVENTORY_PRODUCT = matchedProduct.QUANTITY;
+      } else {
+        // Nếu không tìm thấy sản phẩm khớp, đặt số lượng về 0
+        this.product.NUMBER_INVENTORY_PRODUCT = 0;
+      }
+    },
+    formatNumber(price) {
+      if (price) {
+        return formatNumber(price);
+      }
+    },
+  },
 };
 </script>
 
 <style scoped>
+.value span.selected {
+  border: 1px solid #09884d;
+  background-color: #e0f7e9;
+}
 .text-title {
   font-size: 20px;
   font-weight: 450;
@@ -90,9 +258,12 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
-
+.value span.selected {
+  border: 1px solid #09884d;
+  background-color: #e0f7e9;
+}
 .value span {
-  padding: 5px 25px;
+  padding: 10px 24px;
   border: 1px solid #ebebeb;
   margin-left: 7px;
   font-size: 14px;
@@ -108,6 +279,7 @@ export default {
   border: 1px solid #ebebeb;
   padding: 5px 15px;
   font-size: 14px;
+  cursor: pointer;
 }
 .product-available {
   margin: 0;
@@ -115,6 +287,14 @@ export default {
   display: flex;
   padding-left: 40px;
   color: #757575;
+  font-size: 14px;
+}
+.product-not-available {
+  margin: 0;
+  align-items: center;
+  display: flex;
+  padding-left: 40px;
+  color: red;
   font-size: 14px;
 }
 .add-to-cart-and-buy {
@@ -141,5 +321,10 @@ export default {
 }
 .add-to-cart-and-buy .add-cart i {
   margin-right: 10px;
+}
+.quantity {
+  width: 40px;
+  height: 35px;
+  border: 1px solid #ebebeb;
 }
 </style>

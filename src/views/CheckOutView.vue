@@ -1,20 +1,16 @@
 <template>
   <Header />
-  <Cart />
-  <Footer />
+  <div class="container">
+    <checkOut />
+  </div>
 </template>
 
 <script>
 import Header from "@/components/user/Header.vue";
 import Footer from "@/components/user/Footer.vue";
-import Cart from "@/components/user/cartView/Cart.vue";
+import checkOut from "@/components/user/checkOut/checkOut.vue";
 export default {
-  name: "CartView",
-  components: {
-    Header,
-    Footer,
-    Cart,
-  },
+  components: { Header, Footer, checkOut },
 };
 </script>
 
