@@ -1,5 +1,133 @@
 <template>
   <div class="col-md-9 background-component p-4">
+    <!-- modal đánh giá sp -->
+    <div
+      class="modal fade"
+      id="ratingModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="ratingModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="ratingModalLabel">
+              Đánh Giá Sản Phẩm
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div
+            class="modal-body"
+            v-if="orderDataRating"
+            v-for="item in orderDataRating.LIST_PRODUCT"
+            :key="item._id"
+          >
+            <div class="card mb-3">
+              <div class="card-body">
+                <p>{{ item.NAME_PRODUCT }}</p>
+                <div class="d-flex">
+                  <p>Phân loại:</p>
+                  <p
+                    class="px-1"
+                    v-for="classify in item.LIST_MATCH_KEY"
+                    :key="classify._id"
+                  >
+                    {{ classify.VALUE }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Chất lượng sản phẩm</label>
+              <div>
+                <i
+                  v-for="n in 5"
+                  :key="n"
+                  :class="['bi', n <= item.rating ? 'bi-star-fill' : 'bi-star']"
+                  @click="item.rating = n"
+                  style="color: gold; cursor: pointer"
+                ></i>
+              </div>
+              <small v-if="item.rating === 5" class="text-success"
+                >Tuyệt vời</small
+              >
+              <small v-if="item.rating === 4" class="text-success"
+                >Hài lòng</small
+              >
+              <small v-if="item.rating === 3" class="text-success"
+                >Bình thường</small
+              >
+              <small v-if="item.rating === 2" class="text-success"
+                >Không hài lòng</small
+              >
+              <small v-if="item.rating === 1" class="text-success">Tệ</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="reviewText" class="form-label"
+                >Chất lượng sản phẩm:</label
+              >
+              <textarea
+                class="form-control"
+                id="reviewText"
+                rows="3"
+                placeholder="để lại đánh giá."
+                v-model="item.desc_reviews"
+              ></textarea>
+            </div>
+
+            <div class="mb-3">
+              <button class="btn btn-outline-primary me-2">
+                <i class="bi bi-camera"></i> Thêm Hình ảnh
+                <input
+                  type="file"
+                  @change="UploadFile($event, item)"
+                  multiple
+                />
+              </button>
+              <div v-if="item.images && item.images.length > 0">
+                <h5>Hình ảnh đã upload:</h5>
+                <div class="uploaded-images">
+                  <img
+                    v-for="image in item.images"
+                    :key="image._id"
+                    :src="image.file_url"
+                    alt="Uploaded Image"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            >
+              TRỞ LẠI
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="submitRating()"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            >
+              Hoàn Thành
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- modal đánh giá sp -->
     <ul
       class="nav nav-pills mb-3 d-flex justify-content-between"
       id="pills-tab"
@@ -212,7 +340,13 @@
                 cách đánh giá sản phẩm</span
               >
               <div class="confirm d-flex">
-                <button>Đánh giá</button>
+                <button
+                  data-bs-toggle="modal"
+                  data-bs-target="#ratingModal"
+                  @click="getOrderSuccessById(item._id)"
+                >
+                  Đánh giá
+                </button>
               </div>
             </div>
           </div>
@@ -226,11 +360,17 @@
 import orderServices from "@/services/order.services";
 import productServices from "@/services/product.services";
 import { formatNumber } from "@/utils/formatNumber";
+import reviewServices from "@/services/review.services";
+import uploadServices from "@/services/upload.services";
 export default {
   data() {
     return {
       order: [],
       orderSuccess: [],
+      reviewId: "",
+      rating: 0,
+      reviewContent: "",
+      orderDataRating: null,
     };
   },
   created() {
@@ -258,6 +398,18 @@ export default {
         }
       }
       this.orderSuccess = orderSuccess.data;
+      console.log("sản phẩm đã thanh toán", this.orderSuccess);
+    },
+    async getOrderSuccessById(id) {
+      const response = await orderServices.getOrderById(id);
+      for (const item of response.data.LIST_PRODUCT) {
+        const NAME_PRODUCT = await this.getNameProduct(item.ID_PRODUCT);
+        item.NAME_PRODUCT = NAME_PRODUCT;
+        item.rating = 0;
+        item.desc_reviews = "";
+      }
+      this.orderDataRating = response.data;
+      console.log("dữ liệu trả về lấy đánh giá", this.orderDataRating);
     },
     async getNameProduct(id) {
       const response = await productServices.getById(id);
@@ -271,6 +423,69 @@ export default {
     },
     formatNumber(number) {
       return formatNumber(number);
+    },
+    setRating(n, item) {
+      item.rating = n;
+    },
+    async UploadFile(event, item) {
+      const files = Array.from(event.target.files);
+      try {
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append("imgs", file);
+        });
+        const response = await uploadServices.uploadFiles(formData);
+        const uploadedImages = response.data.map((file) => ({
+          file_url: file.url,
+          file_type: file.type,
+        }));
+        if (!item.images) {
+          item.images = []; // Khởi tạo mảng nếu chưa có
+        }
+        item.images.push(...uploadedImages); // Thêm các hình ảnh vào mảng images của sản phẩm
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async submitRating() {
+      if (!this.orderDataRating) return;
+
+      const reviews = this.orderDataRating.LIST_PRODUCT.map((item) => ({
+        ID_PRODUCT: item.ID_PRODUCT,
+        number_start: item.rating,
+        desc_reviews: item.desc_reviews,
+        img_url: item.images.map((img) => img.file_url),
+      }));
+
+      try {
+        for (const review of reviews) {
+          const payload = {
+            number_start: review.number_start,
+            desc_reviews: review.desc_reviews,
+            img_url: review.img_url,
+          };
+        }
+        for (const review of reviews) {
+          const payload = {
+            number_start: review.number_start,
+            desc_reviews: review.desc_reviews,
+            img_url: review.img_url,
+          };
+
+          // Gọi API với ID_PRODUCT và payload trong vòng lặp
+          const response = await reviewServices.AddReviews(
+            review.ID_PRODUCT,
+            payload
+          );
+          console.log(
+            "Dữ liệu đánh giá gửi thành công cho sản phẩm",
+            review.ID_PRODUCT,
+            response
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 };
@@ -363,5 +578,11 @@ export default {
 }
 .nav-pills .nav-link {
   color: #000;
+}
+.uploaded-images img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  padding: 0 5px;
 }
 </style>

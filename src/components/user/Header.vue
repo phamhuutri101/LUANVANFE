@@ -61,20 +61,20 @@
             class="dropdown-menu dropdown-menu-right"
             aria-labelledby="navbarDropdown"
           >
-            <router-link to="/login">
-              <a class="dropdown-item">Đăng nhập</a>
+            <router-link to="/user" v-if="getCookie()">
+              <a class="dropdown-item" href="#">Tài khoản của tôi</a>
             </router-link>
+
             <a
               class="dropdown-item"
-              data-bs-toggle="modal"
-              data-bs-target="#register-modal"
               href="#"
-              >Đăng kí</a
+              v-if="getCookie()"
+              click="deleteCookie()"
+              >Đăng xuất</a
             >
-            <router-link to="/user">
-              <a class="dropdown-item" href="#">Thông tin cá nhân</a>
+            <router-link to="/login" v-else>
+              <a class="dropdown-item">Đăng nhập</a>
             </router-link>
-            <a class="dropdown-item" href="#">Đăng xuất</a>
           </div>
         </li>
       </ul>
@@ -96,11 +96,27 @@
 </template>
 
 <script>
+import getCookie from "@/utils/getCookie";
+import deleteCookie from "@/utils/deleteCookie";
+import router from "@/router";
 export default {
+  data() {},
+  created() {},
   computed: {
     count() {
       const count = this.$store.state.count;
       return count;
+    },
+  },
+  methods: {
+    getCookie() {
+      const cookie = getCookie("access_token");
+      return cookie;
+    },
+    deleteCookie() {
+      deleteCookie("access_token");
+      deleteCookie("refresh_token");
+      router.push("/login");
     },
   },
 };

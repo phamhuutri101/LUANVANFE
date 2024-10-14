@@ -1,6 +1,6 @@
 <template>
   <div class="container pt-3">
-    <div class="row">
+    <div class="row" v-if="cart.length > 0">
       <div class="col-9">
         <div class="detail-product" v-for="item in cart" :key="item._id">
           <div class="name-shop">
@@ -136,6 +136,10 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="img_empty" v-else>
+      <img src="../../../../public/img/empty_shop/cart-empty.png" alt="" />
+      <p class="text-center">Không có sản phẩm nào trong giỏ hàng</p>
     </div>
   </div>
 </template>
@@ -437,5 +441,11 @@ export default {
   cursor: pointer;
   border-radius: 5px;
   width: 100%;
+}
+.img_empty img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
 }
 </style>

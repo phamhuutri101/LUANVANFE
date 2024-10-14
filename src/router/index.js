@@ -64,6 +64,9 @@ const routes = [
   {
     path: "/user",
     name: "infomation",
+    meta: {
+      requiredAuth: true,
+    },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -106,6 +109,7 @@ router.beforeEach((to, from, next) => {
         next();
       } else {
         deleteCookie("access_token");
+        deleteCookie("refresh_token");
         next("/login");
       }
     } else {

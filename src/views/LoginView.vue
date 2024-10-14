@@ -118,6 +118,7 @@
 import Swal from "sweetalert2";
 import authServices from "@/services/auth.services";
 import Cookies from "js-cookie";
+
 export default {
   name: "LoginForm",
   data() {
@@ -128,6 +129,7 @@ export default {
       },
     };
   },
+  created() {},
   methods: {
     async login() {
       try {
@@ -136,6 +138,7 @@ export default {
         if (data && data.data && data.data.accessToken) {
           Cookies.set("access_token", data.data.accessToken, { expires: 1 });
           Cookies.set("refresh_token", data.data.refreshToken, { expires: 1 });
+
           this.$router.push("/");
         } else {
           Swal.fire({

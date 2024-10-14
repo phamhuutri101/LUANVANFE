@@ -182,7 +182,6 @@ export default {
           file_url: file.url,
           file_type: file.type,
         }));
-        console.log(response);
       } catch (error) {
         console.error("Failed to upload files:", error);
       }
