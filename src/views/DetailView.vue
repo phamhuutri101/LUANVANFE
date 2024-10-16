@@ -4,6 +4,7 @@
     <div class="row">
       <Carousel :product="product" />
       <InfoProduct :product="product" />
+      <Rating :product="product" />
     </div>
   </div>
   <Footer />
@@ -15,8 +16,9 @@ import Footer from "@/components/user/Footer.vue";
 import Carousel from "@/components/user/DetailView/Carousel.vue";
 import InfoProduct from "@/components/user/DetailView/InfoProduct.vue";
 import productServices from "@/services/product.services";
+import Rating from "@/components/user/DetailView/Rating.vue";
 export default {
-  components: { Carousel, InfoProduct, Header, Footer },
+  components: { Carousel, InfoProduct, Header, Footer, Rating },
   data() {
     return {
       product: {},

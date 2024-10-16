@@ -2,7 +2,7 @@
   <div class="col-md-9 background-component p-4">
     <!-- modal đánh giá sp -->
     <div
-      class="modal fade"
+      class="modal modal-lg fade"
       id="ratingModal"
       tabindex="-1"
       role="dialog"
@@ -12,15 +12,9 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="ratingModalLabel">
+            <h1 class="modal-title text-title fs-5" id="ratingModalLabel">
               Đánh Giá Sản Phẩm
             </h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
           </div>
           <div
             class="modal-body"
@@ -28,13 +22,13 @@
             v-for="item in orderDataRating.LIST_PRODUCT"
             :key="item._id"
           >
-            <div class="card mb-3">
+            <div class="card">
               <div class="card-body">
                 <p>{{ item.NAME_PRODUCT }}</p>
                 <div class="d-flex">
-                  <p>Phân loại:</p>
+                  <p class="classify">Phân loại hàng:</p>
                   <p
-                    class="px-1"
+                    class="px-1 classify"
                     v-for="classify in item.LIST_MATCH_KEY"
                     :key="classify._id"
                   >
@@ -44,49 +38,57 @@
               </div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Chất lượng sản phẩm</label>
-              <div>
+            <div class="mb-3 d-flex align-items-center">
+              <label class="product_quality">Chất lượng sản phẩm</label>
+              <div class="">
                 <i
                   v-for="n in 5"
                   :key="n"
                   :class="['bi', n <= item.rating ? 'bi-star-fill' : 'bi-star']"
                   @click="item.rating = n"
-                  style="color: gold; cursor: pointer"
+                  style="color: gold; cursor: pointer; font-size: 25px"
                 ></i>
               </div>
-              <small v-if="item.rating === 5" class="text-success"
-                >Tuyệt vời</small
-              >
-              <small v-if="item.rating === 4" class="text-success"
-                >Hài lòng</small
-              >
-              <small v-if="item.rating === 3" class="text-success"
-                >Bình thường</small
-              >
-              <small v-if="item.rating === 2" class="text-success"
-                >Không hài lòng</small
-              >
-              <small v-if="item.rating === 1" class="text-success">Tệ</small>
+              <div class="px-3">
+                <small v-if="item.rating === 5" class="text-warning text-rating"
+                  >Tuyệt vời</small
+                >
+                <small v-if="item.rating === 4" class="text-warning text-rating"
+                  >Hài lòng</small
+                >
+                <small
+                  v-if="item.rating === 3"
+                  class="text-secondary text-rating"
+                  >Bình thường</small
+                >
+                <small
+                  v-if="item.rating === 2"
+                  class="text-secondary text-rating"
+                  >Không hài lòng</small
+                >
+                <small
+                  v-if="item.rating === 1"
+                  class="text-secondary text-rating"
+                  >Tệ</small
+                >
+              </div>
             </div>
 
             <div class="mb-3">
-              <label for="reviewText" class="form-label"
-                >Chất lượng sản phẩm:</label
-              >
               <textarea
                 class="form-control"
                 id="reviewText"
-                rows="3"
+                rows="5"
                 placeholder="để lại đánh giá."
                 v-model="item.desc_reviews"
               ></textarea>
             </div>
 
             <div class="mb-3">
-              <button class="btn btn-outline-primary me-2">
+              <button class="btn btn-outline-success me-2">
                 <i class="bi bi-camera"></i> Thêm Hình ảnh
                 <input
+                  class="input-file"
                   type="file"
                   @change="UploadFile($event, item)"
                   multiple
@@ -105,10 +107,10 @@
               </div>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer sticky-position">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn"
               data-bs-dismiss="modal"
               aria-label="Close"
             >
@@ -116,7 +118,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-primary"
+              class="btn btn-success"
               @click="submitRating()"
               data-bs-dismiss="modal"
               aria-label="Close"
@@ -158,7 +160,7 @@
           aria-controls="pills-profile"
           aria-selected="false"
         >
-          Chờ thanh toán
+          Chờ xác nhận
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -172,7 +174,7 @@
           aria-controls="pills-contact"
           aria-selected="false"
         >
-          Vận chuyển
+          Đang xử lý
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -407,6 +409,7 @@ export default {
         item.NAME_PRODUCT = NAME_PRODUCT;
         item.rating = 0;
         item.desc_reviews = "";
+        item.classify = item.LIST_MATCH_KEY.map((key) => key.VALUE).join(", "); // Ghép các giá trị phân loại thành chuỗi
       }
       this.orderDataRating = response.data;
       console.log("dữ liệu trả về lấy đánh giá", this.orderDataRating);
@@ -455,6 +458,7 @@ export default {
         number_start: item.rating,
         desc_reviews: item.desc_reviews,
         img_url: item.images.map((img) => img.file_url),
+        classify: item.classify,
       }));
 
       try {
@@ -463,15 +467,8 @@ export default {
             number_start: review.number_start,
             desc_reviews: review.desc_reviews,
             img_url: review.img_url,
+            classify: review.classify,
           };
-        }
-        for (const review of reviews) {
-          const payload = {
-            number_start: review.number_start,
-            desc_reviews: review.desc_reviews,
-            img_url: review.img_url,
-          };
-
           // Gọi API với ID_PRODUCT và payload trong vòng lặp
           const response = await reviewServices.AddReviews(
             review.ID_PRODUCT,
@@ -584,5 +581,50 @@ export default {
   height: 100px;
   object-fit: cover;
   padding: 0 5px;
+}
+.text-rating {
+  font-size: 17px;
+}
+.classify {
+  color: #00000042;
+}
+.product_quality {
+  margin-right: 50px;
+  font-size: 14px;
+}
+.text-title {
+  color: #222;
+  display: flex;
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+.modal-header,
+.modal-footer {
+  border: none !important;
+}
+.input-file {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  width: 153px;
+  cursor: pointer; /* Để giữ khả năng tương tác khi hover */
+}
+.btn-outline-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sticky-position {
+  position: sticky;
+  bottom: 0; /* hoặc top: 0 nếu bạn muốn dính lên đầu */
+  z-index: 10;
+
+  background: #fff;
+  padding: 20px 0;
+}
+.modal-content {
+  max-height: 76vh; /* Thiết lập chiều cao tối đa cho modal */
+  overflow-y: auto; /* Kích hoạt cuộn dọc cho nội dung modal */
 }
 </style>

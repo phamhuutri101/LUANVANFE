@@ -11,5 +11,21 @@ class ReviewServices {
       console.error(error);
     }
   }
+  async getReviewsByProductId(id) {
+    try {
+      const response = await this.api.get(`/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getTotalReviews(id) {
+    try {
+      const response = await this.api.get(`/totalReview/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new ReviewServices();

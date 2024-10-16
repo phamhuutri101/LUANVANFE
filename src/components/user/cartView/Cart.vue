@@ -108,12 +108,21 @@
                 type="text"
                 class="input-discount w-100"
                 placeholder="Nhập mã giảm giá"
+                v-model="promoCode"
               />
+              <button
+                @click="applyPromoCode"
+                class="btn discount-bottom mt-2 w-100"
+              >
+                Áp dụng mã
+              </button>
               <div class="row py-3">
                 <div class="col-6">
                   <span class="discount-text">Tổng giảm giá</span>
                 </div>
-                <div class="col-6 text-end"><span>0đ</span></div>
+                <div class="col-6 text-end">
+                  <span>{{ formatPriceCart(discountAmount) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -125,7 +134,7 @@
               </div>
               <div class="col-6 text-end">
                 <span class="footer-bill-price">{{
-                  formatPriceCart(calculateTotalPrice())
+                  formatPriceCart(finalTotalPrice())
                 }}</span>
               </div>
             </div>
@@ -148,10 +157,13 @@
 import cartServices from "@/services/cart.services";
 import Swal from "sweetalert2";
 import { formatNumber } from "@/utils/formatNumber";
+import promoServices from "@/services/promoServices";
 export default {
   data() {
     return {
       cart: [],
+      promoCode: "", // Biến lưu mã giảm giá
+      discountAmount: 0, // Biến lưu tổng tiền giảm
     };
   },
   async created() {
@@ -297,6 +309,34 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    async applyPromoCode() {
+      try {
+        if (this.promoCode.trim() === "") {
+          Swal.fire("Vui lòng nhập mã giảm giá", "", "warning");
+          return;
+        }
+
+        const response = await promoServices.checkPromoCode({
+          code: this.promoCode,
+          orderTotal: this.calculateTotalPrice(),
+        });
+        console.log("mã giảm giá trả về", response);
+        if (response && response.success) {
+          this.discountAmount = response.discount; // Cập nhật số tiền giảm giá
+          Swal.fire("Áp dụng mã thành công!", "", "success");
+        } else {
+          this.discountAmount = 0;
+          Swal.fire("Mã giảm giá không hợp lệ", "", "error");
+        }
+      } catch (error) {
+        console.error("Lỗi khi áp dụng mã giảm giá:", error);
+        Swal.fire("Có lỗi xảy ra", "", "error");
+      }
+    },
+    finalTotalPrice() {
+      // Tổng giá sau khi áp dụng giảm giá
+      return this.calculateTotalPrice() - this.discountAmount;
     },
     calculateTotalPrice() {
       return this.cart.reduce((total, item) => {
@@ -447,5 +487,8 @@ export default {
   margin-left: auto;
   margin-right: auto;
   width: 500px;
+}
+.discount-bottom:hover {
+  background: #f1f1f1;
 }
 </style>
