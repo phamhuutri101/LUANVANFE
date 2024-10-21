@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-9 background-component p-4">
+  <div class="col-md-9 background-component background-height p-4">
     <div
       class="header-address d-flex justify-content-between border-bottom py-3"
     >

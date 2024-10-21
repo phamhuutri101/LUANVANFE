@@ -1,9 +1,9 @@
 <template>
-  <div class="container mt-5 mb-5">
+  <div class="col-md-9 background-component background-height p-4">
     <p class="text-product">Dành cho bạn</p>
     <div class="row">
       <div
-        class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main"
+        class="col-3 card-main"
         v-for="(product, index) in products"
         :key="product.id"
         @click="gotoDetailProduct(product._id)"
@@ -54,7 +54,9 @@
 import priceServices from "@/services/price.services";
 import productServices from "@/services/product.services";
 import favoriteServices from "@/services/favorite.services";
+
 export default {
+  name: "favorite",
   data() {
     return {
       prices: [], // Lưu trữ giá cho từng sản phẩm
@@ -67,24 +69,40 @@ export default {
   methods: {
     async getProduct() {
       try {
-        const response = await productServices.getAllProduct();
+        const response = await favoriteServices.getProductFavorite();
+
         if (response && response.data) {
+          // Lặp qua từng sản phẩm trả về từ API
           const productsWithFavorites = await Promise.all(
-            response.data.map(async (product) => {
-              // Lấy thông tin yêu thích (favorite) của sản phẩm
-              const responseFavorite = await this.getFavorite(product._id);
+            response.data.map(async (favoriteItem) => {
+              // Mảng PRODUCT từ mỗi đối tượng favoriteItem
+              const productArray = favoriteItem.PRODUCT;
 
-              // Gán giá trị IS_FAVORITE vào biến isFavorite của từng sản phẩm
-              product.isFavorite = responseFavorite
-                ? responseFavorite.IS_FAVORITE
-                : false; // Mặc định là false nếu không có thông tin yêu thích
+              // Lặp qua từng sản phẩm trong mảng PRODUCT
+              const products = productArray.map(async (product) => {
+                // Lấy thông tin yêu thích (favorite) của sản phẩm
+                const responseFavorite = await this.getFavorite(product._id);
 
-              return product; // Trả về sản phẩm sau khi đã gán biến isFavorite
+                // Gán giá trị IS_FAVORITE vào biến isFavorite của từng sản phẩm
+                product.isFavorite = responseFavorite
+                  ? responseFavorite.IS_FAVORITE
+                  : false; // Mặc định là false nếu không có thông tin yêu thích
+
+                return product; // Trả về sản phẩm sau khi đã gán biến isFavorite
+              });
+
+              // Đợi tất cả các sản phẩm trong mảng xử lý xong
+              const resolvedProducts = await Promise.all(products);
+
+              return resolvedProducts;
             })
           );
 
+          // Gộp tất cả các mảng sản phẩm từ từng đối tượng vào một mảng lớn
+          const flatProducts = productsWithFavorites.flat();
+
           // Cập nhật danh sách sản phẩm với trạng thái yêu thích
-          this.products = productsWithFavorites;
+          this.products = flatProducts;
           console.log("dữ liệu sản phẩm trang chủ", this.products);
 
           // Sau khi cập nhật danh sách sản phẩm, tiếp tục gọi hàm lấy giá
@@ -252,5 +270,8 @@ export default {
 
   border-radius: 10px;
   box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+}
+.background-height {
+  min-height: 700px;
 }
 </style>

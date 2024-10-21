@@ -1,5 +1,5 @@
 <template>
-  <div class="col-7">
+  <div class="col-7 rounded-1 p-3">
     <div class="text-title">
       <p>
         {{ product.NAME_PRODUCT }}
@@ -53,7 +53,18 @@
       <button @click="addToCart" type="submit" class="add-cart">
         <i class="fa-solid fa-cart-shopping"></i>Thêm Vào Giỏ Hàng
       </button>
-      <button type="submit" class="buy">Mua Ngay</button>
+    </div>
+  </div>
+  <div class="col-12">
+    <h2 class="title">Mô tả sản phẩm</h2>
+    <div class="border-desc">
+      <p>{{ product.SHORT_DESC }}</p>
+    </div>
+  </div>
+  <div class="col-12">
+    <h2 class="title">Mô tả chi tiết</h2>
+    <div class="border-desc">
+      <p>{{ product.DESC_PRODUCT }}</p>
     </div>
   </div>
 </template>
@@ -62,6 +73,7 @@
 import priceServices from "@/services/price.services";
 import cartServices from "@/services/cart.services";
 import { formatNumber } from "@/utils/formatNumber";
+import Swal from "sweetalert2";
 export default {
   props: {
     product: {
@@ -144,14 +156,83 @@ export default {
       return keyIndex !== -1 && this.payload.value[keyIndex] === value;
     },
     async addToCart() {
+      if (this.quantity > this.product.NUMBER_INVENTORY_PRODUCT) {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "error",
+          title: "số lượng sản phẩm trong kho không đủ",
+        });
+        return; // Ngừng xử lý nếu số lượng không đủ
+      }
       this.$store.dispatch("addToCart", {
         product: this.product,
         payload: this.payload,
       });
+      if (this.payload.key.length === 0 || this.payload.value.length === 0) {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "error",
+          title: "Bạn vẫn chưa chọn phân loại sản phẩm",
+        });
+        return; // Ngừng xử lý nếu chưa chọn biến thể
+      }
       const response = await cartServices.addToCart(
         this.product._id,
         this.payload
       );
+      if (response && response.data) {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 800,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Thêm sản phẩm vào giỏ hàng thành công",
+        });
+      } else {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "error",
+          title: "Bạn vẫn chưa chọn phân loại sản phẩm",
+        });
+      }
     },
     async getPriceKV() {
       try {
@@ -326,5 +407,20 @@ export default {
   width: 40px;
   height: 35px;
   border: 1px solid #ebebeb;
+}
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.02);
+}
+.border-desc {
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
 }
 </style>

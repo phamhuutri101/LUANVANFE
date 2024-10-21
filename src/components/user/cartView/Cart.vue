@@ -1,7 +1,7 @@
 <template>
   <div class="container pt-3">
     <div class="row" v-if="cart.length > 0">
-      <div class="col-9">
+      <div class="col-9 height-cart">
         <div class="detail-product" v-for="item in cart" :key="item._id">
           <div class="name-shop">
             <p>Tên shop</p>
@@ -9,18 +9,14 @@
           <div
             class="product d-flex justify-content-between align-items-center"
           >
-            <div class="info-product d-flex">
-              <div class="img-product">
-                <img src="" alt="" />
-              </div>
-              <!-- Lặp qua LIST_FILE_ATTACHMENT_DEFAULT để hiển thị hình ảnh -->
-              <div
-                class="img-product"
-                v-for="img in item.ITEM.LIST_FILE_ATTACHMENT_DEFAULT"
-                :key="img._id"
-              >
-                <img :src="img.FILE_URL" alt="Product Image" />
-              </div>
+            <div class="img-product">
+              <img
+                :src="
+                  item.ITEM.PRODUCT_DETAILS.LIST_FILE_ATTACHMENT_DEFAULT[0]
+                    .FILE_URL
+                "
+                alt="Product Image"
+              />
             </div>
             <div class="key-value">
               <div
@@ -488,7 +484,13 @@ export default {
   margin-right: auto;
   width: 500px;
 }
+.img_empty {
+  min-height: 800px;
+}
 .discount-bottom:hover {
   background: #f1f1f1;
+}
+.height-cart {
+  min-height: 600px;
 }
 </style>

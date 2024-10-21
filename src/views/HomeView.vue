@@ -2,6 +2,7 @@
   <Header />
   <div class="Background-HomeView">
     <CarouselHome />
+    <voucher />
     <Category />
     <ProductHome :products="products" />
   </div>
@@ -14,9 +15,9 @@ import Footer from "@/components/user/Footer.vue";
 import CarouselHome from "@/components/user/HomeView/Carousel.vue";
 import Category from "@/components/user/HomeView/Category.vue";
 import ProductHome from "@/components/user/HomeView/ProductHome.vue";
-
+import voucher from "@/components/user/HomeView/voucher.vue";
 export default {
-  components: { CarouselHome, Category, ProductHome, Header, Footer },
+  components: { CarouselHome, Category, ProductHome, Header, Footer, voucher },
   data() {},
 
   methods: {},

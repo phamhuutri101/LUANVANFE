@@ -1,6 +1,6 @@
 <template>
   <Header />
-  <div class="container pt-3">
+  <div class="container background-component  pt-3">
     <div class="row">
       <Carousel :product="product" />
       <InfoProduct :product="product" />

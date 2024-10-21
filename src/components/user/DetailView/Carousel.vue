@@ -1,5 +1,5 @@
 <template>
-  <div class="col-5">
+  <div class="col-5 rounded-1  p-3">
     <!-- Gallery Carousel -->
     <Carousel
       id="gallery"

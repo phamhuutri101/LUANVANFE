@@ -1,36 +1,49 @@
 <template>
-  <div class="activation-container">
-    <h3>Kích hoạt tài khoản</h3>
-    <input
-      type="text"
-      maxlength="6"
-      class="form-control text-center"
-      v-model="activationCode"
-      placeholder="Nhập mã kích hoạt"
-      @keydown.enter="submitActivationCode"
-    />
-    <button
-      @click="submitActivationCode"
-      type="submit "
-      class="btn btn-primary mt-3"
-    >
-      Kích hoạt Tài khoản
-    </button>
+  <Header />
+  <div class="activation-container pt-5 mt-5">
+    <h3 class="text-center">Kích hoạt tài khoản</h3>
+    <div>
+      <input
+        type="text"
+        maxlength="6"
+        class="form-control text-center"
+        v-model="activationCode"
+        placeholder="Nhập mã kích hoạt"
+        @keydown.enter="submitActivationCode"
+      />
+      <div class="text-center">
+        <button
+          @click="submitActivationCode"
+          type="submit "
+          class="btn btn-primary mt-3"
+        >
+          Kích hoạt Tài khoản
+        </button>
+      </div>
+    </div>
+
     <p class="mt-3 text-center">
       Thời gian còn lại: {{ minutes }}:{{ seconds < 10 ? "0" : ""
       }}{{ seconds }}
     </p>
-    <p @click="reActive" class="mt-3 text-center text-info">
+    <p @click="reActive" class="re-active mt-3 text-center text-info">
       Gửi lại mã kích hoạt
     </p>
   </div>
+  <Footer />
 </template>
 
 <script>
 import authServices from "@/services/auth.services";
 import emailServices from "@/services/email.services";
 import Swal from "sweetalert2";
+import Header from "@/components/user/Header.vue";
+import Footer from "@/components/user/Footer.vue";
 export default {
+  components: {
+    Header,
+    Footer,
+  },
   data() {
     return {
       activationCode: "",
@@ -104,10 +117,14 @@ export default {
 .activation-container {
   max-width: 400px;
   margin: 0 auto;
+  height: 70vh;
 }
 input {
   font-size: 24px;
   height: 50px;
   text-align: center;
+}
+.re-active {
+  cursor: pointer;
 }
 </style>

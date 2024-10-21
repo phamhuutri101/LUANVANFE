@@ -1,10 +1,10 @@
 <template>
-  <div class="product-review">
+  <div class="product-review" v-if="totalReviews.length > 0">
     <h2 class="review-title">ĐÁNH GIÁ SẢN PHẨM</h2>
     <div class="review-summary">
       <div class="rating-overview">
         <h3 class="average-rating">
-          {{ numberStart.toFixed() }}<span>trên 5</span>
+          {{ numberStart.toFixed(1) }}<span>trên 5</span>
         </h3>
         <div class="star-rating">
           <i
@@ -46,6 +46,17 @@
       </div>
     </div>
   </div>
+  <div class="not-rating" v-else>
+    <h2 class="review-title-non-rating">ĐÁNH GIÁ SẢN PHẨM</h2>
+    <div class="text-center pt-5">
+      <img
+        src="https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/shoprating/7d900d4dc402db5304b2.png"
+        alt=""
+      />
+    </div>
+
+    <p class="text-center py-5 fs-5">Chưa có đánh giá về sản phẩm</p>
+  </div>
 </template>
 
 <script>
@@ -73,20 +84,35 @@ export default {
   },
   methods: {
     async getReviewProductsById() {
-      const response = await reviewServices.getReviewsByProductId(
-        this.product._id
-      );
-      this.numberStart = response.data.averageRating;
+      try {
+        const response = await reviewServices.getReviewsByProductId(
+          this.product._id
+        );
+        if (response) {
+          this.numberStart = response.data.averageRating || [];
+        } else {
+          this.numberStart = 0;
+        }
+      } catch (error) {
+        console.error(error);
+        this.numberStart = 0;
+      }
     },
     async getTotalReviewsByProductId() {
-      const response = await reviewServices.getTotalReviews(this.product._id);
-      for (const review of response.data) {
-        const user = await userServices.getUserById(review.USER_ID);
-        review.NAME = user.data.FULL_NAME;
-        review.AVATAR_URL = user.data.AVT_URL;
+      try {
+        const response = await reviewServices.getTotalReviews(this.product._id);
+
+        for (const review of response.data) {
+          const user = await userServices.getUserById(review.USER_ID);
+          review.NAME = user.data.FULL_NAME;
+          review.AVATAR_URL = user.data.AVT_URL;
+        }
+        this.totalReviews = response.data;
+        console.log("lấy tất cả đánh giá", this.totalReviews);
+      } catch (error) {
+        console.error(error);
+        this.totalReviews = "";
       }
-      this.totalReviews = response.data;
-      console.log("lấy tất cả đánh giá", this.totalReviews);
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
@@ -98,15 +124,15 @@ export default {
 <style scoped>
 .product-review {
   font-family: Arial, sans-serif;
-  max-width: 1200px;
+
   margin: 0 auto;
   padding: 20px;
 }
 
 .review-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .review-summary {
@@ -212,5 +238,10 @@ export default {
 
 .helpful-btn:hover {
   text-decoration: underline;
+}
+.review-title-non-rating {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0;
 }
 </style>

@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <!-- Section: Design Block -->
   <section class="background-radial-gradient overflow-hidden">
     <div class="container px-4 py-5 px-md-5 text-center text-lg-start my-5">
@@ -8,14 +9,10 @@
             class="my-5 display-5 fw-bold ls-tight"
             style="color: hsl(218, 81%, 95%)"
           >
-            The best offer <br />
-            <span style="color: hsl(218, 81%, 75%)">for your business</span>
+            Đăng Ký Tài Khoản <br />
           </h1>
           <p class="mb-4 opacity-70" style="color: hsl(218, 81%, 85%)">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-            Temporibus, expedita iusto veniam atque, magni tempora mollitia
-            dolorum consequatur nulla, neque debitis eos reprehenderit quasi ab
-            ipsum nisi dolorem modi. Quos?
+            Nền tảng thương mại điện tử
           </p>
         </div>
 
@@ -34,46 +31,38 @@
               <form @submit.prevent="register">
                 <!-- 2 column grid layout with text inputs for the first and last names -->
                 <div class="row">
-                  <div class="col-md-4 mb-4">
+                  <div class="col-md-12 mb-4">
                     <div data-mdb-input-init class="form-outline">
                       <input
-                        v-model="fromData.first_name"
-                        type="text"
-                        id="form3Example1"
-                        class="form-control"
-                      />
-                      <label class="form-label" for="form3Example1">Tên</label>
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-4">
-                    <div data-mdb-input-init class="form-outline">
-                      <input
-                        v-model="fromData.middle_name"
-                        type="text"
-                        id="form3Example1"
-                        class="form-control"
-                      />
-                      <label class="form-label" for="form3Example1"
-                        >Tên đệm</label
-                      >
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-4">
-                    <div data-mdb-input-init class="form-outline">
-                      <input
-                        v-model="fromData.last_name"
+                        autocomplete="off"
+                        v-model="fromData.full_name"
                         type="text"
                         id="form3Example2"
                         class="form-control"
                       />
-                      <label class="form-label" for="form3Example2">Họ</label>
+                      <label class="form-label" for="form3Example2"
+                        >Họ & Tên người dùng</label
+                      >
                     </div>
                   </div>
                 </div>
-
+                <!-- user name -->
+                <div data-mdb-input-init class="form-outline mb-4">
+                  <input
+                    autocomplete="off"
+                    type="text"
+                    id="form3Example3"
+                    class="form-control"
+                    v-model="fromData.user_name"
+                  />
+                  <label class="form-label" for="form3Example3"
+                    >Tên đăng nhập</label
+                  >
+                </div>
                 <!-- Email input -->
                 <div data-mdb-input-init class="form-outline mb-4">
                   <input
+                    autocomplete="off"
                     type="email"
                     id="form3Example3"
                     class="form-control"
@@ -86,6 +75,7 @@
                 <!-- phone number -->
                 <div data-mdb-input-init class="form-outline mb-4">
                   <input
+                    autocomplete="off"
                     type="text"
                     id="form3Example3"
                     class="form-control"
@@ -95,21 +85,11 @@
                     >Số điện thoại</label
                   >
                 </div>
-                <!-- user name -->
-                <div data-mdb-input-init class="form-outline mb-4">
-                  <input
-                    type="text"
-                    id="form3Example3"
-                    class="form-control"
-                    v-model="fromData.user_name"
-                  />
-                  <label class="form-label" for="form3Example3"
-                    >Tài khoản</label
-                  >
-                </div>
+
                 <!-- Password input -->
                 <div data-mdb-input-init class="form-outline mb-4">
                   <input
+                    autocomplete="off"
                     v-model="fromData.password"
                     type="password"
                     id="form3Example4"
@@ -131,45 +111,11 @@
                 </button>
 
                 <!-- Register buttons -->
-                <div class="text-center">
-                  <p>Hoặc</p>
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-facebook-f"></i>
-                  </button>
-
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-google"></i>
-                  </button>
-
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-twitter"></i>
-                  </button>
-
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-github"></i>
-                  </button>
-                </div>
               </form>
+              <span class="d-flex justify-content-center">
+                Bạn đã có tài khoản?
+                <router-link class="px-1" to="/login">Đăng nhập</router-link>
+              </span>
             </div>
           </div>
         </div>
@@ -177,19 +123,22 @@
     </div>
   </section>
   <!-- Section: Design Block -->
+  <Footer />
 </template>
 
 <script>
 import Swal from "sweetalert2";
 import authServices from "@/services/auth.services";
+import Header from "@/components/user/Header.vue";
+import Footer from "@/components/user/Footer.vue";
 export default {
+  components: { Header, Footer },
+
   name: "RegisterForm",
   data() {
     return {
       fromData: {
-        first_name: "",
-        last_name: "",
-        middle_name: "",
+        full_name: "",
         email_user: "",
         phone_number: "",
         user_name: "",
@@ -235,21 +184,19 @@ export default {
 
 <style scoped>
 .background-radial-gradient {
-  background-color: hsl(218, 41%, 15%);
+  background-color: hsl(138, 54%, 42%);
   background-image: radial-gradient(
       650px circle at 0% 0%,
-      hsl(218, 41%, 35%) 15%,
-      hsl(218, 41%, 30%) 35%,
-      hsl(218, 41%, 20%) 75%,
-      hsl(218, 41%, 19%) 80%,
+      hsl(125, 50%, 65%) 15%,
+      hsl(125, 50%, 65%) 15%,
       transparent 100%
     ),
     radial-gradient(
       1250px circle at 100% 100%,
-      hsl(218, 41%, 45%) 15%,
-      hsl(218, 41%, 30%) 35%,
-      hsl(218, 41%, 20%) 75%,
-      hsl(218, 41%, 19%) 80%,
+      hsl(125, 50%, 65%) 15%,
+      hsl(125, 50%, 65%) 15%,
+      hsl(125, 50%, 65%) 15%,
+      hsl(16, 6%, 35%) 80%,
       transparent 100%
     );
 }

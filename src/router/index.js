@@ -13,7 +13,7 @@ import deleteCookie from "../utils/deleteCookie";
 import isTokenValid from "../utils/isTokenValid";
 import AddProduct from "@/components/admin/sales management/AddProduct.vue";
 import CheckOutView from "@/views/CheckOutView.vue";
-
+import SearchView from "@/views/SearchView.vue";
 const routes = [
   {
     path: "/",
@@ -62,8 +62,13 @@ const routes = [
     component: test,
   },
   {
+    path: "/search",
+    name: "SearchView",
+    component: SearchView,
+  },
+  {
     path: "/user",
-    name: "infomation",
+    name: "information",
     meta: {
       requiredAuth: true,
     },

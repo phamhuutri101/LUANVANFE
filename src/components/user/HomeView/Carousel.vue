@@ -25,21 +25,21 @@
     <div class="carousel-inner carousel-inner-custom">
       <div class="carousel-item active">
         <img
-          src="../../../../public/img/carousel/pexels-bianeyre-1126935.jpg"
+          src="../../../../public/img/carousel/pexels-mnzoutfits-1670770.jpg"
           class="d-block w-100"
           alt=""
         />
       </div>
       <div class="carousel-item">
         <img
-          src="../../../../public/img/carousel/pexels-kowalievska-1040424.jpg"
+          src="../../../../public/img/carousel/pexels-andersonguerra-1115128.jpg"
           class="d-block w-100"
           alt=""
         />
       </div>
       <div class="carousel-item">
         <img
-          src="../../../../public/img/carousel/pexels-srevadilla-2601274.jpg"
+          src="../../../../public/img/carousel/9d1217ab-b8ec-48ca-bd77-1ede59de43e3.jpg"
           class="d-block w-100"
           alt=""
         />

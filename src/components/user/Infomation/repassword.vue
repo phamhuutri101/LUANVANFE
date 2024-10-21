@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-9 background-component p-4">
+  <div class="col-md-9 background-component background-height p-4">
     <div class="header border-bottom py-4">
       <div class="title d-block">
         <p>Đổi mật khẩu</p>
@@ -47,7 +47,55 @@
 </template>
 
 <script>
-export default {};
+import Swal from "sweetalert2";
+import authServices from "@/services/auth.services";
+export default {
+  data() {
+    return {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
+  },
+  methods: {
+    async changePassword() {
+      try {
+        if ((this.newPassword = this.confirmPassword)) {
+          const payload = {
+            old_password: this.currentPassword,
+            new_password: this.newPassword,
+          };
+          const changePassword = await authServices.changePassword(payload);
+          console.log(changePassword);
+          if (changePassword.data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Thành công",
+              text: "đổi mật khẩu thành công!",
+            });
+            this.currentPassword = "";
+            this.newPassword = "";
+            this.confirmPassword = "";
+          }
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Lỗii",
+            text: "bạn cần hãy kiểm tra lại mật khẩu mới của mình!",
+          });
+          return;
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "đổi mật khẩu thất bại!",
+        });
+        console.error(error);
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -67,5 +115,8 @@ export default {};
   font-size: 1rem;
   line-height: 1.5rem;
   margin-top: 4px;
+}
+.background-height {
+  min-height: 700px;
 }
 </style>

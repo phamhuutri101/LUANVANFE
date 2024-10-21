@@ -44,6 +44,14 @@ class AuthService {
       throw error;
     }
   }
+  async changePassword(payload) {
+    try {
+      const response = await this.api.post("/repass", payload);
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   handleError(error) {
     if (error.response) {

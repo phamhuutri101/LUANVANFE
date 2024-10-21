@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-9 background-component p-4">
+  <div class="col-md-9 background-component background-height p-4">
     <h2 class="">Hồ Sơ Của Tôi</h2>
     <p class="pb-3 border-bottom">
       Quản lý thông tin hồ sơ để bảo mật tài khoản
@@ -227,5 +227,8 @@ export default {
   opacity: 0;
   -moz-opacity: 0;
   filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+}
+.background-height {
+  min-height: 700px;
 }
 </style>

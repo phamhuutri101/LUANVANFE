@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-9 background-component p-4">
+  <div class="col-md-9 background-component background-height p-4">
     <!-- modal đánh giá sp -->
     <div
       class="modal modal-lg fade"
@@ -416,7 +416,7 @@ export default {
     },
     async getNameProduct(id) {
       const response = await productServices.getById(id);
-      console.log(response.data.NAME_PRODUCT);
+    
       return response.data.NAME_PRODUCT;
     },
     calculateTotalPrice(order) {
@@ -626,5 +626,8 @@ export default {
 .modal-content {
   max-height: 76vh; /* Thiết lập chiều cao tối đa cho modal */
   overflow-y: auto; /* Kích hoạt cuộn dọc cho nội dung modal */
+}
+.background-height {
+  min-height: 700px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <Header />
+  <Header @favoriteClicked="setActiveComponent('favorite')" />
   <div class="container mt-5">
     <div class="row">
       <!-- Thanh menu bên trái -->
@@ -21,6 +21,13 @@
           </li>
           <li
             class="list-group-item"
+            :class="{ active: activeComponent == 'favorite' }"
+            @click="setActiveComponent('favorite')"
+          >
+            Sản phẩm yêu thích
+          </li>
+          <li
+            class="list-group-item"
             :class="{ active: activeComponent == 'addressUser' }"
             @click="setActiveComponent('addressUser')"
           >
@@ -39,6 +46,7 @@
       <order v-if="activeComponent === 'order'" />
       <addressUser v-if="activeComponent === 'addressUser'" />
       <repassword v-if="activeComponent === 'repass'" />
+      <favorite v-if="activeComponent === 'favorite'" />
     </div>
   </div>
   <Footer />
@@ -51,6 +59,7 @@ import Profile from "@/components/user/Infomation/profile.vue";
 import order from "@/components/user/Infomation/order.vue";
 import addressUser from "@/components/user/Infomation/address.vue";
 import repassword from "@/components/user/Infomation/repassword.vue";
+import favorite from "@/components/user/Infomation/favorite.vue";
 export default {
   name: "information",
   components: {
@@ -60,11 +69,28 @@ export default {
     order,
     addressUser,
     repassword,
+    favorite,
   },
   data() {
     return {
       activeComponent: "profile",
     };
+  },
+  created() {
+    // Kiểm tra query để đặt component mặc định
+    const component = this.$route.query.component;
+    if (component) {
+      this.activeComponent = component;
+    }
+  },
+  watch: {
+    // Theo dõi sự thay đổi của route để cập nhật component
+    $route(to) {
+      const component = to.query.component;
+      if (component) {
+        this.activeComponent = component;
+      }
+    },
   },
   methods: {
     setActiveComponent(component) {
@@ -73,5 +99,3 @@ export default {
   },
 };
 </script>
-
-<style scoped></style>

@@ -277,6 +277,8 @@ import { formatNumber } from "@/utils/formatNumber";
 import addressServices from "@/services/address.services";
 import PaymentService from "@/services/payment.services";
 import orderServices from "@/services/order.services";
+import emailServices from "@/services/email.services";
+import userServices from "@/services/user.services";
 export default {
   data() {
     return {
@@ -336,6 +338,18 @@ export default {
     selectPaymentMethod(method) {
       this.selectedPaymentMethod = method;
     },
+    async sendEmailOrder() {
+      try {
+        const UserLogin = await userServices.getUserLogin();
+        console.log("User đăng nhập:", UserLogin);
+        const userById = await userServices.getUserById(UserLogin.data.USER_ID);
+        console.log("User theo ID:", userById);
+
+        await emailServices.sendMailOrder({ email: userById.data.EMAIL_USER });
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async placeOrder() {
       if (!this.selectedPaymentMethod) {
         alert("Vui lòng chọn phương thức thanh toán");
@@ -344,6 +358,7 @@ export default {
 
       try {
         await orderServices.addOrder(this.defaultAddress);
+        await this.sendEmailOrder();
         let paymentResponse;
         switch (this.selectedPaymentMethod) {
           case "ZaloPay":

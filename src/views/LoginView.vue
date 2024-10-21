@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <!-- Section: Design Block -->
   <section class="background-radial-gradient overflow-hidden">
     <div class="container px-4 py-5 px-md-5 text-center text-lg-start my-5">
@@ -112,14 +113,17 @@
     </div>
   </section>
   <!-- Section: Design Block -->
+  <Footer />
 </template>
 
 <script>
 import Swal from "sweetalert2";
 import authServices from "@/services/auth.services";
 import Cookies from "js-cookie";
-
+import Header from "@/components/user/Header.vue";
+import Footer from "@/components/user/Footer.vue";
 export default {
+  components: { Header, Footer },
   name: "LoginForm",
   data() {
     return {
@@ -139,7 +143,7 @@ export default {
           Cookies.set("access_token", data.data.accessToken, { expires: 1 });
           Cookies.set("refresh_token", data.data.refreshToken, { expires: 1 });
 
-          this.$router.push("/");
+          this.$router.push("/user");
         } else {
           Swal.fire({
             icon: "error",

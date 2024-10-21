@@ -11,5 +11,13 @@ class EmailService {
       console.error(error);
     }
   }
+  async sendMailOrder(email) {
+    try {
+      const response = await this.api.post("/order", email);
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new EmailService();

@@ -11,8 +11,9 @@
     </router-link>
 
     <div class="d-flex align-items-center position-relative">
-      <form class="d-flex" role="search">
+      <form class="d-flex" role="search" @submit.prevent="onSearch">
         <input
+          v-model="searchTerm"
           class="form-control input-custom"
           type="search"
           placeholder="Tìm kiếm sản phẩm"
@@ -39,10 +40,14 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-light" href="#">
+          <router-link
+            to="/user"
+            class="nav-link text-light"
+            @click.prevent="onFavoriteClick"
+          >
             <i class="fa-solid fa-heart"></i>
             <span> Yêu thích </span>
-          </a>
+          </router-link>
         </li>
         <li class="nav-item dropdown">
           <a
@@ -65,15 +70,14 @@
               <a class="dropdown-item" href="#">Tài khoản của tôi</a>
             </router-link>
 
-            <a
-              class="dropdown-item"
-              href="#"
-              v-if="getCookie()"
-              click="deleteCookie()"
+            <a class="dropdown-item" v-if="accessToken" @click="deleteCookie"
               >Đăng xuất</a
             >
             <router-link to="/login" v-else>
               <a class="dropdown-item">Đăng nhập</a>
+              <router-link to="/register">
+                <a class="dropdown-item">Đăng ký</a>
+              </router-link>
             </router-link>
           </div>
         </li>
@@ -98,14 +102,22 @@
 <script>
 import getCookie from "@/utils/getCookie";
 import deleteCookie from "@/utils/deleteCookie";
-import router from "@/router";
+
 export default {
-  data() {},
+  data() {
+    return {
+      accessToken: getCookie("access_token"),
+      searchTerm: "",
+      count: 0,
+    };
+  },
   created() {},
-  computed: {
-    count() {
-      const count = this.$store.state.count;
-      return count;
+  watch: {
+    accessToken() {
+      // Khi cookie thay đổi, cập nhật lại trạng thái giao diện
+      if (!this.accessToken) {
+        this.$forceUpdate(); // Cập nhật lại giao diện
+      }
     },
   },
   methods: {
@@ -116,7 +128,27 @@ export default {
     deleteCookie() {
       deleteCookie("access_token");
       deleteCookie("refresh_token");
-      router.push("/login");
+      this.$router.push("/login");
+      this.accessToken = null;
+    },
+    onSearch() {
+      if (this.searchTerm.trim()) {
+        this.$router.push({
+          name: "SearchView",
+          query: { search: this.searchTerm.trim() },
+        });
+      }
+    },
+    onFavoriteClick() {
+      this.$router.push({
+        name: "information",
+        query: { component: "favorite" },
+      });
+    },
+  },
+  computed: {
+    isLoggedIn() {
+      return !!getCookie("access_token");
     },
   },
 };
