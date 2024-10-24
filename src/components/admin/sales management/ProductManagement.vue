@@ -68,7 +68,7 @@ export default {
   methods: {
     async getProduct() {
       try {
-        const response = await productServices.getAllProduct();
+        const response = await productServices.getProductShop();
         if (response && response.data) {
           this.products = response.data;
 

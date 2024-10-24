@@ -14,6 +14,11 @@ import isTokenValid from "../utils/isTokenValid";
 import AddProduct from "@/components/admin/sales management/AddProduct.vue";
 import CheckOutView from "@/views/CheckOutView.vue";
 import SearchView from "@/views/SearchView.vue";
+import ProductByCategoryView from "@/views/ProductByCategoryView.vue";
+import CreateShopView from "@/views/CreateShopView.vue";
+import AdminLogin from "@/views/Admin/AdminLogin.vue";
+import DashBoard from "@/views/Admin/DashBoard.vue";
+
 const routes = [
   {
     path: "/",
@@ -54,6 +59,16 @@ const routes = [
     path: "/checkout",
     name: "checkoutView",
     component: CheckOutView,
+  },
+  {
+    path: "/products/:id",
+    name: "ProductCategoryView",
+    component: ProductByCategoryView,
+  },
+  {
+    path: "/create-shop",
+    name: "CreateShopView",
+    component: CreateShopView,
   },
 
   {
@@ -96,6 +111,16 @@ const routes = [
     path: "/admin/ProductManagement/addProduct",
     name: "AddProductForm",
     component: AddProduct,
+  },
+  {
+    path: "/Admin/Login",
+    name: "AdminLogin",
+    component: AdminLogin,
+  },
+  {
+    path: "/Admin",
+    name: "Dashboard",
+    component: DashBoard,
   },
 ];
 

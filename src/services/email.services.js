@@ -19,5 +19,21 @@ class EmailService {
       console.error(error);
     }
   }
+  async StopAccount(payload) {
+    try {
+      const response = await this.api.post("/stopAccount", payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async ReactiveAccount(payload) {
+    try {
+      const response = await this.api.post("/reactiveAccount", payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new EmailService();

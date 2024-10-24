@@ -228,7 +228,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  src="https://anhvienpiano.com/wp-content/uploads/2018/07/chup-anh-san-pham-dep.jpg"
+                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
                   alt="Hình ảnh"
                 />
               </div>
@@ -307,7 +307,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  src="https://anhvienpiano.com/wp-content/uploads/2018/07/chup-anh-san-pham-dep.jpg"
+                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
                   alt="Hình ảnh"
                 />
               </div>
@@ -416,7 +416,7 @@ export default {
     },
     async getNameProduct(id) {
       const response = await productServices.getById(id);
-    
+
       return response.data.NAME_PRODUCT;
     },
     calculateTotalPrice(order) {

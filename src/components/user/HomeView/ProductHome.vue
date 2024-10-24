@@ -54,6 +54,7 @@
 import priceServices from "@/services/price.services";
 import productServices from "@/services/product.services";
 import favoriteServices from "@/services/favorite.services";
+import Swal from "sweetalert2";
 export default {
   data() {
     return {
@@ -148,6 +149,21 @@ export default {
     async addFavorite(productId) {
       try {
         await favoriteServices.addFavorite(productId);
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Thêm sản phẩm yêu thích thành công",
+        });
       } catch (error) {
         console.error(error);
       }
@@ -191,7 +207,7 @@ export default {
   box-sizing: border-box;
   overflow: hidden;
   width: 210px;
-  min-height: 348px;
+  min-height: 370px;
 }
 .card-product-img {
   width: 210px;

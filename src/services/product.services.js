@@ -12,6 +12,14 @@ class ProductService {
       throw error;
     }
   }
+  async getProductShop() {
+    try {
+      const response = await this.api.get("/shopProduct");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   async getAllProduct() {
     try {
       const response = await this.api.get("/getAll");

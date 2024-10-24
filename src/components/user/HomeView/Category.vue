@@ -6,12 +6,9 @@
         v-for="item in categories"
         :key="item._id"
         class="col-2 d-flex border-category flex-column align-items-center justify-content-center text-center category-title"
+        @click="gotoProductCategory(item._id)"
       >
-        <img
-          class="img-category"
-          src="../../../../public/img/category/687f3967b7c2fe6a134a2c11894eea4b.png"
-          alt=""
-        />
+        <img class="img-category" :src="item.ATV_URL" alt="" />
         <span class="text-category d-block">{{ item.TYPE_PRODUCT }}</span>
       </div>
     </div>
@@ -33,6 +30,9 @@ export default {
     async getCategory() {
       const response = await typeProductServices.getAll();
       this.categories = response.data;
+    },
+    gotoProductCategory(Id) {
+      this.$router.push({ name: "ProductCategoryView", params: { id: Id } });
     },
   },
 };

@@ -6,33 +6,37 @@
           <h6 class="text-uppercase fw-bold mb-4">CHĂM SÓC KHÁCH HÀNG</h6>
           <ul class="list-unstyled footer-links">
             <li>
-              <a href="#" class="text-muted hover-orange">Trung Tâm Trợ Giúp</a>
-            </li>
-            <li><a href="#" class="text-muted hover-orange">Shopee Blog</a></li>
-            <li><a href="#" class="text-muted hover-orange">Shopee Mall</a></li>
-            <li>
-              <a href="#" class="text-muted hover-orange">Hướng Dẫn Mua Hàng</a>
+              <span class="text-muted hover-orange">Trung Tâm Trợ Giúp</span>
             </li>
             <li>
-              <a href="#" class="text-muted hover-orange">Hướng Dẫn Bán Hàng</a>
-            </li>
-            <li><a href="#" class="text-muted hover-orange">Thanh Toán</a></li>
-            <li><a href="#" class="text-muted hover-orange">Shopee Xu</a></li>
-            <li><a href="#" class="text-muted hover-orange">Vận Chuyển</a></li>
-            <li>
-              <a href="#" class="text-muted hover-orange"
-                >Trả Hàng & Hoàn Tiền</a
-              >
+              <span class="text-muted hover-orange">Shopee Blog</span>
             </li>
             <li>
-              <a href="#" class="text-muted hover-orange"
-                >Chăm Sóc Khách Hàng</a
-              >
+              <span class="text-muted hover-orange">Shopee Mall</span>
             </li>
             <li>
-              <a href="#" class="text-muted hover-orange"
-                >Chính Sách Bảo Hành</a
-              >
+              <span class="text-muted hover-orange">Hướng Dẫn Mua Hàng</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Hướng Dẫn Bán Hàng</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Thanh Toán</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Shopee Xu</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Vận Chuyển</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Trả Hàng & Hoàn Tiền</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Chăm Sóc Khách Hàng</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Chính Sách Bảo Hành</span>
             </li>
           </ul>
         </div>
@@ -40,30 +44,36 @@
           <h6 class="text-uppercase fw-bold mb-4">VỀ SHOPEE</h6>
           <ul class="list-unstyled footer-links">
             <li>
-              <a href="#" class="text-muted hover-orange"
-                >Giới Thiệu Về Shopee Việt Nam</a
-              >
-            </li>
-            <li><a href="#" class="text-muted hover-orange">Tuyển Dụng</a></li>
-            <li>
-              <a href="#" class="text-muted hover-orange">Điều Khoản Shopee</a>
-            </li>
-            <li>
-              <a href="#" class="text-muted hover-orange">Chính Sách Bảo Mật</a>
-            </li>
-            <li><a href="#" class="text-muted hover-orange">Chính Hãng</a></li>
-            <li>
-              <a href="#" class="text-muted hover-orange">Kênh Người Bán</a>
-            </li>
-            <li><a href="#" class="text-muted hover-orange">Flash Sales</a></li>
-            <li>
-              <a href="#" class="text-muted hover-orange"
-                >Chương Trình Tiếp Thị Liên Kết Shopee</a
+              <span class="text-muted hover-orange"
+                >Giới Thiệu Về Shopee Việt Nam</span
               >
             </li>
             <li>
-              <a href="#" class="text-danger hover-orange"
-                >Liên Hệ Với Truyền Thông</a
+              <span class="text-muted hover-orange">Tuyển Dụng</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Điều Khoản Shopee</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Chính Sách Bảo Mật</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Chính Hãng</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Kênh Người Bán</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange">Flash Sales</span>
+            </li>
+            <li>
+              <span class="text-muted hover-orange"
+                >Chương Trình Tiếp Thị Liên Kết Shopee</span
+              >
+            </li>
+            <li>
+              <span class="text-danger hover-orange"
+                >Liên Hệ Với Truyền Thông</span
               >
             </li>
           </ul>
@@ -165,18 +175,18 @@
           <h6 class="text-uppercase fw-bold mb-4">THEO DÕI CHÚNG TÔI TRÊN</h6>
           <ul class="list-unstyled footer-links">
             <li>
-              <a href="#" class="text-muted hover-orange"
-                ><i class="fab fa-facebook me-2"></i>Facebook</a
+              <span class="text-muted hover-orange"
+                ><i class="fab fa-facebook me-2"></i>Facebook</span
               >
             </li>
             <li>
-              <a href="#" class="text-muted hover-orange"
-                ><i class="fab fa-instagram me-2"></i>Instagram</a
+              <span class="text-muted hover-orange"
+                ><i class="fab fa-instagram me-2"></i>Instagram</span
               >
             </li>
             <li>
-              <a href="#" class="text-muted hover-orange"
-                ><i class="fab fa-linkedin me-2"></i>LinkedIn</a
+              <span class="text-muted hover-orange"
+                ><i class="fab fa-linkedin me-2"></i>LinkedIn</span
               >
             </li>
           </ul>

@@ -23,16 +23,17 @@
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </form>
+      <!-- Nút micro để kích hoạt tìm kiếm bằng giọng nói -->
+      <button class="btn btn-secondary ms-2" @click="startVoiceSearch">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
     </div>
 
     <!-- Navigation Items Section -->
     <div class="d-flex align-items-center">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <router-link
-            to="/admin/ProductManagement"
-            class="text-decoration-none"
-          >
+          <router-link to="/create-shop" class="text-decoration-none">
             <a class="nav-link text-light" href="#">
               <i class="fa-solid fa-shop"></i>
               <span> Trở thành người Bán </span>
@@ -109,6 +110,7 @@ export default {
       accessToken: getCookie("access_token"),
       searchTerm: "",
       count: 0,
+      recognition: null,
     };
   },
   created() {},
@@ -145,11 +147,49 @@ export default {
         query: { component: "favorite" },
       });
     },
+    onSearch() {
+      if (this.searchTerm.trim()) {
+        this.$router.push({
+          name: "SearchView",
+          query: { search: this.searchTerm.trim() },
+        });
+      }
+    },
+    startVoiceSearch() {
+      if (this.recognition) {
+        this.recognition.start(); // Bắt đầu nhận dạng giọng nói
+      } else {
+        alert("Trình duyệt của bạn không hỗ trợ tìm kiếm bằng giọng nói");
+      }
+    },
   },
   computed: {
     isLoggedIn() {
       return !!getCookie("access_token");
     },
+  },
+  mounted() {
+    // Kiểm tra nếu trình duyệt hỗ trợ Web Speech API
+    if ("webkitSpeechRecognition" in window) {
+      this.recognition = new webkitSpeechRecognition();
+      this.recognition.lang = "vi-VN"; // Thiết lập ngôn ngữ là tiếng Việt
+      this.recognition.continuous = false;
+      this.recognition.interimResults = false;
+
+      // Sự kiện khi nhận dạng hoàn thành
+      this.recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        this.searchTerm = transcript; // Cập nhật kết quả vào thanh tìm kiếm
+        this.onSearch(); // Tự động tìm kiếm sau khi nhận dạng xong
+      };
+
+      // Sự kiện khi gặp lỗi
+      this.recognition.onerror = (event) => {
+        console.error("Lỗi nhận dạng giọng nói:", event);
+      };
+    } else {
+      console.warn("Trình duyệt không hỗ trợ Web Speech API");
+    }
   },
 };
 </script>

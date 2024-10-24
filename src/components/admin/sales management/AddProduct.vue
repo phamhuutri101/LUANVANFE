@@ -19,7 +19,6 @@
           </div>
           <div class="mb-3">
             <label for="category" class="form-label">Danh mục ngành hàng</label>
-
             <select
               class="form-select"
               id="category"
@@ -40,11 +39,33 @@
             <div class="d-flex align-items-center">
               <input type="file" @change="uploadFile('avatar', $event)" />
             </div>
+            <div v-if="product.file_attachmentsdefault.length > 0">
+              <h6>Ảnh đại diện đã tải lên:</h6>
+              <img
+                v-for="(attachment, index) in product.file_attachmentsdefault"
+                :key="index"
+                :src="attachment.file_url"
+                alt="Ảnh đại diện"
+                class="img-thumbnail"
+                style="width: 100px; height: auto; margin-right: 10px"
+              />
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label">Ảnh sản phẩm</label>
             <div class="d-flex align-items-center">
               <input type="file" @change="handleFiles($event)" multiple />
+            </div>
+            <div v-if="product.file_attachments.length > 0">
+              <h6>Ảnh sản phẩm đã tải lên:</h6>
+              <img
+                v-for="(attachment, index) in product.file_attachments"
+                :key="index"
+                :src="attachment.file_url"
+                alt="Ảnh sản phẩm"
+                class="img-thumbnail"
+                style="width: 100px; height: auto; margin-right: 10px"
+              />
             </div>
           </div>
         </div>
@@ -52,11 +73,11 @@
 
       <div class="card mb-3">
         <div class="card-header">
-          <h5>Biến thể</h5>
+          <h5>Phân loại hàng</h5>
         </div>
         <div class="card-body">
           <div class="mb-3" v-for="(item, index) in metadata" :key="index">
-            <label for="attributeKey" class="form-label">Tên biến thể</label>
+            <label for="attributeKey" class="form-label">Phân loại</label>
             <input
               type="text"
               class="form-control"
@@ -65,7 +86,7 @@
               required
             />
             <label for="attributeValue" class="form-label"
-              >Giá trị biến thể (ngăn cách bởi dấu phẩy)</label
+              >Tùy chọn (ngăn cách bởi dấu phẩy)</label
             >
             <input
               type="text"
@@ -75,12 +96,14 @@
               required
             />
           </div>
+          <!-- Hiển thị nút thêm chỉ khi số lượng metadata nhỏ hơn 2 -->
           <button
             type="button"
             @click="addMetadata"
             class="btn btn-outline-primary"
+            v-if="metadata.length < 2"
           >
-            Thêm biến thể
+            Thêm Nhóm phân loại
           </button>
         </div>
       </div>
@@ -91,19 +114,22 @@
         </div>
         <label for="" class="form-label">Mô tả ngắn</label>
         <div class="card-body">
-          <input
+          <textarea
             type="text"
             class="form-control"
+            rows="5"
             v-model="product.short_desc"
-          />
+          >
+          </textarea>
         </div>
         <label for="" class="form-label">Mô tả chi tiết</label>
         <div class="card-body">
           <textarea
-            class="form-control"
-            rows="5"
+            class="editor form-control"
+            rows="10"
             v-model="product.desc_product"
-          ></textarea>
+          >
+          </textarea>
         </div>
       </div>
 
@@ -118,6 +144,7 @@
 import productServices from "@/services/product.services";
 import uploadServices from "@/services/upload.services";
 import categoryServices from "@/services/category.services";
+import Swal from "sweetalert2";
 export default {
   name: "AddProductForm",
   data() {
@@ -203,7 +230,9 @@ export default {
 
     // Thêm thuộc tính mới
     addMetadata() {
-      this.metadata.push({ key: "", rawValue: "", value: [] });
+      if (this.metadata.length < 2) {
+        this.metadata.push({ key: "", rawValue: "", value: [] });
+      }
     },
 
     async submitForm() {
@@ -215,7 +244,23 @@ export default {
 
       try {
         const response = await productServices.create(this.product);
-        console.log("Product created successfully:", response);
+        if (response) {
+          const result = await Swal.fire({
+            title: "Đăng tải sản phẩm thành công",
+
+            icon: "success",
+
+            confirmButtonText: "OK",
+          });
+          if (result.isConfirmed) {
+            this.$router.push("/admin/ProductManagement");
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: response.message, // Lấy thông báo lỗi từ API
+            });
+          }
+        }
       } catch (error) {
         console.error("Failed to create product:", error);
       }

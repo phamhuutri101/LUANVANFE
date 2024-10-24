@@ -52,7 +52,30 @@ class AuthService {
       console.error(error);
     }
   }
-
+  async loginAdmin(payload) {
+    try {
+      const response = await this.api.post("/loginAdmin", payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async deleteUser(id) {
+    try {
+      const response = await this.api.put(`/deleteUser/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async reactive(id) {
+    try {
+      const response = await this.api.put(`/reactiveUser/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   handleError(error) {
     if (error.response) {
       console.error("Response error:", error.response.data);

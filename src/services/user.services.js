@@ -43,5 +43,13 @@ class UserService {
       console.error(error);
     }
   }
+  async updateNumberUser() {
+    try {
+      const response = await this.api.get("/realtimeUser");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new UserService();
