@@ -3,9 +3,6 @@
     <div class="product">
       <div class="header pb-4 d-flex justify-content-between">
         <h4>Quản lý sản phẩm</h4>
-        <button @click="switchToAddProduct" class="btn btn-primary">
-          Thêm sản phẩm
-        </button>
       </div>
 
       <div class="top-product">
@@ -124,9 +121,6 @@ export default {
         console.error(error);
       }
     },
-    switchToAddProduct() {
-      this.$router.push({ name: "AddProductForm" });
-    },
   },
 };
 </script>
@@ -137,6 +131,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   border: 1px solid #eeeeee;
+  height: 100vh;
 }
 .img-product {
   width: 50px;

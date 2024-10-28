@@ -36,7 +36,7 @@
           <router-link to="/create-shop" class="text-decoration-none">
             <a class="nav-link text-light" href="#">
               <i class="fa-solid fa-shop"></i>
-              <span> Trở thành người Bán </span>
+              <span> Kênh người Bán </span>
             </a>
           </router-link>
         </li>

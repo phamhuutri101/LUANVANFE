@@ -106,6 +106,9 @@ const routes = [
     path: "/admin/ProductManagement",
     name: "ProductManagement",
     component: AdminDashboardForECommerceSeller,
+    meta: {
+      requiredAuth: true,
+    },
   },
   {
     path: "/admin/ProductManagement/addProduct",

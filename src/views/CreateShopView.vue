@@ -47,24 +47,25 @@ export default {
       try {
         const response = await shopServices.checkActiveShop();
 
-        if (response.success === true) {
+        if (response.data === "active") {
           this.$router.push("/admin/ProductManagement");
-        } else {
+        } else if (response.data === "nonActive") {
           const result = await Swal.fire({
-            title: "Tài khoản đang đợi xác nhận từ Admin ",
-
+            title: "Tài khoản đang đợi xác nhận từ Admin",
             icon: "error",
-
             confirmButtonText: "OK",
           });
           if (result.isConfirmed) {
             this.$router.push("/");
           }
+        } else if (response.data === "undefined") {
+          this.$router.push("/create-shop");
         }
       } catch (error) {
         console.error(error);
       }
     },
+
     async submitForm() {
       try {
         const response = await shopServices.checkTimeActive({
@@ -81,7 +82,8 @@ export default {
             confirmButtonText: "OK",
           });
           if (result.isConfirmed) {
-            this.$router.push("/admin/ProductManagement");
+            this.$router.push("/create-shop");
+            this.checkShopActive();
           }
         } else {
           Swal.fire({

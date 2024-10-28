@@ -28,5 +28,21 @@ class PriceService {
       console.log(error);
     }
   }
+  async addPriceProduct(id, payload) {
+    try {
+      const response = await this.api.post(`/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getById(id) {
+    try {
+      const response = await this.api.get(`/getById/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new PriceService();

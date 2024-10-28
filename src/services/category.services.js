@@ -11,5 +11,6 @@ class Category {
       console.error(error);
     }
   }
+  
 }
 export default new Category();

@@ -65,5 +65,13 @@ class ProductService {
       console.error(error);
     }
   }
+  async getProductKeyValue(id) {
+    try {
+      const response = await this.api.get(`/getKV/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 export default new ProductService();
