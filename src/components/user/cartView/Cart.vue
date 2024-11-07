@@ -117,7 +117,15 @@
                   <span class="discount-text">Tổng giảm giá</span>
                 </div>
                 <div class="col-6 text-end">
-                  <span>{{ formatPriceCart(discountAmount) }}</span>
+                  <span>{{ formatPriceCart(payloadUpdate.priceReduce) }}</span>
+                </div>
+              </div>
+              <div class="row py-3">
+                <div class="col-6">
+                  <span class="discount-text">Phí vận chuyển</span>
+                </div>
+                <div class="col-6 text-end">
+                  <span>{{ formatPriceCart(calculateShipping()) }}</span>
                 </div>
               </div>
             </div>
@@ -159,7 +167,11 @@ export default {
     return {
       cart: [],
       promoCode: "", // Biến lưu mã giảm giá
-      discountAmount: 0, // Biến lưu tổng tiền giảm
+
+      payloadUpdate: {
+        priceReduce: 0,
+        shipping: 0,
+      },
     };
   },
   async created() {
@@ -170,6 +182,7 @@ export default {
       const response = await cartServices.getCart();
       if (response && response.data.length > 0) {
         this.cart = response.data;
+        
       } else {
         console.error("không có sản phẩm nào trong giỏ hàng");
       }
@@ -317,13 +330,13 @@ export default {
           code: this.promoCode,
           orderTotal: this.calculateTotalPrice(),
         });
-        console.log("mã giảm giá trả về", response);
+
         if (response && response.success) {
-          this.discountAmount = response.discount; // Cập nhật số tiền giảm giá
+          this.payloadUpdate.priceReduce = response.discount; // Cập nhật số tiền giảm giá
           Swal.fire("Áp dụng mã thành công!", "", "success");
         } else {
-          this.discountAmount = 0;
-          Swal.fire("Mã giảm giá không hợp lệ", "", "error");
+          this.payloadUpdate.priceReduce = 0;
+          Swal.fire("Mã giảm giá không hợp lệ hoặc đã hết hạn", "", "error");
         }
       } catch (error) {
         console.error("Lỗi khi áp dụng mã giảm giá:", error);
@@ -332,22 +345,46 @@ export default {
     },
     finalTotalPrice() {
       // Tổng giá sau khi áp dụng giảm giá
-      return this.calculateTotalPrice() - this.discountAmount;
+      const total =
+        this.calculateTotalPrice() -
+        this.payloadUpdate.priceReduce +
+        this.payloadUpdate.shipping;
+      sessionStorage.setItem("priceTotalCart", total);
+      sessionStorage.setItem("priceReduce", this.payloadUpdate.priceReduce);
+      return total;
     },
     calculateTotalPrice() {
-      return this.cart.reduce((total, item) => {
+      const total = this.cart.reduce((total, item) => {
         return total + item.ITEM.PRICE * item.ITEM.QUANTITY; // Giá * Số lượng
       }, 0); // Bắt đầu từ 0
+      sessionStorage.setItem("totalNumberPrice", total);
+      return total;
+    },
+    calculateShipping() {
+      const totalPrice = this.calculateTotalPrice(); // Thay vì gọi this.calculateShipping()
+
+      if (totalPrice < 500000) {
+        this.payloadUpdate.shipping = (totalPrice * 5) / 100; // Chỉ trả về phí ship
+        sessionStorage.setItem("shipping", this.payloadUpdate.shipping);
+        return this.payloadUpdate.shipping;
+      } else {
+        this.payloadUpdate.shipping = (totalPrice * 10) / 100; // Chỉ trả về phí ship
+        sessionStorage.setItem("shipping", this.payloadUpdate.shipping);
+        return this.payloadUpdate.shipping;
+      }
     },
     calculateTotalNumber() {
-      return this.cart.reduce((total, item) => {
+      const total = this.cart.reduce((total, item) => {
         return total + item.ITEM.QUANTITY;
       }, 0);
+      sessionStorage.setItem("totalNumberProduct", total);
+      return total;
     },
     formatPriceCart(price) {
       return formatNumber(price);
     },
-    SwitchToOrder() {
+    async SwitchToOrder() {
+      await cartServices.updatePriceReducedAndShipping(this.payloadUpdate);
       this.$router.push("/checkout");
     },
   },
@@ -355,142 +392,284 @@ export default {
 </script>
 
 <style scoped>
+/* Styles cũ giữ nguyên */
 .background {
   background-color: #f5f5f5;
+}
+.container {
+  height: 100vh;
 }
 .img-product img {
   width: 80px;
   height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
+
+.img-product img:hover {
+  transform: scale(1.05);
+}
+
 .name-shop {
   font-size: 18px;
-
   border-bottom: solid 1px #ededed;
+  padding: 12px 0;
+  font-weight: 600;
+  color: #2c3e50;
 }
+
 .name-product {
   width: 200px;
   overflow: hidden;
   margin-left: 20px;
   color: rgba(0, 0, 0, 0.87);
 }
+
 .product {
-  padding-top: 10px;
+  padding: 15px 0;
+  transition: background-color 0.3s;
 }
+
+.product:hover {
+  background-color: #f8f9fa;
+}
+
 .number {
   display: flex;
   align-items: center;
+  gap: 5px;
 }
 
 .number button {
-  background-color: #ddd;
-  border: none;
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
   font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
 .number button:hover {
-  background-color: #ccc;
+  background-color: #09884d;
+  color: white;
 }
 
 .number-product input {
   width: 50px;
-  height: 30px;
+  height: 32px;
   text-align: center;
-  line-height: 30px;
+  line-height: 32px;
   font-size: 16px;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  outline: none;
 }
+
 .detail-product {
   background: #fff;
-  border-radius: 10px;
-  padding: 15px;
+  border-radius: 12px;
+  padding: 20px;
   margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s;
 }
+
+.detail-product:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .bill {
   background: #fff;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 20px;
 }
+
 .title-bill,
 .discount {
-  border-bottom: dashed 1px #c0c0c0;
+  border-bottom: 2px dashed #e0e0e0;
   margin-bottom: 20px;
+  padding-bottom: 15px;
 }
 
 .title-bill .title {
-  font-size: 18px;
-  text-transform: capitalize;
-
+  font-size: 20px;
+  text-transform: uppercase;
   font-weight: 700;
+  color: #2c3e50;
+  letter-spacing: 0.5px;
 }
+
 .title-body {
-  padding: 10px 0;
+  padding: 12px 0;
 }
+
 .title-body-text,
 .discount-text {
-  color: #797979;
+  color: #666;
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .input-discount {
-  border: 1px dashed #e78438;
+  border: 2px dashed #e78438;
   background: #fdf2eb;
-  height: 35px;
+  height: 40px;
+  border-radius: 6px;
+  padding: 0 15px;
+  font-size: 14px;
+  transition: all 0.3s;
 }
+
+.input-discount:hover {
+  border-color: #d97326;
+}
+
 .input-discount::placeholder {
   color: #e88438;
   font-size: 14px;
 }
+
 .input-discount:focus {
   outline: none;
-  border: 1px dashed #e78438;
+  border: 2px dashed #d97326;
+  box-shadow: 0 0 0 3px rgba(231, 132, 56, 0.1);
 }
+
+.discount-bottom {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #e78438;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.discount-bottom:hover {
+  background: #e78438;
+  color: white;
+  border-color: #e78438;
+}
+
 .footer-bill-text {
   font-size: 16px;
-  color: #000;
+  color: #2c3e50;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
+
 .footer-bill-price {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #09884d;
 }
-.footer-bill-text {
-  display: flex;
-  align-items: center; /* Căn giữa theo chiều dọc */
-  height: 100%; /* Đảm bảo phần tử có chiều cao đầy đủ của parent */
-}
+
 .buy {
   background-color: #09884d;
   color: #fff;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 8px;
   width: 100%;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
-.img_empty img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 500px;
+
+.buy:hover {
+  background-color: #076d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 136, 77, 0.2);
 }
+
+.buy:active {
+  transform: translateY(0);
+}
+
 .img_empty {
   min-height: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-.discount-bottom:hover {
-  background: #f1f1f1;
+
+.img_empty img {
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+  opacity: 0.8;
+  transition: opacity 0.3s;
 }
+
+.img_empty img:hover {
+  opacity: 1;
+}
+
+.img_empty p {
+  margin-top: 20px;
+  color: #666;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.price,
+.total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.key-value {
+  padding: 0 15px;
+}
+
+.key-value .key {
+  color: #666;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.key-value .value {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
 .height-cart {
   min-height: 600px;
+}
+
+/* Thêm animation cho các thay đổi số lượng */
+@keyframes quantityChange {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.number-product input:focus {
+  animation: quantityChange 0.3s ease;
 }
 </style>

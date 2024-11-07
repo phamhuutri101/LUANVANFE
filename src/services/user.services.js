@@ -51,5 +51,13 @@ class UserService {
       console.error(error);
     }
   }
+  async getUserByAccountId(id) {
+    try {
+      const response = await this.api.get(`/getUserByAccountId/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new UserService();

@@ -99,24 +99,222 @@ export default {
 </script>
 
 <style scoped>
+.background-component {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.background-height {
+  min-height: 700px;
+}
+
+/* Header Section */
+.header {
+  padding: 25px 0;
+  border-bottom: 2px solid #f0f2f5;
+  margin-bottom: 30px;
+}
+
+.title p:nth-child(1) {
+  color: #2c3e50;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+  position: relative;
+  padding-left: 15px;
+}
+
+.title p:nth-child(1)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: #09884d;
+  border-radius: 2px;
+}
+
+.title p:nth-child(2) {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 10px;
+  padding-left: 15px;
+}
+
+/* Form Container */
 .body {
   max-width: 400px;
   margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
-.title p:nth-child(1) {
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 1.25rem;
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  color: #2c3e50;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 2rem;
-  margin: 0;
+  margin-bottom: 8px;
 }
-.title p:nth-child(2) {
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 1rem;
-  line-height: 1.5rem;
-  margin-top: 4px;
+
+.form-control {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: #ffffff;
 }
-.background-height {
-  min-height: 700px;
+
+.form-control:focus {
+  border-color: #09884d;
+  box-shadow: 0 0 0 3px rgba(9, 136, 77, 0.1);
+  outline: none;
+}
+
+.form-control:hover {
+  border-color: #09884d;
+}
+
+/* Password Input Specific */
+input[type="password"] {
+  letter-spacing: 2px;
+  font-family: monospace;
+  padding-right: 40px;
+}
+
+/* Submit Button */
+.btn-primary {
+  background: #09884d;
+  border: none;
+  padding: 12px 30px;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(9, 136, 77, 0.2);
+}
+
+.btn-primary:hover {
+  background: #076d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 136, 77, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Password Strength Indicator (Optional) */
+.password-strength {
+  height: 4px;
+  border-radius: 2px;
+  margin-top: 5px;
+  transition: all 0.3s ease;
+  background: #f0f2f5;
+}
+
+.password-strength.weak {
+  background: #ff4757;
+  width: 33%;
+}
+.password-strength.medium {
+  background: #ffa502;
+  width: 66%;
+}
+.password-strength.strong {
+  background: #09884d;
+  width: 100%;
+}
+
+/* Error States */
+.form-control.is-invalid {
+  border-color: #ff4757;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ff4757'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ff4757' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  padding-right: 40px;
+}
+
+.invalid-feedback {
+  display: block;
+  color: #ff4757;
+  font-size: 12px;
+  margin-top: 5px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Loading State */
+.btn-primary.loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn-primary.loading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .body {
+    padding: 15px;
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .title p:nth-child(1) {
+    font-size: 20px;
+  }
 }
 </style>

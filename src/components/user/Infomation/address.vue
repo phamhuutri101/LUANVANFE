@@ -445,64 +445,258 @@ export default {
 </script>
 
 <style scoped>
+.background-component {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Header Section */
+.header-address {
+  padding: 20px 0;
+  border-bottom: 2px solid #f0f2f5;
+}
+
 .title {
-  color: #333;
-  font-size: 1.125rem;
-  font-weight: 500;
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 600;
   line-height: 1.5rem;
+  position: relative;
 }
+
+.button-address {
+  background: #09884d;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(9, 136, 77, 0.2);
+}
+
+.button-address:hover {
+  background: #076d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 136, 77, 0.3);
+}
+
+.button-address i {
+  font-size: 14px;
+}
+
+/* Address Content */
+.body-address {
+  padding: 20px 0;
+}
+
+.content-address {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  border-bottom: 1px solid #f0f2f5;
+  transition: all 0.3s ease;
+}
+
+.content-address:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* User Info */
+.name-number {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .name {
-  padding-right: 10px;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c3e50;
+  padding-right: 15px;
 }
+
 .number {
-  padding-left: 10px;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: rgba(0, 0, 0, 0.54);
+  font-size: 14px;
+  color: #666;
+  padding-left: 15px;
+  border-left: 2px solid #f0f2f5;
 }
-.commune,
+
+/* Address Details */
+.address {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.commune {
+  margin-bottom: 5px;
+  color: #2c3e50;
+}
+
 .province {
-  color: rgba(0, 0, 0, 0.54);
+  margin-bottom: 10px;
 }
+
 .default-address {
-  padding: 5px;
-  border: 1px solid #44ba69;
-  color: #44ba69;
-  width: 80px;
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid #09884d;
+  color: #09884d;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(9, 136, 77, 0.1);
 }
+
+/* Operation Buttons */
+.update-delete {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 15px;
+}
+
 .update,
 .delete {
-  background: none;
-  border: 0px;
-  color: rgb(0, 136, 255);
-  outline: none;
-  padding: 4px;
-  white-space: nowrap;
-  cursor: pointer;
+  color: #09884d;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
+
+.update:hover,
+.delete:hover {
+  background: rgba(9, 136, 77, 0.1);
+  color: #076d3d;
+}
+
+.delete {
+  color: #dc3545;
+}
+
+.delete:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #bd2130;
+}
+
 .is-default {
-  border: 1px solid rgba(0, 0, 0, 0.26);
-  box-shadow: rgba(0, 0, 0, 0.03) 0px 1px 1px;
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 0.875rem;
-  height: 28px;
-  line-height: 1.25rem;
-  min-width: 0px;
-  padding: 4px 12px;
-  white-space: nowrap;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: #2c3e50;
+  font-size: 13px;
+  padding: 6px 12px;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
   cursor: pointer;
 }
-.button-address {
-  background: #44ba69;
-  border: 0px;
-  border-radius: 5px;
-  color: #fff;
+
+.is-default:hover {
+  border-color: #09884d;
+  color: #09884d;
+  background: rgba(9, 136, 77, 0.1);
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background: #f8f9fa;
+  border-bottom: 2px solid #f0f2f5;
+  padding: 15px 20px;
+}
+
+.modal-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+/* Form Controls */
+input[type="text"],
+.form-select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+.form-select:focus {
+  border-color: #09884d;
+  box-shadow: 0 0 0 3px rgba(9, 136, 77, 0.1);
   outline: none;
-  padding: 8px;
-  white-space: nowrap;
+}
+
+label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.form-select {
+  background-color: #fff;
   cursor: pointer;
+}
+
+.form-select:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+/* Modal Footer */
+.modal-footer {
+  border-top: none;
+  padding: 15px 20px;
+}
+
+.btn-success {
+  background: #09884d;
+  border: none;
+  padding: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background: #076d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 136, 77, 0.2);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-address {
+  animation: fadeIn 0.3s ease;
 }
 </style>

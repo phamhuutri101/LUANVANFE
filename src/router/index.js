@@ -18,13 +18,19 @@ import ProductByCategoryView from "@/views/ProductByCategoryView.vue";
 import CreateShopView from "@/views/CreateShopView.vue";
 import AdminLogin from "@/views/Admin/AdminLogin.vue";
 import DashBoard from "@/views/Admin/DashBoard.vue";
-
+import testAdmin from "@/views/testAdmin.vue";
 const routes = [
+  {
+    path: "/testAdmin",
+    name: "testAdmin",
+    component: testAdmin,
+  },
   {
     path: "/",
     name: "home",
     component: HomeView,
   },
+  
   {
     path: "/test-food",
     name: "test-food-detail",
@@ -69,6 +75,9 @@ const routes = [
     path: "/create-shop",
     name: "CreateShopView",
     component: CreateShopView,
+    meta: {
+      requiredAuth: true,
+    },
   },
 
   {

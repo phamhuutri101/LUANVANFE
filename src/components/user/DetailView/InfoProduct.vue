@@ -37,7 +37,7 @@
       <div class="col-10">
         <div class="add-cart d-flex">
           <span @click="decreaseQuantity">-</span>
-          <input class="quantity" type="text" :value="quantity" />
+          <input class="quantity" type="text" :value="payload.number" />
           <span @click="increaseQuantity">+</span>
           <p
             v-if="product.NUMBER_INVENTORY_PRODUCT > 0"
@@ -89,18 +89,17 @@ export default {
         value: [],
         number: 1,
       },
-      quantity: 1,
+
       priceRange: [],
       priceMin: null,
       priceMax: null,
     };
   },
   computed: {
-    payload() {
+    computedPayload() {
       return {
         key: Object.keys(this.selectedValues), // Lấy danh sách các key
         value: Object.values(this.selectedValues), // Lấy danh sách các value
-        number: this.quantity, // Số lượng sản phẩm
       };
     },
   },
@@ -130,12 +129,12 @@ export default {
       }
     },
     increaseQuantity() {
-      if (this.quantity < this.product.NUMBER_INVENTORY_PRODUCT) {
-        this.quantity++;
+      if (this.payload.number < this.product.NUMBER_INVENTORY_PRODUCT) {
+        this.payload.number++;
       }
     },
     decreaseQuantity() {
-      if (this.quantity > 1) this.quantity--;
+      if (this.payload.number > 1) this.payload.number--;
     },
     selectValue(key, value) {
       const keyIndex = this.payload.key.indexOf(key);
@@ -178,6 +177,7 @@ export default {
         product: this.product,
         payload: this.payload,
       });
+
       if (this.payload.key.length === 0 || this.payload.value.length === 0) {
         const Toast = Swal.mixin({
           toast: true,
@@ -200,6 +200,7 @@ export default {
         this.product._id,
         this.payload
       );
+
       if (response && response.data) {
         const Toast = Swal.mixin({
           toast: true,
@@ -304,123 +305,267 @@ export default {
 </script>
 
 <style scoped>
-.value span.selected {
-  border: 1px solid #09884d;
-  background-color: #e0f7e9;
-}
 .text-title {
-  font-size: 20px;
-  font-weight: 450;
+  font-size: 24px;
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  line-height: 1.4;
+  transition: color 0.3s ease;
 }
+
+.text-title:hover {
+  color: #09884d;
+}
+
+.price {
+  margin: 20px 0;
+  padding: 15px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
 .price span {
   color: #d0011b;
   font-size: 35px;
-  font-weight: 500;
+  font-weight: 600;
+  display: inline-block;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
 }
+
 .key {
   display: flex;
   align-items: center;
 }
+
 .key span,
 .number span {
-  color: #757575;
+  color: #666;
   flex-shrink: 0;
-  font-size: inherit;
-  font-weight: 400;
+  font-size: 15px;
+  font-weight: 500;
   margin: 0;
   text-transform: capitalize;
   width: 110px;
+  transition: color 0.3s ease;
 }
+
 .key-value,
 .number-cart {
   padding: 20px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
+
 .value {
   display: flex;
   flex-wrap: wrap;
+  gap: 10px;
 }
-.value span.selected {
-  border: 1px solid #09884d;
-  background-color: #e0f7e9;
-}
+
 .value span {
   padding: 10px 24px;
-  border: 1px solid #ebebeb;
-  margin-left: 7px;
+  border: 1px solid #e0e0e0;
   font-size: 14px;
-  margin-bottom: 7px; /* Thêm khoảng cách bên dưới để tránh chồng lên nhau */
+  border-radius: 6px;
+  background: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
 }
+
+.value span.selected {
+  border: 2px solid #09884d;
+  background-color: #e0f7e9;
+  font-weight: 500;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(9, 136, 77, 0.15);
+}
+
 .value span:hover {
-  border: 1px solid #09884d; /* Thay đổi màu viền khi hover */
-  transform: scale(1.09);
-  transition: 0.2s ease;
-  cursor: pointer;
+  border-color: #09884d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+.add-cart {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .add-cart span {
-  border: 1px solid #ebebeb;
-  padding: 5px 15px;
-  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  padding: 8px 18px;
+  font-size: 16px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  background: #f8f9fa;
 }
+
+.add-cart span:hover {
+  background: #09884d;
+  color: white;
+  border-color: #09884d;
+}
+
+.quantity {
+  width: 50px;
+  height: 38px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 4px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.quantity:focus {
+  border-color: #09884d;
+  box-shadow: 0 0 0 3px rgba(9, 136, 77, 0.1);
+}
+
 .product-available {
   margin: 0;
   align-items: center;
   display: flex;
   padding-left: 40px;
-  color: #757575;
+  color: #09884d;
   font-size: 14px;
+  font-weight: 500;
 }
+
 .product-not-available {
   margin: 0;
   align-items: center;
   display: flex;
   padding-left: 40px;
-  color: red;
+  color: #d0011b;
   font-size: 14px;
+  font-weight: 500;
 }
+
 .add-to-cart-and-buy {
   display: flex;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 30px;
+  gap: 15px;
 }
+
 .add-to-cart-and-buy .add-cart {
   background-color: #09884d;
   color: #ffffff;
   border: none;
-  padding: 10px 30px;
+  padding: 12px 35px;
   font-size: 16px;
-  border-radius: 5px;
+  font-weight: 600;
+  border-radius: 8px;
   margin-right: 10px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 5px rgba(9, 136, 77, 0.2);
 }
+
+.add-to-cart-and-buy .add-cart:hover {
+  background-color: #076d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 136, 77, 0.3);
+}
+
+.add-to-cart-and-buy .add-cart:active {
+  transform: translateY(0);
+}
+
+.add-to-cart-and-buy .add-cart i {
+  font-size: 18px;
+}
+
 .add-to-cart-and-buy .buy {
   background-color: #d3344c;
   color: #fff;
   border: none;
-  padding: 10px 30px;
+  padding: 12px 35px;
   font-size: 16px;
-  border-radius: 5px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(211, 52, 76, 0.2);
 }
-.add-to-cart-and-buy .add-cart i {
-  margin-right: 10px;
+
+.add-to-cart-and-buy .buy:hover {
+  background-color: #b32b40;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(211, 52, 76, 0.3);
 }
-.quantity {
-  width: 40px;
-  height: 35px;
-  border: 1px solid #ebebeb;
-}
+
 .title {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 20px 0;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.02);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 30px 0 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #2c3e50;
+  border-left: 4px solid #09884d;
+  transition: all 0.3s ease;
 }
+
+.title:hover {
+  background: #f0f2f5;
+  transform: translateX(5px);
+}
+
 .border-desc {
-  color: rgba(0, 0, 0, 0.8);
-  font-size: 0.875rem;
-  line-height: 1.7;
+  color: #4a4a4a;
+  font-size: 15px;
+  line-height: 1.8;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: pre-wrap;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.border-desc:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Thêm animation cho các thay đổi số lượng */
+@keyframes quantityChange {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.quantity:focus {
+  animation: quantityChange 0.3s ease;
+}
+
+/* Hiệu ứng loading cho giá khi đang tải */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.price.loading span {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  color: transparent;
 }
 </style>

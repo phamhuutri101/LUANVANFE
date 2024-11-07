@@ -44,5 +44,20 @@ class PriceService {
       console.error(error);
     }
   }
+  async addPriceDefault(id) {
+    try {
+      await this.api.get(`/addPriceDefault/${id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async deletePrice(id, payload) {
+    try {
+      const response = await this.api.post(`/deletePrice/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new PriceService();

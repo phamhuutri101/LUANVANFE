@@ -27,5 +27,15 @@ class ReviewServices {
       console.error(error);
     }
   }
+  async getAllReview(page, limit) {
+    try {
+      const response = await this.api.get(
+        `/getAll/?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new ReviewServices();

@@ -489,145 +489,303 @@ export default {
 </script>
 
 <style scoped>
-.img img {
-  background: #e1e1e1;
-  border: 1px solid #e1e1e1;
-  flex-shrink: 0;
-  height: 80px;
-  width: 80px;
+.background-component {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-.name span {
-  font-size: 16px;
-  line-height: 12px;
+
+.background-height {
+  min-height: 700px;
 }
-.name .classify {
-  color: rgba(0, 0, 0, 0.54);
+
+/* Navigation Pills Styling */
+.nav-pills {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 10px;
+  gap: 10px;
 }
+
+.nav-pills .nav-link {
+  color: #2c3e50;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.nav-pills .nav-link.active {
+  background: #09884d;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(9, 136, 77, 0.2);
+}
+
+/* Order Item Styling */
+.wrap {
+  background: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.wrap:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.title-order {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eef0f2;
+}
+
 .title-order span {
   font-size: 14px;
   font-weight: 600;
-  margin-left: 8px;
-  margin-right: 8px;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  align-items: center;
-  display: flex;
+  color: #2c3e50;
 }
 
 .show-shop {
-  border: 1px solid rgba(0, 0, 0, 0.09);
-  color: #555;
-  padding: 5px;
-}
-.notification span {
-  word-wrap: break-word;
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 12px;
-  line-height: 16px;
-  text-align: left;
-}
-.confirm {
-  padding-left: 100px;
-}
-.confirm button:nth-child(1) {
-  background-color: #4caf50;
-  border: none;
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 10px;
+  border: 1px solid #e0e0e0;
+  color: #666;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
   cursor: pointer;
-  width: 192px;
-  padding: 0 30px;
-  height: 40px;
-}
-.confirm button:nth-child(2) {
-  background-color: #f44336;
-  border: none;
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 10px;
-  cursor: pointer;
-  width: 192px;
-  padding: 0 30px;
-  height: 40px;
-}
-.total-price span:nth-child(2) {
-  color: #44ba69;
-  font-size: 24px;
-  line-height: 30px;
-}
-.total-price span:nth-child(1) {
-  color: rgba(0, 0, 0, 0.8);
-  font-size: 14px;
-  line-height: 20px;
-  margin: 0 10px 0 0;
-}
-.nav-pills .nav-link.active {
-  background-color: #44ba69;
-  color: #fff;
-}
-.nav-pills .nav-link {
-  color: #000;
-}
-.uploaded-images img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  padding: 0 5px;
-}
-.text-rating {
-  font-size: 17px;
-}
-.classify {
-  color: #00000042;
-}
-.product_quality {
-  margin-right: 50px;
-  font-size: 14px;
-}
-.text-title {
-  color: #222;
-  display: flex;
-  font-size: 1.25rem;
-  font-weight: 400;
-  text-transform: capitalize;
-}
-.modal-header,
-.modal-footer {
-  border: none !important;
-}
-.input-file {
-  position: absolute;
-  left: 0;
-  opacity: 0;
-  width: 153px;
-  cursor: pointer; /* Để giữ khả năng tương tác khi hover */
-}
-.btn-outline-primary {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
 }
-.sticky-position {
-  position: sticky;
-  bottom: 0; /* hoặc top: 0 nếu bạn muốn dính lên đầu */
-  z-index: 10;
 
-  background: #fff;
-  padding: 20px 0;
+.show-shop:hover {
+  background: #f8f9fa;
+  border-color: #09884d;
+  color: #09884d;
 }
+
+/* Product Details */
+.img_name_product {
+  padding: 15px 20px;
+}
+
+.img img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eef0f2;
+  transition: all 0.3s ease;
+}
+
+.img img:hover {
+  transform: scale(1.05);
+}
+
+.name {
+  padding: 0 15px;
+}
+
+.name span {
+  font-size: 14px;
+  color: #2c3e50;
+  line-height: 1.4;
+}
+
+.classify {
+  color: #666;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.price_product span {
+  color: #09884d;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Order Footer */
+.footer-order {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-radius: 0 0 10px 10px;
+}
+
+.total-price {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.total-price span:first-child {
+  color: #666;
+  font-size: 14px;
+}
+
+.total-price span:last-child {
+  color: #09884d;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.notification {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+}
+
+.notification span {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.confirm {
+  display: flex;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.confirm button {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.confirm button:nth-child(1) {
+  background: #09884d;
+  color: white;
+}
+
+.confirm button:nth-child(2) {
+  background: #dc3545;
+  color: white;
+}
+
+.confirm button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Rating Modal */
 .modal-content {
-  max-height: 76vh; /* Thiết lập chiều cao tối đa cho modal */
-  overflow-y: auto; /* Kích hoạt cuộn dọc cho nội dung modal */
+  border-radius: 12px;
+  border: none;
 }
-.background-height {
-  min-height: 700px;
+
+.modal-header {
+  background: #f8f9fa;
+  border-radius: 12px 12px 0 0;
+}
+
+.text-title {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.uploaded-images {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.uploaded-images img {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.uploaded-images img:hover {
+  transform: scale(1.05);
+}
+
+/* Star Rating */
+.bi {
+  transition: all 0.3s ease;
+}
+
+.bi-star-fill {
+  color: #ffd700;
+  transform: scale(1.1);
+}
+
+.text-rating {
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+/* Input File Button */
+.btn-outline-success {
+  position: relative;
+  overflow: hidden;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+  background: #09884d;
+  color: white;
+}
+
+.input-file {
+  cursor: pointer;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wrap {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .nav-pills {
+    flex-wrap: wrap;
+  }
+
+  .nav-pills .nav-link {
+    width: 100%;
+    text-align: center;
+  }
+
+  .notification {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .confirm {
+    padding-left: 0;
+    width: 100%;
+  }
+
+  .confirm button {
+    width: 100%;
+  }
 }
 </style>

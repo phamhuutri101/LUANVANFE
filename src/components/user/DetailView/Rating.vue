@@ -108,7 +108,6 @@ export default {
           review.AVATAR_URL = user.data.AVT_URL;
         }
         this.totalReviews = response.data;
-        console.log("lấy tất cả đánh giá", this.totalReviews);
       } catch (error) {
         console.error(error);
         this.totalReviews = "";
@@ -123,125 +122,278 @@ export default {
 
 <style scoped>
 .product-review {
-  font-family: Arial, sans-serif;
-
+  font-family: system-ui, -apple-system, sans-serif;
   margin: 0 auto;
-  padding: 20px;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-.review-title {
-  font-size: 20px;
-  font-weight: bold;
+.product-review:hover {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.review-title,
+.review-title-non-rating {
+  font-size: 22px;
+  font-weight: 600;
   margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #2c3e50;
+  border-left: 4px solid #09884d;
+  transition: all 0.3s ease;
+}
+
+.review-title:hover,
+.review-title-non-rating:hover {
+  background: #f0f2f5;
+  transform: translateX(5px);
 }
 
 .review-summary {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .rating-overview {
-  flex: 0 0 200px;
+  flex: 0 0 220px;
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease;
+}
+
+.rating-overview:hover {
+  transform: translateY(-2px);
 }
 
 .average-rating {
-  font-size: 36px;
-  color: #ee4d2d;
-  margin: 0;
+  font-size: 42px;
+  color: #09884d;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
 }
 
 .average-rating span {
-  font-size: 24px;
+  font-size: 18px;
+  color: #666;
+  font-weight: normal;
+  margin-left: 5px;
 }
 
 .star-rating {
-  color: #ee4d2d;
-  font-size: 24px;
-}
-
-.rating-filters {
-  flex: 1;
+  color: #ffa41c;
+  font-size: 20px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 3px;
+  justify-content: center;
+  margin: 10px 0;
 }
 
-.filter-btn {
-  background-color: #fff;
-  border: 1px solid #ee4d2d;
-  color: #ee4d2d;
-  padding: 8px 16px;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: all 0.3s;
+.star-rating .bi {
+  transition: all 0.2s ease;
 }
 
-.filter-btn:hover,
-.filter-btn.active {
-  background-color: #ee4d2d;
-  color: #fff;
+.star-rating .bi:hover {
+  transform: scale(1.2);
 }
 
 .review-item {
-  border-top: 1px solid #e8e8e8;
-  padding: 20px 0;
+  border-top: 1px solid #eef0f2;
+  padding: 25px 0;
+  transition: all 0.3s ease;
+  margin: 10px 0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.review-item:hover {
+  background: #f8f9fa;
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 15px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.user-details {
+  flex: 1;
+}
+
+.user-details strong {
+  display: block;
+  font-size: 16px;
+  color: #2c3e50;
+  margin-bottom: 5px;
 }
 
 .user-details .star-rating {
   font-size: 14px;
+  justify-content: flex-start;
 }
 
 .review-meta {
-  color: #888;
+  color: #666;
   font-size: 14px;
-  margin-bottom: 10px;
+  margin: 12px 0;
+  padding: 8px 0;
+  border-top: 1px dashed #eee;
+  border-bottom: 1px dashed #eee;
 }
 
 .review-comment {
-  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #4a4a4a;
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #09884d;
 }
 
 .review-media {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.media-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.media-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .media-item img,
 .media-item video {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.media-item:hover img,
+.media-item:hover video {
+  filter: brightness(1.1);
 }
 
 .helpful-btn {
   background: none;
   border: none;
-  color: #1890ff;
+  color: #09884d;
   cursor: pointer;
-  padding: 0;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .helpful-btn:hover {
-  text-decoration: underline;
+  background: #e0f7e9;
+  color: #076d3d;
 }
-.review-title-non-rating {
-  font-size: 20px;
-  font-weight: bold;
+
+.not-rating {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.not-rating img {
+  max-width: 200px;
+  height: auto;
   margin: 20px 0;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.not-rating img:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.not-rating p {
+  color: #666;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+/* Animation cho star rating */
+@keyframes starPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.star-rating .bi-star-fill {
+  animation: starPulse 1s ease;
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.review-item.loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 </style>

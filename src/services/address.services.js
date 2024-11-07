@@ -61,7 +61,15 @@ class AddressService {
   }
   async updateIs_DefaultAddress(id) {
     try {
-      const response = await this.api.put(`/updateIs_default/${id}`);
+      await this.api.put(`/updateIs_default/${id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getAddressByUserId(id) {
+    try {
+      const response = await this.api.get(`/getUserByIdUser/${id}`);
+      return response.data;
     } catch (error) {
       console.error(error);
     }

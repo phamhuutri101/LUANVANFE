@@ -5,7 +5,6 @@
       <div
         class="container d-flex justify-content-between align-items-center py-2"
       >
-        <img src="/path-to-shopee-logo.png" alt="Shopee" height="40" />
         <span class="checkout-title">Thanh Toán</span>
       </div>
     </header>
@@ -138,7 +137,10 @@
         <div class="row" v-for="item in cart" :key="item._id">
           <div class="col-3 d-flex justify-content-between align-items-center">
             <img
-              src="/path-to-product-image.jpg"
+              :src="
+                item.ITEM.PRODUCT_DETAILS.LIST_FILE_ATTACHMENT_DEFAULT[0]
+                  .FILE_URL
+              "
               alt="Hinh ảnh"
               width="60"
               height="60"
@@ -146,7 +148,7 @@
             />
             <div>
               <p class="m-0 product-name">
-                {{ item.ITEM.PRODUCT_DETAILS.NAME_PRODUCT }}
+                {{ trumCatName(item.ITEM.PRODUCT_DETAILS.NAME_PRODUCT) }}
               </p>
             </div>
           </div>
@@ -167,21 +169,9 @@
           </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <span>Đơn vị vận chuyển:</span>
-          <div>
-            <span class="text-success me-2">Nhanh</span>
-            <a href="#" class="shopee-link small">Thay đổi</a>
-          </div>
-        </div>
-        <p class="text-muted small mt-1">Nhận hàng vào 12 Th10 - 14 Th10</p>
-        <div class="d-flex justify-content-between align-items-center">
-          <span>Được đồng kiểm</span>
-          <i class="bi bi-question-circle text-muted"></i>
-        </div>
         <div class="d-flex justify-content-end mt-3">
           <span class="text-muted me-2"
-            >Tổng số tiền ({{ calculateTotalNumber() }} sản phẩm):</span
+            >Tổng số tiền ({{ totalNumber() }} sản phẩm):</span
           >
           <span class="text-shopee fw-bold">{{
             formatPriceCart(calculateTotalPrice())
@@ -225,12 +215,16 @@
         </div>
         <div class="d-flex justify-content-between mb-2">
           <span>Phí vận chuyển</span>
-          <span>0đ</span>
+          <span>{{ formatPriceCart(shipping()) }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Giảm giá</span>
+          <span>{{ formatPriceCart(reduce()) }}</span>
         </div>
         <div class="d-flex justify-content-between mb-2">
           <span>Tổng thanh toán:</span>
           <span class="text-shopee fw-bold fs-5">{{
-            formatPriceCart(calculateTotalPrice())
+            formatPriceCart(totalPayment())
           }}</span>
         </div>
         <p class="text-muted small">
@@ -279,6 +273,7 @@ import PaymentService from "@/services/payment.services";
 import orderServices from "@/services/order.services";
 import emailServices from "@/services/email.services";
 import userServices from "@/services/user.services";
+import trumCatName from "@/utils/trumCatName";
 export default {
   data() {
     return {
@@ -324,9 +319,7 @@ export default {
       }
     },
     calculateTotalPrice() {
-      return this.cart.reduce((total, item) => {
-        return total + item.ITEM.PRICE * item.ITEM.QUANTITY; // Giá * Số lượng
-      }, 0); // Bắt đầu từ 0
+      return Number(sessionStorage.getItem("totalNumberPrice"));
     },
     totalPriceCart(price, quantity) {
       let total = 0;
@@ -357,7 +350,15 @@ export default {
       }
 
       try {
-        await orderServices.addOrder(this.defaultAddress);
+        await orderServices.addOrder({
+          PROVINCE: this.defaultAddress.PROVINCE,
+          DISTRICT: this.defaultAddress.DISTRICT,
+          COMMUNE: this.defaultAddress.COMMUNE,
+          DESC: this.defaultAddress.DESC,
+          PRICE: this.totalPayment(), // Tổng tiền của giỏ hàng
+          DISCOUNT: this.reduce(), // Mã giảm giá
+          SHIPPING: this.shipping(), // Phí ship
+        });
         await this.sendEmailOrder();
         let paymentResponse;
         switch (this.selectedPaymentMethod) {
@@ -381,150 +382,321 @@ export default {
         } else {
           console.error("Không nhận được URL thanh toán hợp lệ.");
         }
+        sessionStorage.removeItem("priceReduce");
+        sessionStorage.removeItem("priceTotalCart");
+        sessionStorage.removeItem("shipping");
+        sessionStorage.removeItem("totalNumberPrice");
+        sessionStorage.removeItem("totalNumberProduct");
       } catch (error) {
         console.error("Lỗi khi thanh toán:", error);
       }
     },
-    calculateTotalNumber() {
-      return this.cart.reduce((total, item) => {
-        return total + item.ITEM.QUANTITY;
-      }, 0);
+    totalNumber() {
+      return Number(sessionStorage.getItem("totalNumberProduct"));
+    },
+    reduce() {
+      return Number(sessionStorage.getItem("priceReduce"));
+    },
+    shipping() {
+      return Number(sessionStorage.getItem("shipping"));
+    },
+    totalPayment() {
+      return Number(sessionStorage.getItem("priceTotalCart"));
     },
     formatPriceCart(price) {
       return formatNumber(price);
+    },
+    trumCatName(name) {
+      return trumCatName(name);
     },
   },
 };
 </script>
 
 <style scoped>
-.selected-payment {
-  border-color: #ee4d2d;
-  color: #ee4d2d;
+.shopee-checkout {
+  background-color: #f8f9fa;
+  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
 }
+
+.shopee-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.checkout-title {
+  color: #09884d;
+  font-size: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  padding-left: 15px;
+}
+
+.checkout-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: #09884d;
+  border-radius: 2px;
+}
+
+.shopee-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.shopee-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Address Card Styles */
+.address-card {
+  border-left: 4px solid #09884d;
+}
+
 .text-default-address {
   display: flex;
   align-items: center;
   padding-right: 10px;
+  font-size: 15px;
+  color: #2c3e50;
+  line-height: 1.6;
 }
+
 .change-address {
   position: absolute;
   right: 0;
 }
+
+.change-address button {
+  color: #09884d;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.change-address button:hover {
+  background-color: #e0f7e9;
+  color: #076d3d;
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background: #f8f9fa;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 2px solid #eef0f2;
+}
+
+.modal-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
 .modal-body {
   display: flex;
   align-items: center;
+  padding: 15px 20px;
+  transition: all 0.3s ease;
 }
+
+.modal-body:hover {
+  background: #f8f9fa;
+}
+
+.modal-body input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #09884d;
+}
+
 .modal-body label {
-  padding-left: 10px;
+  padding-left: 15px;
+  color: #2c3e50;
+  font-size: 15px;
+  cursor: pointer;
 }
+
 .default-address {
-  padding: 5px;
-  border: 1px solid #44ba69;
-  color: #44ba69;
-}
-.shopee-checkout {
-  background-color: #f5f5f5;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-}
-
-.shopee-header {
-  background-color: #fff;
-  border-bottom: 1px solid #dee2e6;
+  padding: 4px 8px;
+  border: 1px solid #09884d;
+  color: #09884d;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 8px;
+  background: #e0f7e9;
 }
 
-.checkout-title {
-  color: #ee4d2d;
-  font-size: 1.25rem;
-  font-weight: 500;
+/* Product Card Styles */
+.product-card {
+  background: #ffffff;
 }
 
-.shopee-card {
-  background-color: #fff;
-  border-radius: 3px;
-  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);
-  margin-bottom: 0.75rem;
-  padding: 1rem;
+.product-card img {
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
 }
 
-.text-shopee {
-  color: #ee4d2d;
-}
-
-.shopee-link button {
-  color: #05a;
-  text-decoration: none;
-  border: none;
-  background: none;
-}
-
-.shopee-link button:hover {
-  color: #ee4d2d;
+.product-card img:hover {
+  transform: scale(1.05);
 }
 
 .product-name {
-  font-size: 0.875rem;
-  line-height: 1.2;
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
-.badge {
-  font-weight: 400;
-  padding: 0.25em 0.5em;
-}
-
-.bg-shopee {
-  background-color: #ee4d2d;
-  color: #fff;
-}
-
+/* Payment Methods */
 .btn-payment {
-  background-color: #fff;
-  border: 1px solid #d0d0d0;
-  color: #222;
-  font-size: 0.875rem;
-  padding: 0.375rem 0.75rem;
+  background-color: #ffffff;
+  border: 2px solid #eef0f2;
+  color: #2c3e50;
+  font-size: 15px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
-.btn-shopeepay {
-  border-color: #ee4d2d;
-  color: #ee4d2d;
+.btn-payment:hover {
+  border-color: #09884d;
+  color: #09884d;
+  transform: translateY(-2px);
+}
+
+.selected-payment {
+  border-color: #09884d;
+  color: #09884d;
+  background: #e0f7e9;
+  box-shadow: 0 2px 8px rgba(9, 136, 77, 0.15);
+}
+
+/* Order Summary */
+.summary-card {
+  border-top: 4px solid #09884d;
+}
+
+.text-shopee {
+  color: #09884d;
 }
 
 .btn-shopee {
-  background-color: #ee4d2d;
-  border-color: #ee4d2d;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
+  background-color: #09884d;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(9, 136, 77, 0.2);
 }
 
 .btn-shopee:hover {
-  background-color: #d73211;
-  border-color: #d73211;
+  background-color: #076d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 136, 77, 0.3);
 }
 
+.btn-shopee:active {
+  transform: translateY(0);
+}
+
+/* Footer Styles */
 .shopee-footer {
-  background-color: #fbfbfb;
-  font-size: 0.75rem;
+  background-color: #ffffff;
+  border-top: 1px solid #eef0f2;
+  padding-top: 40px;
 }
 
 .footer-heading {
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
+  color: #2c3e50;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
 }
 
 .footer-link {
-  color: rgba(0, 0, 0, 0.65);
+  color: #666;
   display: inline-block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
   text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 14px;
 }
 
 .footer-link:hover {
-  color: #ee4d2d;
+  color: #09884d;
+  transform: translateX(5px);
+}
+
+/* Additional Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shopee-card {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Loading States */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .shopee-card {
+    padding: 1rem;
+  }
+
+  .btn-payment {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }
 </style>

@@ -44,6 +44,13 @@ class CartService {
       console.error(error);
     }
   }
+  async updatePriceReducedAndShipping(payload) {
+    try {
+      const response = await this.api.put("/updatePriceAndShipping", payload);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 export default new CartService();

@@ -4,8 +4,44 @@ class InventoryServices {
     this.api = createApiClient(baseUrl);
   }
   async create(id, payload) {
-    const response = await this.api.post(`/${id}`, payload);
-    return response.data;
+    try {
+      const response = await this.api.post(`/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getInventory() {
+    try {
+      const response = await this.api.get("/");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getInventoryById(id) {
+    try {
+      const response = await this.api.get(`/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async deleteInventory(id) {
+    try {
+      const response = await this.api.delete(`/delete/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getInventoryByIdProduct(id) {
+    try {
+      const response = await this.api.get(`/getByIdProduct/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 export default new InventoryServices();

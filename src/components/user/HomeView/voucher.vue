@@ -2,26 +2,28 @@
   <div class="container">
     <div class="row py-3">
       <div class="col-4 voucher" v-for="item in voucher" :key="item._id">
-        <img
-          class="img-voucher"
-          src="../../../../public/img/vouccher/layer.a5197a75187403484ba2.png"
-          alt=""
-        />
-        <div class="voucher-text">
-          <span v-if="item.DISCOUNT_AMOUNT" class="fw-bold"
-            >VOUCHER {{ formatNumber(item.DISCOUNT_AMOUNT) }}</span
-          >
-          <span v-if="item.DISCOUNT_PERCENTAGE" class="fw-bold"
-            >VOUCHER {{ item.DISCOUNT_PERCENTAGE }}%</span
-          >
-          <br />
-          <span>cho đơn từ {{ formatNumber(item.MIN_PURCHASE) }}</span> <br />
-          <button
-            @click="copyToClipboard(item.CODE)"
-            class="button-copy-code mt-2"
-          >
-            Copy mã
-          </button>
+        <div v-if="item.ACTIVE">
+          <img
+            class="img-voucher"
+            src="../../../../public/img/vouccher/layer.a5197a75187403484ba2.png"
+            alt=""
+          />
+          <div class="voucher-text">
+            <span v-if="item.DISCOUNT_AMOUNT" class="fw-bold"
+              >VOUCHER {{ formatNumber(item.DISCOUNT_AMOUNT) }}</span
+            >
+            <span v-if="item.DISCOUNT_PERCENTAGE" class="fw-bold"
+              >VOUCHER {{ item.DISCOUNT_PERCENTAGE }}%</span
+            >
+            <br />
+            <span>cho đơn từ {{ formatNumber(item.MIN_PURCHASE) }}</span> <br />
+            <button
+              @click="copyToClipboard(item.CODE)"
+              class="button-copy-code mt-2"
+            >
+              Copy mã
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -29,7 +31,7 @@
 </template>
 
 <script>
-import voucherServices from "@/services/voucher.services";
+import promoServices from "@/services/promoServices";
 import Swal from "sweetalert2";
 export default {
   data() {
@@ -39,12 +41,17 @@ export default {
   },
   async created() {
     await this.getVoucher();
+    await this.checkVoucherActive();
   },
   methods: {
+    async checkVoucherActive() {
+      await promoServices.promoCheckActive();
+    },
     async getVoucher() {
       try {
-        const response = await voucherServices.getAllVouchers();
+        const response = await promoServices.getAllPromo();
         this.voucher = response.data;
+        console.log("mã voucher", this.voucher);
       } catch (error) {
         console.error(error);
       }

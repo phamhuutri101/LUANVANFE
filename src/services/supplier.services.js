@@ -1,15 +1,7 @@
 import createApiClient from "./api.services";
-class Category {
-  constructor(baseUrl = "/api/v1/category") {
+class SupplierService {
+  constructor(baseUrl = "/api/v1/suppliers") {
     this.api = createApiClient(baseUrl);
-  }
-  async getAll() {
-    try {
-      const response = await this.api.get("/");
-      return response.data;
-    } catch (error) {
-      console.error(error);
-    }
   }
   async getById(id) {
     try {
@@ -19,5 +11,13 @@ class Category {
       console.error(error);
     }
   }
+  async getAllSuppliers() {
+    try {
+      const response = await this.api.get("/");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
-export default new Category();
+export default new SupplierService();

@@ -205,55 +205,228 @@ export default {
 <style scoped>
 .shopee-footer {
   font-size: 0.85rem;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  background: #f8f9fa;
+  position: relative;
+  overflow: hidden;
 }
+
+.shopee-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, #09884d, #0eba69);
+}
+
 .shopee-footer h6 {
-  font-size: 0.95rem;
-  color: #222;
-  margin-bottom: 1.2rem;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-bottom: 10px;
 }
+
+.shopee-footer h6::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: #09884d;
+  border-radius: 2px;
+}
+
 .footer-links li {
-  margin-bottom: 0.7rem;
-  transition: transform 0.2s;
+  margin-bottom: 0.8rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
+
 .footer-links li:hover {
   transform: translateX(5px);
 }
-.footer-links a {
-  text-decoration: none;
-  transition: color 0.3s;
+
+.footer-links span {
+  color: #666;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
+
 .hover-orange:hover {
-  color: #ee4d2d !important;
+  color: #09884d !important;
 }
+
+.payment-methods,
+.shipping-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
 .payment-icon,
 .shipping-icon {
-  height: 30px;
+  height: 32px;
+  width: auto;
   object-fit: contain;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  background: white;
+  padding: 5px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
+
 .payment-icon:hover,
 .shipping-icon:hover {
-  transform: scale(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-.qr-code img {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 5px;
-  transition: transform 0.2s;
+
+.social-links li {
+  margin-bottom: 1rem;
 }
-.qr-code img:hover {
-  transform: scale(1.05);
+
+.social-links span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.app-download img {
-  transition: opacity 0.2s;
+
+.social-links i {
+  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(9, 136, 77, 0.1);
+  color: #09884d;
+  transition: all 0.3s ease;
 }
-.app-download img:hover {
-  opacity: 0.8;
+
+.social-links li:hover i {
+  transform: scale(1.2);
+  background: #09884d;
+  color: white;
 }
+
+/* Animation for list items */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-links li {
+  animation: fadeInUp 0.5s ease;
+  animation-fill-mode: both;
+}
+
+.footer-links li:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.footer-links li:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.footer-links li:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.footer-links li:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
+  .shopee-footer {
+    padding: 2rem 0;
+  }
+
   .shopee-footer h6 {
-    margin-top: 1.5rem;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+  }
+
+  .footer-links span {
+    font-size: 0.8rem;
+  }
+
+  .payment-icon,
+  .shipping-icon {
+    height: 28px;
+  }
+
+  .col-lg-3 {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Hover effect for payment methods section */
+.payment-methods,
+.shipping-methods {
+  position: relative;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.payment-methods:hover,
+.shipping-methods:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Text selection color */
+.shopee-footer ::selection {
+  background: rgba(9, 136, 77, 0.1);
+  color: #09884d;
+}
+
+/* Loading state */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 </style>

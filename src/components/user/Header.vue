@@ -196,26 +196,233 @@ export default {
 
 <style scoped>
 .navbar-main {
-  background: #0eba69;
+  background: linear-gradient(to right, #09884d, #0eba69);
+  padding: 10px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-.button-custom {
-  position: absolute;
+
+/* Logo styling */
+.navbar-main span {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
+
+/* Search bar styling */
 .input-custom {
   width: 500px;
-  height: 40px;
-  border-radius: 10px;
+  height: 38px;
+  border-radius: 20px;
+  padding: 0 40px 0 15px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  transition: all 0.3s ease;
 }
+
+.input-custom:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  outline: none;
+}
+
+.button-custom {
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #09884d;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.button-custom:hover {
+  color: #076d3d;
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Voice search button */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.btn-secondary i {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* Navigation items */
+.nav-item {
+  margin: 0 8px;
+}
+
+.nav-link {
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-link i {
+  font-size: 14px;
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+  background: #ffffff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 8px;
+  padding: 8px 0;
+  min-width: 180px;
+}
+
+.dropdown-item {
+  color: #2c3e50;
+  padding: 8px 16px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background: #f8f9fa;
+  color: #09884d;
+  transform: translateX(5px);
+}
+
+/* Cart styling */
 .cart {
-  border: 1px solid #82d9b1;
-  padding: 10px;
-  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+
+.cart:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
 .cart span {
-  color: #fff;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
 }
+
 .cart i {
-  color: #fff;
-  margin-right: 20px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* Badge styling */
+.badge {
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #ff4757 !important;
+  border: 2px solid #ffffff;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu.show {
+  animation: slideDown 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .input-custom {
+    width: 280px;
+  }
+
+  .nav-item {
+    margin: 4px 0;
+  }
+
+  .cart {
+    margin-top: 8px;
+  }
+
+  .button-custom {
+    right: 45px;
+  }
+}
+
+/* Form position relative for search */
+form {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.button-custom i {
+  font-size: 14px;
+}
+
+/* Focus states for accessibility */
+.input-custom:focus-visible,
+.nav-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 </style>
