@@ -79,7 +79,7 @@
             <tbody>
               <tr v-for="order in orders" :key="order.id">
                 <td>{{ order.ORDER_CODE }}</td>
-                <td>{{ order.ACCOUNT__ID }}</td>
+                <td>{{ order.FULL_NAME }}</td>
                 <td>{{ formatDate(order.LIST_STATUS[0].FROM_DATE) }}</td>
                 <td>{{ formatPrice(order.ORDER_PRICE) }}</td>
                 <td>
@@ -314,6 +314,16 @@ export default {
     async getOrder() {
       const response = await orderServices.getOrderUser(this.page, this.limit);
       this.orders = response.data;
+      for (const item of this.orders) {
+        const response = await userServices.getUserByAccountId(
+          item.ACCOUNT__ID
+        );
+        if (response && response.data) {
+          const user = response.data[0];
+          item.FULL_NAME = user.user.FULL_NAME;
+        }
+      }
+      console.log("dữ liệu order sau khi chạy vòng lặp", this.orders);
       this.originalOrders = [...this.orders];
     },
 
