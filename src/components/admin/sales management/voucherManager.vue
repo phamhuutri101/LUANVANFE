@@ -172,6 +172,7 @@
 </template>
 
 <script>
+import Swal from "sweetalert2";
 import promoServices from "@/services/promoServices";
 export default {
   name: "DiscountManagement",
@@ -208,8 +209,31 @@ export default {
     },
     async addDiscount() {
       const response = await promoServices.addDiscount(this.newDiscount);
-      this.resetForm();
-      this.getAllPromo();
+      if (response && response.success == true) {
+        this.resetForm();
+        this.getAllPromo();
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 800,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Thêm mã giảm giá thành công",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Mã giảm giá bị trùng",
+        });
+      }
     },
 
     resetForm() {

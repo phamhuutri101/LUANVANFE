@@ -59,5 +59,24 @@ class PriceService {
       console.error(error);
     }
   }
+  async getPriceArray(id, payload) {
+    try {
+      const response = await this.api.post(`/get_priceArray/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async updatePrice(id_product, payload) {
+    try {
+      const response = await this.api.post(
+        `/updatePrice/${id_product}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new PriceService();

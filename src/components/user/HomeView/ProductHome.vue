@@ -42,7 +42,7 @@
             </span>
             <div class="star-rating" v-if="productReviews[product._id] > 0">
               <span>
-                {{ productReviews[product._id] }}
+                {{ productReviews[product._id].toFixed(1) }}
               </span>
 
               <i class="fa-solid fa-star"></i>
@@ -64,7 +64,8 @@ import priceServices from "@/services/price.services";
 import productServices from "@/services/product.services";
 import favoriteServices from "@/services/favorite.services";
 import reviewServices from "@/services/review.services";
-
+import getCookie from "@/utils/getCookie";
+import isTokenValid from "@/utils/isTokenValid";
 import trumCatName from "@/utils/trumCatName";
 import Swal from "sweetalert2";
 import userServices from "@/services/user.services";
@@ -176,6 +177,7 @@ export default {
             toast.onmouseleave = Swal.resumeTimer;
           },
         });
+
         Toast.fire({
           icon: "success",
           title: "Thêm sản phẩm yêu thích thành công",

@@ -180,6 +180,20 @@
       <li class="nav-item" role="presentation">
         <button
           class="nav-link"
+          id="sendProduct-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#sendProduct"
+          type="button"
+          role="tab"
+          aria-controls="sendProduct"
+          aria-selected="false"
+        >
+          Đã gửi hàng
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
           id="success-order-tab"
           data-bs-toggle="pill"
           data-bs-target="#success-order"
@@ -194,12 +208,12 @@
       <li class="nav-item" role="presentation">
         <button
           class="nav-link"
-          id="pills-contact-tab"
+          id="cancel-tab"
           data-bs-toggle="pill"
-          data-bs-target="#pills-contact"
+          data-bs-target="#cancel"
           type="button"
           role="tab"
-          aria-controls="pills-contact"
+          aria-controls="cancel"
           aria-selected="false"
         >
           Đã hủy
@@ -213,7 +227,7 @@
         role="tabpanel"
         aria-labelledby="AllOrder-tab"
       >
-        <div class="wrap" v-for="item in order" :key="item._id">
+        <div class="wrap" v-for="item in orders" :key="item._id">
           <div class="title-order d-flex py-4 border-bottom">
             <span>Tên shop</span>
             <span class="show-shop"
@@ -253,18 +267,36 @@
             </div>
           </div>
           <div class="footer-order py-4">
-            <div class="total-price text-end py-4">
+            <div class="total-price text-end py-1" v-if="item.PRICE_REDUCED">
+              <span>Giảm giá</span>
+              <span class="text-danger">{{
+                formatNumber(item.PRICE_REDUCED)
+              }}</span>
+            </div>
+            <div class="total-price text-end py-1" v-if="item.SHIPPING_FEE">
+              <span>Phí vận chuyển</span>
+              <span class="text-danger">{{
+                formatNumber(item.SHIPPING_FEE)
+              }}</span>
+            </div>
+            <hr />
+            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
               <span>Thành tiền</span>
-              <span>{{ formatNumber(calculateTotalPrice(item)) }}</span>
+              <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
             </div>
             <div class="notification d-flex">
-              <span
+              <span v-if="item.lastStatusCode === 4"
                 >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
                 đến bạn và sản phẩm nhận được không có vấn đề nào.</span
               >
               <div class="confirm d-flex">
-                <button>Đã nhận hàng</button>
-                <button>Xác nhận hủy</button>
+                <button
+                  v-if="item.lastStatusCode === 4"
+                  @click="receivedProduct(item.ACCOUNT__ID, item._id)"
+                >
+                  Đã nhận hàng
+                </button>
+                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
               </div>
             </div>
           </div>
@@ -276,7 +308,80 @@
         role="tabpanel"
         aria-labelledby="pills-profile-tab"
       >
-        2
+        <div class="wrap" v-for="item in pendingOrders" :key="item._id">
+          <div class="title-order d-flex py-4 border-bottom">
+            <span>Tên shop</span>
+            <span class="show-shop"
+              ><i class="fa-solid fa-shop"></i> Xem shop</span
+            >
+          </div>
+          <div
+            class="body-order d-flex border-bottom justify-content-between"
+            v-for="classify in item.LIST_PRODUCT"
+            :key="classify._id"
+          >
+            <div class="img_name_product d-flex py-4">
+              <div class="img">
+                <img
+                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  alt="Hình ảnh"
+                />
+              </div>
+              <div class="name px-2">
+                <span>{{ classify.productName }}</span>
+                <span class="d-block classify py-2"
+                  >Phân loại hàng:
+                  <span
+                    class="px-2"
+                    v-for="classify1 in classify.LIST_MATCH_KEY"
+                    :key="classify1._id"
+                  >
+                    {{ classify1.KEY }} {{ classify1.VALUE }}</span
+                  >
+                </span>
+
+                <span class="d-block">x{{ classify.QLT }}</span>
+              </div>
+            </div>
+            <div class="price_product d-flex align-items-center">
+              <span>{{ formatNumber(classify.UNITPRICES) }}</span>
+            </div>
+          </div>
+          <div class="footer-order py-4">
+            <div class="total-price text-end py-1" v-if="item.PRICE_REDUCED">
+              <span>Giảm giá</span>
+              <span class="text-danger">{{
+                formatNumber(item.PRICE_REDUCED)
+              }}</span>
+            </div>
+            <div class="total-price text-end py-1" v-if="item.SHIPPING_FEE">
+              <span>Phí vận chuyển</span>
+              <span class="text-danger">{{
+                formatNumber(item.SHIPPING_FEE)
+              }}</span>
+            </div>
+            <hr />
+            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+              <span>Thành tiền</span>
+              <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
+            </div>
+            <div class="notification d-flex">
+              <span
+                >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
+                đến bạn và sản phẩm nhận được không có vấn đề nào.</span
+              >
+              <div class="confirm d-flex">
+                <button
+                  v-if="item.lastStatusCode === 4"
+                  @click="receivedProduct(item.ACCOUNT__ID, item._id)"
+                >
+                  Đã nhận hàng
+                </button>
+                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div
         class="tab-pane fade"
@@ -284,7 +389,161 @@
         role="tabpanel"
         aria-labelledby="pills-contact-tab"
       >
-        3
+        <div class="wrap" v-for="item in confirmedOrders" :key="item._id">
+          <div class="title-order d-flex py-4 border-bottom">
+            <span>Tên shop</span>
+            <span class="show-shop"
+              ><i class="fa-solid fa-shop"></i> Xem shop</span
+            >
+          </div>
+          <div
+            class="body-order d-flex border-bottom justify-content-between"
+            v-for="classify in item.LIST_PRODUCT"
+            :key="classify._id"
+          >
+            <div class="img_name_product d-flex py-4">
+              <div class="img">
+                <img
+                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  alt="Hình ảnh"
+                />
+              </div>
+              <div class="name px-2">
+                <span>{{ classify.productName }}</span>
+                <span class="d-block classify py-2"
+                  >Phân loại hàng:
+                  <span
+                    class="px-2"
+                    v-for="classify1 in classify.LIST_MATCH_KEY"
+                    :key="classify1._id"
+                  >
+                    {{ classify1.KEY }} {{ classify1.VALUE }}</span
+                  >
+                </span>
+
+                <span class="d-block">x{{ classify.QLT }}</span>
+              </div>
+            </div>
+            <div class="price_product d-flex align-items-center">
+              <span>{{ formatNumber(classify.UNITPRICES) }}</span>
+            </div>
+          </div>
+          <div class="footer-order py-4">
+            <div class="total-price text-end py-1" v-if="item.PRICE_REDUCED">
+              <span>Giảm giá</span>
+              <span class="text-danger">{{
+                formatNumber(item.PRICE_REDUCED)
+              }}</span>
+            </div>
+            <div class="total-price text-end py-1" v-if="item.SHIPPING_FEE">
+              <span>Phí vận chuyển</span>
+              <span class="text-danger">{{
+                formatNumber(item.SHIPPING_FEE)
+              }}</span>
+            </div>
+            <hr />
+            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+              <span>Thành tiền</span>
+              <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
+            </div>
+            <div class="notification d-flex">
+              <span
+                >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
+                đến bạn và sản phẩm nhận được không có vấn đề nào.</span
+              >
+              <div class="confirm d-flex">
+                <button
+                  v-if="item.lastStatusCode === 4"
+                  @click="receivedProduct(item.ACCOUNT__ID, item._id)"
+                >
+                  Đã nhận hàng
+                </button>
+                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="tab-pane fade"
+        id="sendProduct"
+        role="tabpanel"
+        aria-labelledby="sendProduct-tab"
+      >
+        <div class="wrap" v-for="item in processingOrders" :key="item._id">
+          <div class="title-order d-flex py-4 border-bottom">
+            <span>Tên shop</span>
+            <span class="show-shop"
+              ><i class="fa-solid fa-shop"></i> Xem shop</span
+            >
+          </div>
+          <div
+            class="body-order d-flex border-bottom justify-content-between"
+            v-for="classify in item.LIST_PRODUCT"
+            :key="classify._id"
+          >
+            <div class="img_name_product d-flex py-4">
+              <div class="img">
+                <img
+                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  alt="Hình ảnh"
+                />
+              </div>
+              <div class="name px-2">
+                <span>{{ classify.productName }}</span>
+                <span class="d-block classify py-2"
+                  >Phân loại hàng:
+                  <span
+                    class="px-2"
+                    v-for="classify1 in classify.LIST_MATCH_KEY"
+                    :key="classify1._id"
+                  >
+                    {{ classify1.KEY }} {{ classify1.VALUE }}</span
+                  >
+                </span>
+
+                <span class="d-block">x{{ classify.QLT }}</span>
+              </div>
+            </div>
+            <div class="price_product d-flex align-items-center">
+              <span>{{ formatNumber(classify.UNITPRICES) }}</span>
+            </div>
+          </div>
+          <div class="footer-order py-4">
+            <div class="total-price text-end py-1" v-if="item.PRICE_REDUCED">
+              <span>Giảm giá</span>
+              <span class="text-danger">{{
+                formatNumber(item.PRICE_REDUCED)
+              }}</span>
+            </div>
+            <div class="total-price text-end py-1" v-if="item.SHIPPING_FEE">
+              <span>Phí vận chuyển</span>
+              <span class="text-danger">{{
+                formatNumber(item.SHIPPING_FEE)
+              }}</span>
+            </div>
+            <hr />
+            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+              <span>Thành tiền</span>
+              <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
+            </div>
+            <div class="notification d-flex">
+              <span
+                >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
+                đến bạn và sản phẩm nhận được không có vấn đề nào.</span
+              >
+              <div class="confirm d-flex">
+                <button
+                  v-if="item.lastStatusCode === 4"
+                  @click="receivedProduct(item.ACCOUNT__ID, item._id)"
+                >
+                  Đã nhận hàng
+                </button>
+                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div
         class="tab-pane fade"
@@ -292,7 +551,7 @@
         role="tabpanel"
         aria-labelledby="success-order-tab"
       >
-        <div class="wrap" v-for="item in orderSuccess" :key="item._id">
+        <div class="wrap" v-for="item in completedOrders" :key="item._id">
           <div class="title-order d-flex py-4 border-bottom">
             <span>Tên shop</span>
             <span class="show-shop"
@@ -367,7 +626,7 @@ import uploadServices from "@/services/upload.services";
 export default {
   data() {
     return {
-      order: [],
+      orders: [],
       orderSuccess: [],
       reviewId: "",
       rating: 0,
@@ -379,6 +638,36 @@ export default {
     this.getOrder();
     this.getOrderSuccess();
   },
+  computed: {
+    // Filter orders by status
+    allOrders() {
+      return this.orders;
+    },
+    pendingOrders() {
+      return this.orders.filter(
+        (order) => order.LIST_STATUS.at(-1)?.STATUS_CODE === 1
+      );
+    },
+    confirmedOrders() {
+      return this.orders.filter(
+        (order) => order.LIST_STATUS.at(-1)?.STATUS_CODE === 3
+      );
+    },
+    processingOrders() {
+      return this.orders.filter(
+        (order) => order.LIST_STATUS.at(-1)?.STATUS_CODE === 4
+      );
+    },
+    completedOrders() {
+      return this.orders.filter(
+        (order) => order.LIST_STATUS.at(-1)?.STATUS_CODE === 6
+      );
+    },
+    cancelledOrders() {
+      return this.orders.filter((order) => order.CANCEL_REASON !== null);
+    },
+  },
+
   methods: {
     async getOrder() {
       const order = await orderServices.getOrderUser();
@@ -389,7 +678,12 @@ export default {
           classify.productName = productName;
         }
       }
-      this.order = order.data;
+      this.orders = order.data;
+      for (const item of this.orders) {
+        const response = await orderServices.getLastStatusOrder(item._id);
+
+        item.lastStatusCode = response.data;
+      }
     },
     async getOrderSuccess() {
       const orderSuccess = await orderServices.getSuccessPaymentOrder();
@@ -446,6 +740,17 @@ export default {
           item.images = []; // Khởi tạo mảng nếu chưa có
         }
         item.images.push(...uploadedImages); // Thêm các hình ảnh vào mảng images của sản phẩm
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async receivedProduct(id_account, id_order) {
+      const payload = {
+        id_order: id_order,
+      };
+      try {
+        await orderServices.receivedGoods(id_account, payload);
+        this.getOrder;
       } catch (error) {
         console.error(error);
       }

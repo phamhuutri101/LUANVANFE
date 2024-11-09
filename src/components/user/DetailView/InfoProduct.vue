@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import isTokenValid from "@/utils/isTokenValid";
+import getCookie from "@/utils/getCookie";
 import priceServices from "@/services/price.services";
 import cartServices from "@/services/cart.services";
 import { formatNumber } from "@/utils/formatNumber";
@@ -196,42 +198,51 @@ export default {
         });
         return; // Ngừng xử lý nếu chưa chọn biến thể
       }
-      const response = await cartServices.addToCart(
-        this.product._id,
-        this.payload
-      );
 
-      if (response && response.data) {
-        const Toast = Swal.mixin({
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 800,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-          },
-        });
-        Toast.fire({
-          icon: "success",
-          title: "Thêm sản phẩm vào giỏ hàng thành công",
-        });
+      const token = getCookie("access_token");
+      if (isTokenValid(token)) {
+        const response = await cartServices.addToCart(
+          this.product._id,
+          this.payload
+        );
+
+        if (response && response.data) {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 800,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+            },
+          });
+          Toast.fire({
+            icon: "success",
+            title: "Thêm sản phẩm vào giỏ hàng thành công",
+          });
+        } else {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+            },
+          });
+          Toast.fire({
+            icon: "error",
+            title: "Bạn vẫn chưa chọn phân loại sản phẩm",
+          });
+        }
       } else {
-        const Toast = Swal.mixin({
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-          },
-        });
-        Toast.fire({
+        Swal.fire({
           icon: "error",
-          title: "Bạn vẫn chưa chọn phân loại sản phẩm",
+          title: "Bạn cần đăng nhập để mua hàng",
         });
       }
     },

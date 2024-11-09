@@ -97,6 +97,15 @@
               <a
                 class="nav-link text-white"
                 href="#"
+                @click="currentView = 'orderManager'"
+              >
+                <i class="fa-solid fa-money-bill-wave"></i> Quản lý đơn hàng
+              </a>
+            </li>
+            <li class="nav-item px-2">
+              <a
+                class="nav-link text-white"
+                href="#"
                 @click="currentView = 'RatingManager'"
               >
                 <i class="fa-solid fa-star"></i> Danh sách đánh giá</a
@@ -125,6 +134,7 @@ import OverViewPage from "@/components/admin/sales management/OverViewPage.vue";
 import inventory from "@/components/admin/sales management/inventory.vue";
 import AddInventory from "@/components/admin/sales management/AddInventory.vue";
 import priceManager from "@/components/admin/sales management/priceManager.vue";
+import orderManager from "@/components/admin/sales management/orderManager.vue";
 export default {
   name: "App",
   components: {
@@ -136,6 +146,7 @@ export default {
     inventory,
     AddInventory,
     priceManager,
+    orderManager,
   },
   data() {
     return {
