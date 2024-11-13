@@ -111,6 +111,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   background-color: #fff;
+  height: 100vh;
 }
 
 .form-title {

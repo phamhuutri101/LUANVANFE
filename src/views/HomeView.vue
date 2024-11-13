@@ -4,7 +4,7 @@
     <CarouselHome />
 
     <Category />
-    <ProductHome :products="products" />
+    <ProductHome />
   </div>
   <Footer />
 </template>

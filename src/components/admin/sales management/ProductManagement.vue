@@ -81,7 +81,10 @@ export default {
   methods: {
     async getProduct() {
       try {
-        const response = await productServices.getAll(this.page, this.limit);
+        const response = await productServices.getProductShop(
+          this.page,
+          this.limit
+        );
         if (response && response.data) {
           this.products = response.data;
           // Nếu số sản phẩm trả về ít hơn limit, đây là trang cuối

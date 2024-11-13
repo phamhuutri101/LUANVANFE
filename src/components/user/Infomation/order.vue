@@ -614,16 +614,28 @@
         </div>
       </div>
     </div>
+    <VPagination
+      v-model="page"
+      :pages="currentMaxPage"
+      :range-size="5"
+      active-color="#DCEDFF"
+      @update:modelValue="onPageChange"
+    />
   </div>
 </template>
 
 <script>
+import VPagination from "@hennge/vue3-pagination";
+import "@hennge/vue3-pagination/dist/vue3-pagination.css";
 import orderServices from "@/services/order.services";
 import productServices from "@/services/product.services";
 import { formatNumber } from "@/utils/formatNumber";
 import reviewServices from "@/services/review.services";
 import uploadServices from "@/services/upload.services";
 export default {
+  components: {
+    VPagination,
+  },
   data() {
     return {
       orders: [],
@@ -632,6 +644,9 @@ export default {
       rating: 0,
       reviewContent: "",
       orderDataRating: null,
+      page: 1,
+      limit: 5,
+      currentMaxPage: 1,
     };
   },
   created() {
@@ -670,7 +685,7 @@ export default {
 
   methods: {
     async getOrder() {
-      const order = await orderServices.getOrderUser();
+      const order = await orderServices.getOrderUser(this.page, this.limit);
       // Sau khi lấy danh sách đơn hàng, gọi API để lấy tên sản phẩm
       for (const item of order.data) {
         for (const classify of item.LIST_PRODUCT) {
@@ -750,7 +765,8 @@ export default {
       };
       try {
         await orderServices.receivedGoods(id_account, payload);
-        this.getOrder;
+
+        this.getOrder();
       } catch (error) {
         console.error(error);
       }

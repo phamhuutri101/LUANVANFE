@@ -27,6 +27,16 @@ class promoServices {
       console.error(error);
     }
   }
+  async getAllPromoUserPage(id_account, page = 1, limit = 10) {
+    try {
+      const response = await this.api.get(
+        `/${id_account}/?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   async promoCheckActive() {
     try {
       const response = await this.api.post("/checkActivePromoCode");

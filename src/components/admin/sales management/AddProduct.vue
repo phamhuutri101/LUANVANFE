@@ -247,6 +247,25 @@
                   </select>
                 </div>
               </div>
+              <div class="col-6">
+                <label for="" class="input-group py-2">Nhà cung cấp</label>
+                <div v-for="(metadata, index) in suppliers" :key="index">
+                  <select
+                    :id="metadata.KEY"
+                    class="form-select w-100"
+                    @change="handleSelectChangeSupplier($event.target.value)"
+                  >
+                    <option>Chọn giá trị</option>
+                    <option
+                      v-for="item in suppliers"
+                      :key="item._id"
+                      :value="item._id"
+                    >
+                      {{ item.NAME_SUPPLIERS }}
+                    </option>
+                  </select>
+                </div>
+              </div>
               <div class="text-end px-3">
                 <button @click="createInventory()" class="btn btn-success my-3">
                   nhập kho
@@ -395,6 +414,7 @@ import productServices from "@/services/product.services";
 import uploadServices from "@/services/upload.services";
 import typeProductServices from "@/services/typeProduct.services";
 import inventoryServices from "@/services/inventory.services";
+import supplierServices from "@/services/supplier.services";
 import priceServices from "@/services/price.services";
 import Swal from "sweetalert2";
 
@@ -403,6 +423,7 @@ export default {
 
   data() {
     return {
+      suppliers: [],
       category: [],
       type_product: [],
       type_product_id: "",
@@ -421,6 +442,7 @@ export default {
         quantity: "",
         key: [],
         value: [],
+        id_supplier: "",
       },
       payloadAddPrice: {
         price_number: "",
@@ -504,6 +526,16 @@ export default {
       } catch (error) {
         console.error(error);
       }
+    },
+    async getAllSupplier() {
+      const response = await supplierServices.getAllSuppliers();
+      if (response && response.data) {
+        this.suppliers = response.data;
+      }
+    },
+    handleSelectChangeSupplier(id) {
+      this.payloadInventory.id_supplier = id;
+      console.log("dữ liệu nhập vào", this.payloadInventory);
     },
     async successAddProduct() {
       await priceServices.addPriceDefault(this.resultSubmit._id);
@@ -650,6 +682,7 @@ export default {
               title: response.message, // Lấy thông báo lỗi từ API
             });
           }
+          this.getAllSupplier();
         }
       } catch (error) {
         console.error("Failed to create product:", error);

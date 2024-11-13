@@ -306,6 +306,12 @@ export default {
         console.error("Không có địa chỉ nào trong danh sách");
       }
     },
+    onOrderClick() {
+      this.$router.push({
+        name: "information",
+        query: { component: "order" },
+      });
+    },
     async getDefaultAddress() {
       const response = await addressServices.getDefaultAddress();
       if (response && response.data.length > 0) {
@@ -381,6 +387,9 @@ export default {
           window.location.href = paymentResponse.order_url;
         } else {
           console.error("Không nhận được URL thanh toán hợp lệ.");
+        }
+        if (this.selectedPaymentMethod === "COD") {
+          this.onOrderClick();
         }
         sessionStorage.removeItem("priceReduce");
         sessionStorage.removeItem("priceTotalCart");

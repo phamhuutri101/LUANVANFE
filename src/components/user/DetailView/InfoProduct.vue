@@ -55,6 +55,28 @@
       </button>
     </div>
   </div>
+  <div class="col-12 shop-section">
+    <div class="shop-info">
+      <div class="shop-details">
+        <div>
+          <span class="shop-name">{{ nameShop }}</span>
+          <a @click="gotoDetailShop(product.ACCOUNT__ID)" class="view-shop"
+            >Xem Shop</a
+          >
+        </div>
+      </div>
+      <div class="shop-stats">
+        <div class="stat-item">
+          <span class="stat-label">Đánh giá</span>
+          <span class="stat-value highlight">{{ totalRatingShop }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Sản phẩm</span>
+          <span class="stat-value">{{ totalProductShop }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="col-12">
     <h2 class="title">Mô tả sản phẩm</h2>
     <div class="border-desc">
@@ -74,8 +96,14 @@ import isTokenValid from "@/utils/isTokenValid";
 import getCookie from "@/utils/getCookie";
 import priceServices from "@/services/price.services";
 import cartServices from "@/services/cart.services";
+
 import { formatNumber } from "@/utils/formatNumber";
 import Swal from "sweetalert2";
+import userServices from "@/services/user.services";
+import productServices from "@/services/product.services";
+import reviewServices from "@/services/review.services";
+import shopServices from "@/services/shop.services";
+
 export default {
   props: {
     product: {
@@ -91,7 +119,10 @@ export default {
         value: [],
         number: 1,
       },
-
+      dataUser: {},
+      totalProductShop: "",
+      totalRatingShop: "",
+      nameShop: "",
       priceRange: [],
       priceMin: null,
       priceMax: null,
@@ -111,11 +142,46 @@ export default {
       if (this.product && this.product._id) {
         await this.fetchPrice(this.product._id);
         await this.getPriceRange();
+        await this.getUserByAccountId();
+        await this.getTotalNumberShop();
+        await this.getTotalRatingShop();
+        await this.getNameShopByAccountId();
       }
     }, 100);
-    console.log("sản phẩm", this.product);
   },
   methods: {
+    async getNameShopByAccountId() {
+      const response = await shopServices.getNameShopByAccountId(
+        this.product.ACCOUNT__ID
+      );
+      if (response && response.data) {
+        this.nameShop = response.data;
+      }
+    },
+    async getUserByAccountId() {
+      const response = await userServices.getUserByAccountId(
+        this.product.ACCOUNT__ID
+      );
+      if (response && response.data) {
+        this.dataUser = response.data[0];
+      }
+    },
+    async getTotalNumberShop() {
+      const response = await productServices.getTotalProductShop(
+        this.product.ACCOUNT__ID
+      );
+      if (response && response.data) {
+        this.totalProductShop = response.data;
+      }
+    },
+    async getTotalRatingShop() {
+      const response = await reviewServices.getTotalReviewsShop(
+        this.dataUser.user._id
+      );
+      if (response && response.data) {
+        this.totalRatingShop = response.data;
+      }
+    },
     async fetchPrice(id) {
       try {
         const response = await priceServices.getDefaultPrice(id);
@@ -311,11 +377,138 @@ export default {
         return formatNumber(price);
       }
     },
+    gotoDetailShop(id_account) {
+      this.$router.push({ name: "ShopDetail", params: { id: id_account } });
+    },
   },
 };
 </script>
 
 <style scoped>
+.shop-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.shop-section:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.shop-info {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-radius: 8px;
+}
+
+.shop-details {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.shop-name {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  transition: color 0.3s ease;
+}
+
+.shop-name:hover {
+  color: #09884d;
+}
+
+.view-shop {
+  display: inline-block;
+  padding: 8px 20px;
+  background: #fff;
+  border: 1.5px solid #09884d;
+  border-radius: 6px;
+  color: #09884d;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.view-shop:hover {
+  background: #09884d;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(9, 136, 77, 0.15);
+}
+
+.shop-stats {
+  display: flex;
+  gap: 32px;
+  padding: 16px 24px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stat-value.highlight {
+  color: #09884d;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shop-section {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .shop-info {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .shop-details {
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 16px;
+  }
+
+  .shop-stats {
+    padding-top: 16px;
+  }
+}
 .text-title {
   font-size: 24px;
   font-weight: 500;

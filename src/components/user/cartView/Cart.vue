@@ -4,7 +4,9 @@
       <div class="col-9 height-cart">
         <div class="detail-product" v-for="item in cart" :key="item._id">
           <div class="name-shop">
-            <p>Tên shop</p>
+            <p>
+              {{ item.shopName }}
+            </p>
           </div>
           <div
             class="product d-flex justify-content-between align-items-center"
@@ -17,6 +19,9 @@
                 "
                 alt="Product Image"
               />
+            </div>
+            <div class="name-product">
+              <span>{{ item.ITEM.PRODUCT_DETAILS.NAME_PRODUCT }}</span>
             </div>
             <div class="key-value">
               <div
@@ -162,6 +167,8 @@ import cartServices from "@/services/cart.services";
 import Swal from "sweetalert2";
 import { formatNumber } from "@/utils/formatNumber";
 import promoServices from "@/services/promoServices";
+
+import shopServices from "@/services/shop.services";
 export default {
   data() {
     return {
@@ -178,14 +185,32 @@ export default {
     await this.getCart();
   },
   methods: {
+    async getNameShopByAccountId(id_account) {
+      const response = await shopServices.getNameShopByAccountId(id_account);
+      if (response && response.data) {
+        // Lưu tên shop vào biến tương ứng trong cart
+        return response.data;
+      }
+      return ""; // Trả về chuỗi rỗng nếu không có kết quả
+    },
     async getCart() {
       const response = await cartServices.getCart();
       if (response && response.data.length > 0) {
         this.cart = response.data;
-        
+        this.updateCartCount();
+        // Gọi getNameShopByAccountId cho mỗi sản phẩm trong giỏ hàng và lưu tên shop vào cart
+        for (let item of this.cart) {
+          item.shopName = await this.getNameShopByAccountId(
+            item.ITEM.PRODUCT_DETAILS.ACCOUNT__ID
+          );
+        }
       } else {
         console.error("không có sản phẩm nào trong giỏ hàng");
       }
+    },
+    updateCartCount() {
+      // Hàm cập nhật sessionStorage cho số lượng sản phẩm trong giỏ
+      sessionStorage.setItem("NumberCart", this.cart.length);
     },
     totalPriceCart(price, quantity) {
       let total = 0;
@@ -237,6 +262,7 @@ export default {
               if (result.isConfirmed) {
                 await cartServices.deleteCart(item_id);
                 this.cart.splice(itemIndex, 1);
+                this.updateCartCount();
               }
             } else {
               // Update QUANTITY trong ITEM
@@ -264,10 +290,12 @@ export default {
             id_list_product: id_list_product,
             numberCart: newNumber,
           });
+          this.updateCartCount();
           if (response && response.success) {
             const itemIndex = this.cart.findIndex(
               (item) => item.ITEM._id === item_id
             );
+
             if (newNumber === 0) {
               const result = await Swal.fire({
                 title: "Bạn có muốn xóa sản phẩm ra khỏi giỏ hàng",
@@ -311,6 +339,7 @@ export default {
             if (itemIndex !== -1) {
               this.cart.splice(itemIndex, 1);
             }
+            this.updateCartCount();
           } else {
             console.error("Xóa giỏ hàng thất bại", response.message);
           }
@@ -363,7 +392,7 @@ export default {
     calculateShipping() {
       const totalPrice = this.calculateTotalPrice(); // Thay vì gọi this.calculateShipping()
 
-      if (totalPrice < 500000) {
+      if (totalPrice > 500000) {
         this.payloadUpdate.shipping = (totalPrice * 5) / 100; // Chỉ trả về phí ship
         sessionStorage.setItem("shipping", this.payloadUpdate.shipping);
         return this.payloadUpdate.shipping;

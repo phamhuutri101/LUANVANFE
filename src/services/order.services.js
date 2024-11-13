@@ -92,5 +92,29 @@ class OrderService {
       console.error(error);
     }
   }
+  async getOrderPriceInDay() {
+    try {
+      const response = await this.api.get("/getPriceInDay");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getOrderPriceInMonth() {
+    try {
+      const response = await this.api.get("/getPriceInMonth");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getOrderInDay() {
+    try {
+      const response = await this.api.get("/getOrderInDay");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new OrderService();

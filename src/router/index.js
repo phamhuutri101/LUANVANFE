@@ -19,6 +19,8 @@ import CreateShopView from "@/views/CreateShopView.vue";
 import AdminLogin from "@/views/Admin/AdminLogin.vue";
 import DashBoard from "@/views/Admin/DashBoard.vue";
 import testAdmin from "@/views/testAdmin.vue";
+import DetailShop from "@/views/DetailShop.vue";
+
 const routes = [
   {
     path: "/testAdmin",
@@ -30,11 +32,16 @@ const routes = [
     name: "home",
     component: HomeView,
   },
-  
+
   {
     path: "/test-food",
     name: "test-food-detail",
     component: testFoodDetail,
+  },
+  {
+    path: "/detail-shop/:id",
+    name: "ShopDetail",
+    component: DetailShop,
   },
   {
     path: "/login",

@@ -7,7 +7,7 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
-import { store } from "./store/store";
+import store from "./store/store";
 const app = createApp(App);
 app.use(router);
 app.use(store);

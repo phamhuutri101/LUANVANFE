@@ -4,10 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>Quản lý đơn hàng</h2>
       <div class="d-flex gap-2">
-        <button class="btn btn-success" @click="exportOrders">
-          <i class="bi bi-file-earmark-excel me-2"></i>Xuất Excel
-        </button>
-        <button class="btn btn-primary" @click="refreshOrders">
+        <button class="btn btn-primary" @click="getOrder">
           <i class="bi bi-arrow-clockwise me-2"></i>Làm mới
         </button>
       </div>
@@ -30,12 +27,11 @@
             <label class="form-label">Trạng thái</label>
             <select v-model="filters.status" class="form-select">
               <option value="">Tất cả</option>
-              <option value="0">Chờ thanh toán</option>
+
               <option value="1">Chờ xác nhận</option>
-              <option value="2">Chưa hoàn thành thanh toán</option>
-              <option value="3">Đã xác nhận</option>
+
               <option value="4">đã gửi hàng</option>
-              <option value="5">Đã thanh toán Online</option>
+
               <option value="6">đã nhận hàng</option>
             </select>
           </div>
@@ -217,7 +213,12 @@
               </thead>
               <tbody>
                 <tr v-for="item in detailOrder.LIST_PRODUCT" :key="item._id">
-                  <td>{{ productNames[item.ID_PRODUCT] || "Loading..." }}</td>
+                  <td>
+                    {{ productNames[item.ID_PRODUCT] || "Loading..." }}
+                    <div v-for="KV in item.LIST_MATCH_KEY" :key="KV">
+                      <span>{{ KV.KEY }}</span> - <span>{{ KV.VALUE }}</span>
+                    </div>
+                  </td>
                   <td>{{ item.QLT }}</td>
                   <td>{{ formatPrice(item.UNITPRICES) }}</td>
                   <td>{{ formatPrice(item.QLT * item.UNITPRICES) }}</td>
@@ -557,251 +558,281 @@ export default {
 </script>
 
 <style scoped>
-/* Container styles */
-.container-fluid {
-  padding: 20px;
-  background-color: #f8f9fa;
+/* Main container styles */
+.container {
+  padding: 2rem;
   min-height: 100vh;
-}
-.btn-status {
-  width: 100px;
-  height: 47px;
+  background-color: #f8fafc;
 }
 
 /* Header styles */
-h2 {
-  color: #2c3e50;
-  font-weight: 600;
+.mb-4 h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1a202c;
   margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+h2:before {
+  content: "";
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 4px;
+  margin-right: 0.5rem;
 }
 
 /* Button styles */
 .btn {
-  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
   font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-success {
-  background-color: #28a745;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   border: none;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
-}
-
-.btn-success:hover {
-  background-color: #218838;
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
 
 .btn-primary {
-  background-color: #007bff;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(99, 102, 241, 0.3);
 }
 
 /* Card styles */
 .card {
+  background: white;
+  border-radius: 1rem;
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 24px;
-  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .card-body {
-  padding: 24px;
+  padding: 1.5rem;
 }
 
-/* Form styles */
-.form-label {
-  color: #495057;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
+/* Form controls */
 .form-control,
 .form-select {
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  padding: 10px 16px;
-  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
 }
 
 .form-control:focus,
 .form-select:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
 }
 
 /* Table styles */
 .table {
+  width: 100%;
   margin-bottom: 0;
 }
 
-.table th {
-  background-color: #f8f9fa;
-  color: #495057;
+.table thead th {
+  background-color: #f8fafc;
+  color: #4a5568;
   font-weight: 600;
-  border-bottom: 2px solid #dee2e6;
-  padding: 12px 16px;
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-.table td {
-  padding: 12px 16px;
+.table tbody td {
+  padding: 1rem;
   vertical-align: middle;
-  color: #2c3e50;
+  color: #1a202c;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .table tbody tr {
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: #f8fafc;
+  transform: scale(1.01);
 }
 
-/* Badge styles */
+/* Status badges */
 .badge {
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
   font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .bg-warning {
-  background-color: #ffc107 !important;
-  color: #000;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  color: white;
 }
 
 .bg-info {
-  background-color: #17a2b8 !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
 }
 
 .bg-success {
-  background-color: #28a745 !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
 }
 
 .bg-danger {
-  background-color: #dc3545 !important;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
 }
 
-.bg-secondary {
-  background-color: #6c757d !important;
+/* Action buttons */
+.btn-group {
+  gap: 0.5rem;
 }
 
-/* Pagination styles */
-.pagination {
-  margin-bottom: 0;
+.btn-sm {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
 }
 
-.page-link {
-  color: #007bff;
-  padding: 8px 16px;
-  border: 1px solid #dee2e6;
-  transition: all 0.3s ease;
+.btn-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
 }
 
-.page-link:hover {
-  background-color: #e9ecef;
-  border-color: #dee2e6;
-  color: #0056b3;
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
 }
 
-.page-item.active .page-link {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: #fff;
+.btn-status {
+  min-width: 120px;
+  text-align: center;
+  justify-content: center;
+  font-weight: 500;
 }
 
 /* Modal styles */
 .modal-content {
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .modal-header {
-  border-bottom: 1px solid #e9ecef;
-  padding: 20px 24px;
-}
-
-.modal-title {
-  color: #2c3e50;
-  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 1rem 1rem 0 0;
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 1.5rem;
 }
 
 .modal-footer {
-  border-top: 1px solid #e9ecef;
-  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border-radius: 0 0 1rem 1rem;
 }
 
-/* Action button styles */
-.btn-group .btn {
-  margin: 0 2px;
+.modal-title {
+  color: #1a202c;
+  font-weight: 600;
 }
 
-.btn-sm {
-  padding: 4px 8px;
-  font-size: 14px;
+/* Pagination styles */
+.VPagination {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.btn-info {
-  background-color: #17a2b8;
-  border: none;
-  color: #fff;
+.VPagination button {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.btn-info:hover {
-  background-color: #138496;
+.VPagination button:hover {
+  background: #f8fafc;
+  border-color: #6366f1;
 }
 
-.btn-danger {
-  background-color: #dc3545;
-  border: none;
+.VPagination button.active {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
 }
 
-.btn-danger:hover {
-  background-color: #c82333;
+/* Animation classes */
+.animate__animated {
+  animation-duration: 0.5s;
 }
 
-/* Order detail specific styles */
-.modal-xl {
-  max-width: 1140px;
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
 
-.modal-body strong {
-  color: #495057;
-}
+  .card-body {
+    padding: 1rem;
+  }
 
-/* Custom scrollbar for table responsive */
-.table-responsive::-webkit-scrollbar {
-  height: 8px;
-}
+  .table thead {
+    display: none;
+  }
 
-.table-responsive::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
+  .table tbody td {
+    display: block;
+    text-align: right;
+    padding: 0.75rem;
+    border: none;
+  }
 
-.table-responsive::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
+  .table tbody td:before {
+    content: attr(data-label);
+    float: left;
+    font-weight: 600;
+    color: #4a5568;
+  }
 
-.table-responsive::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  .btn-group {
+    justify-content: flex-end;
+  }
 }
 </style>

@@ -35,5 +35,13 @@ class Shop {
       console.error(error);
     }
   }
+  async getNameShopByAccountId(id) {
+    try {
+      const response = await this.api.get(`/getNameShop/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new Shop();

@@ -34,7 +34,7 @@
                 currency: "VND",
               })
             }}</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
+            <!-- <span class="card-product-price-reduced">400.3000đ</span> -->
           </div>
           <div class="card-product-footer">
             <span class="text-product-footer"
@@ -83,7 +83,6 @@ export default {
     await this.getProduct();
     await this.getReviewProductsById();
     await this.getAddressShop();
-    console.log(this.addressShop);
   },
   methods: {
     async getProduct() {

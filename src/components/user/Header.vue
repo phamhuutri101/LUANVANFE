@@ -89,7 +89,7 @@
         <span
           class="position-absolute top-200 start-100 translate-middle badge rounded-pill bg-danger"
         >
-          {{ count }}
+          {{ cartItemCount }}
           <!-- Replace this with your dynamic count -->
         </span>
         <i class="fa-solid fa-cart-shopping"></i>
@@ -113,7 +113,12 @@ export default {
       recognition: null,
     };
   },
+
   created() {},
+
+  mounted() {
+    this.$store.dispatch("fetchCart"); // Gọi action để lấy dữ liệu giỏ hàng
+  },
   watch: {
     accessToken() {
       // Khi cookie thay đổi, cập nhật lại trạng thái giao diện
@@ -166,6 +171,9 @@ export default {
   computed: {
     isLoggedIn() {
       return !!getCookie("access_token");
+    },
+    cartItemCount() {
+      return this.$store.getters.cartItemCount;
     },
   },
   mounted() {

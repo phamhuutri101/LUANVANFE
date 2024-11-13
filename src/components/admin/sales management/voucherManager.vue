@@ -108,6 +108,26 @@
             placeholder="Nhập giá trị đơn tối thiểu"
           />
         </div>
+        <div v-if="newDiscount.discountType === 'percentage'">
+          <label class="block text-sm font-medium mb-1">Giảm tối đa</label>
+          <input
+            v-model="newDiscount.maxPurchase"
+            type="number"
+            class="w-full p-2 border rounded"
+            placeholder="Giảm tối đa"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1"
+            >Số lượng mã giảm giá</label
+          >
+          <input
+            v-model="newDiscount.quantity"
+            type="number"
+            class="w-full p-2 border rounded"
+            placeholder="Nhập số lượng mã"
+          />
+        </div>
       </div>
 
       <button
@@ -129,6 +149,8 @@
 
             <th class="px-4 py-3 text-left">Ngày hết hạn</th>
             <th class="px-4 py-3 text-left">Đơn tối thiểu</th>
+            <th class="px-4 py-3 text-left">Đơn tối đa</th>
+            <th class="px-4 py-3 text-left">Số lượng mã</th>
             <th class="px-4 py-3 text-left">Thao tác</th>
           </tr>
         </thead>
@@ -155,6 +177,13 @@
             <td class="px-4 py-3">{{ formatDate(discount.TO_DATE) }}</td>
             <td class="px-4 py-3">
               {{ discount.MIN_PURCHASE }}
+            </td>
+            <td class="px-4 py-3" v-if="discount.DISCOUNT_PERCENTAGE">
+              {{ discount.MAX_DISCOUNT_AMOUNT }}
+            </td>
+            <td class="px-4 py-3" v-else>Không có</td>
+            <td class="px-4 py-3">
+              {{ discount.QUANTITY }}
             </td>
             <td class="px-4 py-3">
               <button
@@ -186,6 +215,8 @@ export default {
         discountPercentage: null,
         to_date: "",
         minPurchase: "",
+        quantity: "",
+        maxPurchase: "",
       },
     };
   },
@@ -208,31 +239,52 @@ export default {
       }
     },
     async addDiscount() {
-      const response = await promoServices.addDiscount(this.newDiscount);
-      if (response && response.success == true) {
-        this.resetForm();
-        this.getAllPromo();
-        const Toast = Swal.mixin({
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 800,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-          },
-        });
-        Toast.fire({
-          icon: "success",
-          title: "Thêm mã giảm giá thành công",
-        });
-      } else {
+      try {
+        const response = await promoServices.addDiscount(this.newDiscount);
+
+        if (response && response.success === true) {
+          this.resetForm();
+          this.getAllPromo();
+
+          const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 800,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+            },
+          });
+          Toast.fire({
+            icon: "success",
+            title: "Thêm mã giảm giá thành công",
+          });
+        } else if (response && response.success === false) {
+          // Display the error message from the response
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: response.error || "Đã xảy ra lỗi.",
+          });
+        } else {
+          // Handle unexpected response structure
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Đã xảy ra lỗi không xác định.",
+          });
+        }
+      } catch (error) {
+        // Handle network or other unexpected errors
         Swal.fire({
           icon: "error",
           title: "Lỗi",
-          text: "Mã giảm giá bị trùng",
+          text:
+            error.message || "Không thể kết nối tới dịch vụ. Vui lòng thử lại.",
         });
+        console.error("Error in addDiscount:", error);
       }
     },
 

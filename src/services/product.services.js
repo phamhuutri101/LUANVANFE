@@ -12,9 +12,21 @@ class ProductService {
       throw error;
     }
   }
-  async getProductShop() {
+  async getProductShop(page, limit) {
     try {
-      const response = await this.api.get("/shopProduct");
+      const response = await this.api.get(
+        `/shopProduct/?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getProductShopByIdAccount(id_account, page, limit) {
+    try {
+      const response = await this.api.get(
+        `/getProductShopByIdAccount/${id_account}/?page=${page}&limit=${limit}`
+      );
       return response.data;
     } catch (error) {
       console.error(error);
@@ -68,6 +80,22 @@ class ProductService {
   async getProductKeyValue(id) {
     try {
       const response = await this.api.get(`/getKV/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getTotalProductShop(id) {
+    try {
+      const response = await this.api.get(`/getProductTotalShop/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getTotalProductShopper() {
+    try {
+      const response = await this.api.get("/getProductTotalShopper");
       return response.data;
     } catch (error) {
       console.log(error);

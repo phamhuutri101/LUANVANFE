@@ -37,5 +37,13 @@ class ReviewServices {
       console.error(error);
     }
   }
+  async getTotalReviewsShop(id) {
+    try {
+      const response = await this.api.get(`/getTotalReview/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new ReviewServices();
