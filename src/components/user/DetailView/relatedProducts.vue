@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5 mb-5">
-    <p class="text-product">Dành cho bạn</p>
+    <p class="text-product">Sản phẩm khác của shop</p>
     <div class="row">
       <div
         class="col-6 col-md-4 col-lg-2 px-2 py-2 card-main"
@@ -56,10 +56,19 @@
         </div>
       </div>
     </div>
+    <VPagination
+      v-model="page"
+      :pages="currentMaxPage"
+      :range-size="4"
+      active-color="#DCEDFF"
+      @update:modelValue="onPageChange"
+    />
   </div>
 </template>
 
 <script>
+import VPagination from "@hennge/vue3-pagination";
+import "@hennge/vue3-pagination/dist/vue3-pagination.css";
 import priceServices from "@/services/price.services";
 import productServices from "@/services/product.services";
 import favoriteServices from "@/services/favorite.services";
@@ -71,23 +80,43 @@ import Swal from "sweetalert2";
 import userServices from "@/services/user.services";
 import addressServices from "@/services/address.services";
 export default {
+  props: {
+    product: {
+      type: Object,
+      required: true,
+    },
+  },
   data() {
     return {
       prices: [], // Lưu trữ giá cho từng sản phẩm
       products: [],
       productReviews: [],
       addressShop: [],
+      page: 1,
+      limit: 4,
+      currentMaxPage: 1,
     };
   },
+
+  components: {
+    VPagination,
+  },
   async created() {
-    await this.getProduct();
-    await this.getReviewProductsById();
-    await this.getAddressShop();
+    setTimeout(async () => {
+      await this.getProduct();
+      await this.getReviewProductsById();
+      await this.getAddressShop();
+      console.log("dữ liệu nhận prop", this.product.ACCOUNT__ID);
+    }, 300);
   },
   methods: {
     async getProduct() {
       try {
-        const response = await productServices.getAllProduct();
+        const response = await productServices.getProductShopByIdAccount(
+          this.product.ACCOUNT__ID,
+          this.page,
+          this.limit
+        );
         if (response && response.data) {
           const productsWithFavorites = await Promise.all(
             response.data.map(async (product) => {
@@ -240,6 +269,12 @@ export default {
         }
       } catch (error) {
         console.error(error);
+      }
+    },
+    async onPageChange(newPage) {
+      if (newPage <= this.currentMaxPage) {
+        this.page = newPage;
+        await this.getVoucher();
       }
     },
   },

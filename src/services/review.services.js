@@ -37,6 +37,16 @@ class ReviewServices {
       console.error(error);
     }
   }
+  async getAllReviewShop(page, limit) {
+    try {
+      const response = await this.api.get(
+        `/getAllShop/?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   async getTotalReviewsShop(id) {
     try {
       const response = await this.api.get(`/getTotalReview/${id}`);

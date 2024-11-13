@@ -34,7 +34,6 @@
                 currency: "VND",
               })
             }}</span>
-            <span class="card-product-price-reduced">400.3000đ</span>
           </div>
           <div class="card-product-footer">
             <span class="text-product-footer"

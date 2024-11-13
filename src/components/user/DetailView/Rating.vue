@@ -80,7 +80,7 @@ export default {
     setTimeout(async () => {
       await this.getReviewProductsById();
       await this.getTotalReviewsByProductId();
-    }, 100);
+    }, 300);
   },
   methods: {
     async getReviewProductsById() {

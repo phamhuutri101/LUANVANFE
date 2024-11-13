@@ -1,5 +1,11 @@
 <template>
   <div class="dashboard-container">
+    <div class="d-flex justify-content-end">
+      <h5 class="dashboard-title-shop">
+        <span class="title-icon"></span>
+        Xin chào {{ shopName }}
+      </h5>
+    </div>
     <h1 class="dashboard-title">
       <span class="title-icon"><i class="fas fa-chart-pie"></i></span>
       Tổng quan cửa hàng
@@ -141,6 +147,8 @@
 <script>
 import orderServices from "@/services/order.services";
 import productServices from "@/services/product.services";
+import shopServices from "@/services/shop.services";
+
 import { formatNumber } from "@/utils/formatNumber";
 export default {
   name: "DashboardOverview",
@@ -150,6 +158,7 @@ export default {
       priceInDay: "",
       priceInMonth: "",
       totalProduct: "",
+      shopName: "",
       recentOrders: [
         {
           code: "ORD001",
@@ -221,8 +230,19 @@ export default {
     this.getPriceInDay();
     this.getTotalProduct();
     this.getPriceInMonth();
+    this.getNameShop();
   },
   methods: {
+    async getNameShop() {
+      try {
+        const response = await shopServices.getNameShopByAccountIdShopper();
+        if (response && response.data) {
+          this.shopName = response.data;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async getOrderInDay() {
       try {
         const response = await orderServices.getOrderInDay();
@@ -281,6 +301,15 @@ dashboard-container {
 
 .dashboard-title {
   font-size: 2rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.dashboard-title-shop {
+  font-size: 22px;
   font-weight: 800;
   color: #1a202c;
   margin-bottom: 2rem;

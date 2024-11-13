@@ -1,10 +1,11 @@
 <template>
   <Header />
-  <div class="container background-component  pt-3">
+  <div class="container background-component pt-3">
     <div class="row">
       <Carousel :product="product" />
       <InfoProduct :product="product" />
       <Rating :product="product" />
+      <relatedProducts :product="product" />
     </div>
   </div>
   <Footer />
@@ -17,8 +18,16 @@ import Carousel from "@/components/user/DetailView/Carousel.vue";
 import InfoProduct from "@/components/user/DetailView/InfoProduct.vue";
 import productServices from "@/services/product.services";
 import Rating from "@/components/user/DetailView/Rating.vue";
+import relatedProducts from "@/components/user/DetailView/relatedProducts.vue";
 export default {
-  components: { Carousel, InfoProduct, Header, Footer, Rating },
+  components: {
+    Carousel,
+    InfoProduct,
+    Header,
+    Footer,
+    Rating,
+    relatedProducts,
+  },
   data() {
     return {
       product: {},

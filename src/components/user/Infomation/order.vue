@@ -776,12 +776,12 @@ export default {
 
       const reviews = this.orderDataRating.LIST_PRODUCT.map((item) => ({
         ID_PRODUCT: item.ID_PRODUCT,
+        id_account_shop: this.orderDataRating.ACCOUNT__ID,
         number_start: item.rating,
         desc_reviews: item.desc_reviews,
         img_url: item.images.map((img) => img.file_url),
         classify: item.classify,
       }));
-
       try {
         for (const review of reviews) {
           const payload = {
@@ -789,6 +789,7 @@ export default {
             desc_reviews: review.desc_reviews,
             img_url: review.img_url,
             classify: review.classify,
+            id_account_shop: review.id_account_shop,
           };
           // Gọi API với ID_PRODUCT và payload trong vòng lặp
           const response = await reviewServices.AddReviews(

@@ -147,7 +147,7 @@ export default {
         await this.getTotalRatingShop();
         await this.getNameShopByAccountId();
       }
-    }, 100);
+    }, 300);
   },
   methods: {
     async getNameShopByAccountId() {

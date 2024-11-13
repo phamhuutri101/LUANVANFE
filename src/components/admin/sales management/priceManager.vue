@@ -297,7 +297,10 @@ export default {
   },
   methods: {
     async getAllProduct() {
-      const response = await productServices.getAll(this.page, this.limit);
+      const response = await productServices.getProductShop(
+        this.page,
+        this.limit
+      );
       if (response && response.data) {
         this.products = response.data;
         for (const product of this.products) {

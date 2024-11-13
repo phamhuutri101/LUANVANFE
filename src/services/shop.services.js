@@ -43,5 +43,13 @@ class Shop {
       console.error(error);
     }
   }
+  async getNameShopByAccountIdShopper() {
+    try {
+      const response = await this.api.get("/getNameShopper");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new Shop();

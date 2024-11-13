@@ -179,7 +179,7 @@ export default {
       return new Date(date).toLocaleDateString("vi-VN");
     },
     async getAllReview() {
-      const response = await reviewServices.getAllReview(1, 10);
+      const response = await reviewServices.getAllReviewShop(1, 10);
       if (response && response.data) {
         this.reviews = response.data;
         console.log(this.reviews);
