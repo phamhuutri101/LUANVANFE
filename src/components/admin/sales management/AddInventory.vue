@@ -309,14 +309,33 @@ export default {
       if (response && response.data) {
         this.products = response.data;
         for (const product of this.products) {
-          const categoryResponse = await categoryServices.getById(
-            product.CATEGORY_ID
-          );
-          if (categoryResponse && categoryResponse.data) {
-            product.CATEGORY_NAME = categoryResponse.data[0].CATEGORY_NAME; // Gán CATEGORY_NAME cho từng sản phẩm
-            console.log(this.products);
+          try {
+            const categoryResponse = await categoryServices.getById(
+              product.CATEGORY_ID
+            );
+
+            // Kiểm tra kỹ càng trước khi gán giá trị
+            if (
+              categoryResponse &&
+              categoryResponse.data &&
+              Array.isArray(categoryResponse.data) &&
+              categoryResponse.data.length > 0
+            ) {
+              product.CATEGORY_NAME =
+                categoryResponse.data[0].CATEGORY_NAME ||
+                "Không có tên danh mục"; // Giá trị mặc định nếu CATEGORY_NAME rỗng
+            } else {
+              product.CATEGORY_NAME = "Chưa xác định"; // Giá trị mặc định nếu không có dữ liệu
+            }
+          } catch (error) {
+            console.error(
+              `Không thể lấy danh mục cho sản phẩm ${product.NAME_PRODUCT}:`,
+              error
+            );
+            product.CATEGORY_NAME = "Lỗi lấy danh mục"; // Gán giá trị khi có lỗi xảy ra
           }
         }
+        console.log(this.products);
       }
     },
     async getAllSupplier() {
@@ -365,6 +384,7 @@ export default {
               title: "Nhập kho sản phẩm thành công",
             });
           }
+          this.resetForm();
         }
       } catch (error) {
         console.error(error);

@@ -135,6 +135,7 @@ import inventory from "@/components/admin/sales management/inventory.vue";
 import AddInventory from "@/components/admin/sales management/AddInventory.vue";
 import priceManager from "@/components/admin/sales management/priceManager.vue";
 import orderManager from "@/components/admin/sales management/orderManager.vue";
+
 export default {
   name: "App",
   components: {

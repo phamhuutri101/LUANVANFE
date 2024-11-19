@@ -51,5 +51,6 @@ class Shop {
       console.error(error);
     }
   }
+ 
 }
 export default new Shop();

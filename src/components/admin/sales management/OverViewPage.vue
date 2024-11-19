@@ -69,6 +69,32 @@
           </div>
         </div>
       </div>
+      <div
+        class="dashboard-box monthly-box animate__animated animate__fadeIn animate__delay-3s"
+      >
+        <div class="box-content">
+          <div class="box-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="box-info">
+            <h3 class="box-label">Lợi nhuận trong ngày</h3>
+            <p class="box-value">{{ formatPrice(orderProfitInDay) }}</p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="dashboard-box monthly-box animate__animated animate__fadeIn animate__delay-3s"
+      >
+        <div class="box-content">
+          <div class="box-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="box-info">
+            <h3 class="box-label">Tổng Lợi nhuận</h3>
+            <p class="box-value">{{ formatPrice(TotalOrderProfit) }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- <div class="statistics-section">
@@ -159,6 +185,8 @@ export default {
       priceInMonth: "",
       totalProduct: "",
       shopName: "",
+      orderProfitInDay: "",
+      TotalOrderProfit: "",
       recentOrders: [
         {
           code: "ORD001",
@@ -231,6 +259,8 @@ export default {
     this.getTotalProduct();
     this.getPriceInMonth();
     this.getNameShop();
+    this.getOrderProfitInDay();
+    this.getTotalOrderProfit();
   },
   methods: {
     async getNameShop() {
@@ -287,6 +317,26 @@ export default {
     formatPrice(price) {
       const Price = new Number(price);
       return formatNumber(Price);
+    },
+    async getOrderProfitInDay() {
+      try {
+        const response = await orderServices.getOrderProfitInDay();
+        if (response && response.data) {
+          this.orderProfitInDay = response.data.totalProfit;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getTotalOrderProfit() {
+      try {
+        const response = await orderServices.getTotalOrderProfit();
+        if (response && response.data) {
+          this.TotalOrderProfit = response.data.totalProfit;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 };

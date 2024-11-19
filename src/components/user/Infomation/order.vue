@@ -130,6 +130,69 @@
       </div>
     </div>
     <!-- modal đánh giá sp -->
+    <!-- modal Hủy đơn -->
+    <div
+      class="modal fade"
+      id="cancelOrder"
+      tabindex="-1"
+      aria-labelledby="cancelOrderLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="cancelOrderLabel">Hủy đơn hàng</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <label for="color" class="form-label">Lý do hủy đơn</label>
+            <select
+              class="form-select"
+              v-model="payloadCancelOrder.content_cancel"
+            >
+              <option
+                selected
+                value="Tôi muốn thay đổi sản phẩm (Kích thước, màu sắc, số lượng ...)<"
+              >
+                Tôi muốn thay đổi sản phẩm (Kích thước, màu sắc, số lượng ...)
+              </option>
+              <option value="Tôi muốn cập nhật địa chỉ/sdt nhận hàng">
+                Tôi muốn cập nhật địa chỉ/sdt nhận hàng
+              </option>
+              <option value="Tôi không có nhu cầu mua nữa">
+                Tôi không có nhu cầu mua nữa
+              </option>
+              <option value="Người bán xác nhận gửi sai hàng">
+                Người bán xác nhận gửi sai hàng
+              </option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              @click="cancelOrder()"
+              type="button"
+              class="btn btn-primary"
+            >
+              Save changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- modal Hủy đơn -->
     <ul
       class="nav nav-pills mb-3 d-flex justify-content-between"
       id="pills-tab"
@@ -208,12 +271,12 @@
       <li class="nav-item" role="presentation">
         <button
           class="nav-link"
-          id="cancel-tab"
+          id="cancel-order-tab"
           data-bs-toggle="pill"
-          data-bs-target="#cancel"
+          data-bs-target="#cancel-order"
           type="button"
           role="tab"
-          aria-controls="cancel"
+          aria-controls="cancel-order"
           aria-selected="false"
         >
           Đã hủy
@@ -228,10 +291,10 @@
         aria-labelledby="AllOrder-tab"
       >
         <div class="wrap" v-for="item in orders" :key="item._id">
-          <div class="title-order d-flex py-4 border-bottom">
-            <span>Tên shop</span>
-            <span class="show-shop"
-              ><i class="fa-solid fa-shop"></i> Xem shop</span
+          <div class="title-order d-flex border-bottom">
+            <span>{{ item.shopName }}</span>
+            <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)">
+              <i class="fa-solid fa-shop"></i> Xem shop</span
             >
           </div>
           <div
@@ -280,7 +343,7 @@
               }}</span>
             </div>
             <hr />
-            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+            <div class="total-price text-end" v-if="item.ORDER_PRICE">
               <span>Thành tiền</span>
               <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
             </div>
@@ -289,14 +352,45 @@
                 >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
                 đến bạn và sản phẩm nhận được không có vấn đề nào.</span
               >
+              <span v-if="item.lastStatusCode === 7">Đơn hàng đã hủy</span>
+              <span v-if="item.lastStatusCode < 4"
+                >Bạn có thể "hủy đơn" nếu có vấn đề về đơn hàng</span
+              >
+              <div v-if="item.lastStatusCode === 6">
+                <span v-if="item.is_reviews == false"
+                  >Đơn hàng đã hoàn thành vui lòng cho biết cảm nhận sản phẩm
+                  bằng cách đánh giá sản phẩm</span
+                >
+                <span v-else>đơn hàng của bạn đã hoàn thành</span>
+              </div>
+
               <div class="confirm d-flex">
+                <div v-if="item.lastStatusCode === 6">
+                  <button
+                    v-if="item.is_reviews == false"
+                    data-bs-toggle="modal"
+                    data-bs-target="#ratingModal"
+                    @click="getOrderSuccessById(item._id)"
+                  >
+                    Đánh giá
+                  </button>
+                  <button v-else>Đã đánh giá</button>
+                </div>
+
                 <button
                   v-if="item.lastStatusCode === 4"
                   @click="receivedProduct(item.ACCOUNT__ID, item._id)"
                 >
                   Đã nhận hàng
                 </button>
-                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+                <button
+                  v-if="item.lastStatusCode < 4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelOrder"
+                  @click="getIdOrderCancelOrder(item._id)"
+                >
+                  Xác nhận hủy
+                </button>
               </div>
             </div>
           </div>
@@ -309,9 +403,9 @@
         aria-labelledby="pills-profile-tab"
       >
         <div class="wrap" v-for="item in pendingOrders" :key="item._id">
-          <div class="title-order d-flex py-4 border-bottom">
-            <span>Tên shop</span>
-            <span class="show-shop"
+          <div class="title-order d-flex border-bottom">
+            <span>{{ item.shopName }}</span>
+            <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)">
               ><i class="fa-solid fa-shop"></i> Xem shop</span
             >
           </div>
@@ -361,15 +455,12 @@
               }}</span>
             </div>
             <hr />
-            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+            <div class="total-price text-end" v-if="item.ORDER_PRICE">
               <span>Thành tiền</span>
               <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
             </div>
             <div class="notification d-flex">
-              <span
-                >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
-                đến bạn và sản phẩm nhận được không có vấn đề nào.</span
-              >
+              <span>Bạn có thể "hủy đơn" nếu có vấn đề về đơn hàng</span>
               <div class="confirm d-flex">
                 <button
                   v-if="item.lastStatusCode === 4"
@@ -377,7 +468,14 @@
                 >
                   Đã nhận hàng
                 </button>
-                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+                <button
+                  v-if="item.lastStatusCode < 4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelOrder"
+                  @click="getIdOrderCancelOrder(item._id)"
+                >
+                  Xác nhận hủy
+                </button>
               </div>
             </div>
           </div>
@@ -390,9 +488,9 @@
         aria-labelledby="pills-contact-tab"
       >
         <div class="wrap" v-for="item in confirmedOrders" :key="item._id">
-          <div class="title-order d-flex py-4 border-bottom">
-            <span>Tên shop</span>
-            <span class="show-shop"
+          <div class="title-order d-flex border-bottom">
+            <span>{{ item.shopName }}</span>
+            <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)"
               ><i class="fa-solid fa-shop"></i> Xem shop</span
             >
           </div>
@@ -442,15 +540,12 @@
               }}</span>
             </div>
             <hr />
-            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+            <div class="total-price text-end" v-if="item.ORDER_PRICE">
               <span>Thành tiền</span>
               <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
             </div>
             <div class="notification d-flex">
-              <span
-                >Vui lòng chỉ nhấn "Đã nhận được hàng" khi đơn hàng đã được giao
-                đến bạn và sản phẩm nhận được không có vấn đề nào.</span
-              >
+              <span>Bạn có thể "hủy đơn" nếu có vấn đề về đơn hàng</span>
               <div class="confirm d-flex">
                 <button
                   v-if="item.lastStatusCode === 4"
@@ -458,7 +553,14 @@
                 >
                   Đã nhận hàng
                 </button>
-                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+                <button
+                  v-if="item.lastStatusCode < 4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelOrder"
+                  @click="getIdOrderCancelOrder(item._id)"
+                >
+                  Xác nhận hủy
+                </button>
               </div>
             </div>
           </div>
@@ -471,9 +573,9 @@
         aria-labelledby="sendProduct-tab"
       >
         <div class="wrap" v-for="item in processingOrders" :key="item._id">
-          <div class="title-order d-flex py-4 border-bottom">
-            <span>Tên shop</span>
-            <span class="show-shop"
+          <div class="title-order d-flex border-bottom">
+            <span>{{ item.shopName }}</span>
+            <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)">
               ><i class="fa-solid fa-shop"></i> Xem shop</span
             >
           </div>
@@ -523,7 +625,7 @@
               }}</span>
             </div>
             <hr />
-            <div class="total-price text-end py-4" v-if="item.ORDER_PRICE">
+            <div class="total-price text-end" v-if="item.ORDER_PRICE">
               <span>Thành tiền</span>
               <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
             </div>
@@ -539,7 +641,14 @@
                 >
                   Đã nhận hàng
                 </button>
-                <button v-if="item.lastStatusCode < 4">Xác nhận hủy</button>
+                <button
+                  v-if="item.lastStatusCode < 4"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelOrder"
+                  @click="getIdOrderCancelOrder(item._id)"
+                >
+                  Xác nhận hủy
+                </button>
               </div>
             </div>
           </div>
@@ -552,9 +661,9 @@
         aria-labelledby="success-order-tab"
       >
         <div class="wrap" v-for="item in completedOrders" :key="item._id">
-          <div class="title-order d-flex py-4 border-bottom">
-            <span>Tên shop</span>
-            <span class="show-shop"
+          <div class="title-order d-flex border-bottom">
+            <span>{{ item.shopName }}</span>
+            <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)"
               ><i class="fa-solid fa-shop"></i> Xem shop</span
             >
           </div>
@@ -591,53 +700,158 @@
             </div>
           </div>
           <div class="footer-order py-4">
-            <div class="total-price text-end py-4">
-              <span>Thành tiền</span>
-              <span>{{ formatNumber(calculateTotalPrice(item)) }}</span>
+            <div class="total-price text-end">
+              <div class="total-price text-end py-1" v-if="item.PRICE_REDUCED">
+                <span>Giảm giá</span>
+                <span class="text-danger">{{
+                  formatNumber(item.PRICE_REDUCED)
+                }}</span>
+              </div>
+              <div class="total-price text-end py-1" v-if="item.SHIPPING_FEE">
+                <span>Phí vận chuyển</span>
+                <span class="text-danger">{{
+                  formatNumber(item.SHIPPING_FEE)
+                }}</span>
+              </div>
+              <hr />
+              <div class="total-price text-end" v-if="item.ORDER_PRICE">
+                <span>Thành tiền</span>
+                <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
+              </div>
             </div>
             <div class="notification d-flex justify-content-between">
-              <span
+              <span v-if="item.is_reviews == false"
                 >Đơn hàng đã hoàn thành vui lòng cho biết cảm nhận sản phẩm bằng
                 cách đánh giá sản phẩm</span
               >
+              <span v-else>đơn hàng của bạn đã hoàn thành</span>
               <div class="confirm d-flex">
                 <button
+                  v-if="item.is_reviews == false"
                   data-bs-toggle="modal"
                   data-bs-target="#ratingModal"
                   @click="getOrderSuccessById(item._id)"
                 >
                   Đánh giá
                 </button>
+                <button v-else>Đã đánh giá</button>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div
+        class="tab-pane fade"
+        id="cancel-order"
+        role="tabpanel"
+        aria-labelledby="cancel-order-tab"
+      >
+        <div class="wrap" v-for="item in cancelledOrders" :key="item._id">
+          <div class="title-order d-flex border-bottom">
+            <span>{{ item.shopName }}</span>
+            <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)"
+              ><i class="fa-solid fa-shop"></i> Xem shop</span
+            >
+          </div>
+          <div
+            class="body-order d-flex border-bottom justify-content-between"
+            v-for="classify in item.LIST_PRODUCT"
+            :key="classify._id"
+          >
+            <div class="img_name_product d-flex py-4">
+              <div class="img">
+                <img
+                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  alt="Hình ảnh"
+                />
+              </div>
+              <div class="name px-2">
+                <span>{{ classify.productName }}</span>
+                <span class="d-block classify py-2"
+                  >Phân loại hàng:
+                  <span
+                    class="px-2"
+                    v-for="classify1 in classify.LIST_MATCH_KEY"
+                    :key="classify1._id"
+                  >
+                    {{ classify1.KEY }} {{ classify1.VALUE }}</span
+                  >
+                </span>
+
+                <span class="d-block">x{{ classify.QLT }}</span>
+              </div>
+            </div>
+            <div class="price_product d-flex align-items-center">
+              <span>{{ formatNumber(classify.UNITPRICES) }}</span>
+            </div>
+          </div>
+          <div class="footer-order py-4">
+            <div class="total-price text-end">
+              <div class="total-price text-end py-1" v-if="item.PRICE_REDUCED">
+                <span>Giảm giá</span>
+                <span class="text-danger">{{
+                  formatNumber(item.PRICE_REDUCED)
+                }}</span>
+              </div>
+              <div class="total-price text-end py-1" v-if="item.SHIPPING_FEE">
+                <span>Phí vận chuyển</span>
+                <span class="text-danger">{{
+                  formatNumber(item.SHIPPING_FEE)
+                }}</span>
+              </div>
+              <hr />
+              <div class="total-price text-end" v-if="item.ORDER_PRICE">
+                <span>Thành tiền</span>
+                <span>{{ formatNumber(item.ORDER_PRICE) }}</span>
+              </div>
+            </div>
+            <div class="notification d-flex justify-content-between">
+              <div class="confirm d-flex">
+                <button
+                  data-bs-toggle="modal"
+                  data-bs-target="#ratingModal"
+                  @click="getOrderSuccessById(item._id)"
+                >
+                  Chi tiết đơn hủy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <VPagination
+        v-model="page"
+        :pages="currentMaxPage"
+        :range-size="5"
+        active-color="#DCEDFF"
+        @update:modelValue="onPageChange"
+      />
     </div>
-    <VPagination
-      v-model="page"
-      :pages="currentMaxPage"
-      :range-size="5"
-      active-color="#DCEDFF"
-      @update:modelValue="onPageChange"
-    />
   </div>
 </template>
 
 <script>
+import Swal from "sweetalert2";
 import VPagination from "@hennge/vue3-pagination";
 import "@hennge/vue3-pagination/dist/vue3-pagination.css";
 import orderServices from "@/services/order.services";
 import productServices from "@/services/product.services";
 import { formatNumber } from "@/utils/formatNumber";
-import reviewServices from "@/services/review.services";
+
 import uploadServices from "@/services/upload.services";
+import shopServices from "@/services/shop.services";
+import reviewServices from "@/services/review.services";
 export default {
   components: {
     VPagination,
   },
   data() {
     return {
+      payloadCancelOrder: {
+        id_order: "",
+        content_cancel: "",
+      },
       orders: [],
       orderSuccess: [],
       reviewId: "",
@@ -645,7 +859,7 @@ export default {
       reviewContent: "",
       orderDataRating: null,
       page: 1,
-      limit: 5,
+      limit: 10,
       currentMaxPage: 1,
     };
   },
@@ -679,7 +893,9 @@ export default {
       );
     },
     cancelledOrders() {
-      return this.orders.filter((order) => order.CANCEL_REASON !== null);
+      return this.orders.filter(
+        (order) => order.LIST_STATUS.at(-1)?.STATUS_CODE === 7
+      );
     },
   },
 
@@ -691,13 +907,24 @@ export default {
         for (const classify of item.LIST_PRODUCT) {
           const productName = await this.getNameProduct(classify.ID_PRODUCT);
           classify.productName = productName;
+          item.shopName = await this.getNameShopByAccountId(item.ACCOUNT__ID);
+          item.is_reviews = await this.is_review(item._id);
         }
       }
       this.orders = order.data;
+      this.orders.sort(
+        (a, b) => new Date(b.TIME_PAYMENT) - new Date(a.TIME_PAYMENT)
+      );
       for (const item of this.orders) {
         const response = await orderServices.getLastStatusOrder(item._id);
 
         item.lastStatusCode = response.data;
+      }
+      if (this.orders.length < this.limit) {
+        this.currentMaxPage = this.page;
+      } else {
+        // Set currentMaxPage to allow for another page
+        this.currentMaxPage = this.page + 1;
       }
     },
     async getOrderSuccess() {
@@ -709,7 +936,6 @@ export default {
         }
       }
       this.orderSuccess = orderSuccess.data;
-      console.log("sản phẩm đã thanh toán", this.orderSuccess);
     },
     async getOrderSuccessById(id) {
       const response = await orderServices.getOrderById(id);
@@ -721,7 +947,6 @@ export default {
         item.classify = item.LIST_MATCH_KEY.map((key) => key.VALUE).join(", "); // Ghép các giá trị phân loại thành chuỗi
       }
       this.orderDataRating = response.data;
-      console.log("dữ liệu trả về lấy đánh giá", this.orderDataRating);
     },
     async getNameProduct(id) {
       const response = await productServices.getById(id);
@@ -777,6 +1002,7 @@ export default {
       const reviews = this.orderDataRating.LIST_PRODUCT.map((item) => ({
         ID_PRODUCT: item.ID_PRODUCT,
         id_account_shop: this.orderDataRating.ACCOUNT__ID,
+        id_order: this.orderDataRating._id,
         number_start: item.rating,
         desc_reviews: item.desc_reviews,
         img_url: item.images.map((img) => img.file_url),
@@ -790,6 +1016,7 @@ export default {
             img_url: review.img_url,
             classify: review.classify,
             id_account_shop: review.id_account_shop,
+            id_order: review.id_order,
           };
           // Gọi API với ID_PRODUCT và payload trong vòng lặp
           const response = await reviewServices.AddReviews(
@@ -806,95 +1033,113 @@ export default {
         console.error(error);
       }
     },
+    async cancelOrder() {
+      const result = await Swal.fire({
+        title: "Bạn có chắc chắn muốn hủy đơn hàng ?",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Có",
+        denyButtonText: `Không`,
+      });
+      if (result.isConfirmed) {
+        await orderServices.cancelOrder(this.payloadCancelOrder);
+        this.getOrder();
+      }
+    },
+    getIdOrderCancelOrder(id) {
+      this.payloadCancelOrder.id_order = id;
+      console.log(this.payloadCancelOrder);
+    },
+    async getNameShopByAccountId(id_account) {
+      const response = await shopServices.getNameShopByAccountId(id_account);
+      if (response && response.data) {
+        // Lưu tên shop vào biến tương ứng trong cart
+        return response.data;
+      }
+      return ""; // Trả về chuỗi rỗng nếu không có kết quả
+    },
+    async is_review(id) {
+      try {
+        const response = await reviewServices.is_review(id);
+        if (response && response.data) {
+          return response.data;
+        }
+        return false;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    onPageChange(newPage) {
+      this.page = newPage;
+      this.getOrder();
+    },
+    gotoDetailShop(id_account) {
+      this.$router.push({ name: "ShopDetail", params: { id: id_account } });
+    },
   },
 };
 </script>
 
 <style scoped>
+/* Container styles */
 .background-component {
-  background: #ffffff;
+  background: #f6f9fc;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 20px;
 }
 
-.background-height {
-  min-height: 700px;
-}
-
-/* Navigation Pills Styling */
+/* Tab navigation styles */
 .nav-pills {
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 10px;
-  gap: 10px;
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 25px;
 }
 
 .nav-pills .nav-link {
-  color: #2c3e50;
-  font-size: 14px;
+  color: #666;
   font-weight: 500;
   padding: 10px 20px;
   border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.nav-pills .nav-link:hover {
-  background: #e9ecef;
-  transform: translateY(-1px);
+  transition: all 0.3s;
 }
 
 .nav-pills .nav-link.active {
   background: #09884d;
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(9, 136, 77, 0.2);
+  color: white;
 }
 
-/* Order Item Styling */
+/* Order card styles */
 .wrap {
-  background: #ffffff;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  overflow: hidden;
 }
 
-.wrap:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
+/* Shop header */
 .title-order {
+  background: #fafafa;
   padding: 15px 20px;
-  border-bottom: 1px solid #eef0f2;
-}
-
-.title-order span {
-  font-size: 14px;
-  font-weight: 600;
-  color: #2c3e50;
+  border-bottom: 1px solid #eee;
 }
 
 .show-shop {
-  border: 1px solid #e0e0e0;
-  color: #666;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.show-shop:hover {
-  background: #f8f9fa;
-  border-color: #09884d;
   color: #09884d;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-/* Product Details */
-.img_name_product {
+.show-shop i {
+  margin-right: 5px;
+}
+
+/* Product section */
+.body-order {
   padding: 15px 20px;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .img img {
@@ -902,22 +1147,12 @@ export default {
   height: 80px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid #eef0f2;
-  transition: all 0.3s ease;
-}
-
-.img img:hover {
-  transform: scale(1.05);
+  border: 1px solid #eee;
 }
 
 .name {
-  padding: 0 15px;
-}
-
-.name span {
   font-size: 14px;
-  color: #2c3e50;
-  line-height: 1.4;
+  color: #333;
 }
 
 .classify {
@@ -926,42 +1161,67 @@ export default {
   margin: 8px 0;
 }
 
-.price_product span {
+.price_product {
   color: #09884d;
   font-weight: 600;
   font-size: 16px;
 }
 
-/* Order Footer */
+/* Footer section */
 .footer-order {
-  padding: 15px 20px;
-  background: #f8f9fa;
-  border-radius: 0 0 10px 10px;
+  background: #fafafa;
+  padding: 20px;
 }
 
 .total-price {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
+  margin: 10px 0;
 }
 
 .total-price span:first-child {
   color: #666;
-  font-size: 14px;
+  margin-right: 15px;
 }
 
 .total-price span:last-child {
   color: #09884d;
-  font-size: 20px;
   font-weight: 600;
+  font-size: 18px;
 }
 
+/* Buttons */
+.confirm button {
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button[data-bs-target="#cancelOrder"] {
+  background: #dc3545;
+  color: white;
+}
+
+button[data-bs-target="#ratingModal"] {
+  background: #09884d;
+  color: white;
+}
+
+.confirm button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Notification text */
 .notification {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
+
+  padding-top: 15px;
+  border-top: 1px solid #eee;
 }
 
 .notification span {
@@ -969,126 +1229,29 @@ export default {
   font-size: 13px;
   line-height: 1.5;
   flex: 1;
+  margin-right: 20px;
 }
 
-.confirm {
-  display: flex;
-  gap: 10px;
-  padding-left: 20px;
-}
-
-.confirm button {
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.confirm button:nth-child(1) {
-  background: #09884d;
-  color: white;
-}
-
-.confirm button:nth-child(2) {
-  background: #dc3545;
-  color: white;
-}
-
-.confirm button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Rating Modal */
-.modal-content {
-  border-radius: 12px;
-  border: none;
-}
-
-.modal-header {
-  background: #f8f9fa;
-  border-radius: 12px 12px 0 0;
-}
-
-.text-title {
-  color: #2c3e50;
-  font-size: 18px;
-  font-weight: 600;
-}
-
+/* Upload section */
 .uploaded-images {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
-  flex-wrap: wrap;
   margin-top: 10px;
 }
 
 .uploaded-images img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
 }
 
-.uploaded-images img:hover {
-  transform: scale(1.05);
-}
-
-/* Star Rating */
-.bi {
-  transition: all 0.3s ease;
-}
-
-.bi-star-fill {
-  color: #ffd700;
-  transform: scale(1.1);
-}
-
-.text-rating {
-  font-size: 14px;
-  font-weight: 500;
-  margin-left: 10px;
-}
-
-/* Input File Button */
-.btn-outline-success {
-  position: relative;
-  overflow: hidden;
-  padding: 8px 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.btn-outline-success:hover {
-  background: #09884d;
-  color: white;
-}
-
-.input-file {
-  cursor: pointer;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.wrap {
-  animation: fadeIn 0.3s ease;
-}
-
-/* Responsive Adjustments */
+/* Responsive */
 @media (max-width: 768px) {
   .nav-pills {
     flex-wrap: wrap;
+    gap: 8px;
   }
 
   .nav-pills .nav-link {
@@ -1101,13 +1264,34 @@ export default {
     gap: 15px;
   }
 
+  .notification span {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
   .confirm {
-    padding-left: 0;
     width: 100%;
   }
 
   .confirm button {
     width: 100%;
+    margin: 5px 0;
+  }
+}
+
+/* Animation */
+.wrap {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

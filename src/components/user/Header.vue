@@ -5,8 +5,12 @@
   >
     <!-- Search Bar Section -->
     <router-link to="/" class="text-decoration-none">
-      <div class="d-flex align-items-center">
-        <span>LOGO</span>
+      <div class="d-flex align-items-center position-relative">
+        <img
+          class="logo-web position-absolute"
+          src="../../../public/img/logo/Colorful Abstract Online Shop Free Logo (1).png"
+          alt=""
+        />
       </div>
     </router-link>
 
@@ -203,6 +207,13 @@ export default {
 </script>
 
 <style scoped>
+.logo-web {
+  width: 125px;
+  left: -46px;
+
+  background-size: contain;
+  margin-right: 20px;
+}
 .navbar-main {
   background: linear-gradient(to right, #09884d, #0eba69);
   padding: 10px 0;

@@ -2,7 +2,7 @@
   <Header />
   <div class="container mt-4">
     <div class="row">
-      <div class="col-12 col-md-4 mb-4">
+      <div class="col-12 col-md-3 mb-4">
         <h1>Bộ lọc</h1>
         <div class="filter-container">
           <div class="filter-section">
@@ -41,15 +41,12 @@
                 class="form-control"
               />
             </div>
-            <button @click="applyPriceFilter" class="btn btn-filter">
-              Áp dụng giá
-            </button>
           </div>
 
           <div class="filter-section">
             <h3>Nơi bán</h3>
             <div
-              v-for="location in locations"
+              v-for="location in addressShopProduct"
               :key="location"
               class="form-check"
             >
@@ -57,25 +54,18 @@
                 class="form-check-input"
                 type="checkbox"
                 :id="location"
-                :value="location"
+                :value="location.PROVINCE"
                 v-model="selectedLocations"
               />
               <label class="form-check-label" :for="location">{{
-                location
+                location.PROVINCE
               }}</label>
             </div>
           </div>
-
-          <button @click="applyFilters" class="btn btn-apply">
-            Áp dụng bộ lọc
-          </button>
-          <button @click="resetFilters" class="btn btn-danger w-100 my-3">
-            Xóa bộ lọc
-          </button>
         </div>
       </div>
 
-      <div class="col-12 col-md-8 height-search">
+      <div class="col-12 col-md-9 height-search">
         <div class="mb-4">
           <div class="d-flex flex-wrap">
             <button class="btn btn-light btn-sort me-2 mb-2">
@@ -98,7 +88,7 @@
 
         <div class="row">
           <div
-            class="col-3 px-2 py-2 card-main"
+            class="col-3 py-2 card-main"
             v-for="(product, index) in filteredProducts"
             :key="product.id"
             @click="gotoDetailProduct(product._id)"
@@ -129,14 +119,21 @@
                     currency: "VND",
                   })
                 }}</span>
-                <span class="card-product-price-reduced">400.3000đ</span>
               </div>
               <div class="card-product-footer">
                 <span class="text-product-footer"
                   >{{ truncateName(product.NAME_PRODUCT) }}
                 </span>
+                <div class="star-rating" v-if="productReviews[product._id] > 0">
+                  <span>
+                    {{ productReviews[product._id].toFixed(1) }}
+                  </span>
+
+                  <i class="fa-solid fa-star"></i>
+                </div>
                 <p class="number-max">
-                  <i class="fa-solid fa-location-dot"></i> Hà nội
+                  <i class="fa-solid fa-location-dot"></i>
+                  {{ product.addressShop }}
                 </p>
               </div>
             </div>
@@ -155,6 +152,9 @@ import favoriteServices from "@/services/favorite.services";
 import priceServices from "@/services/price.services";
 import typeProductServices from "@/services/typeProduct.services";
 import productServices from "@/services/product.services";
+import addressServices from "@/services/address.services";
+import userServices from "@/services/user.services";
+import reviewServices from "@/services/review.services";
 import Swal from "sweetalert2";
 export default {
   name: "ProductCategoryView",
@@ -170,45 +170,57 @@ export default {
       // lọc
       minPrice: null,
       maxPrice: null,
-      locations: ["Hà Nội", "TP.HCM", "Đà Nẵng", "Cần Thơ"],
+      addressShopProduct: [],
       selectedLocations: [],
       categories: [],
       selectedCategories: [],
       filteredProducts: [],
+      productReviews: [],
     };
   },
   async created() {
     await this.searchResult();
+    await this.getAddressShop();
   },
   watch: {
-    // Lắng nghe sự thay đổi của từ khóa tìm kiếm
+    // Từ khóa tìm kiếm
     "$route.query.search": {
       handler(newSearchTerm) {
         this.searchTerm = newSearchTerm;
         this.searchResult();
       },
-      immediate: true, // Gọi ngay lập tức khi khởi tạo
-      minPrice() {
+      immediate: true,
+    },
+    // Lắng nghe thay đổi của khoảng giá
+    minPrice(val) {
+      this.applyFilters();
+    },
+    maxPrice(val) {
+      this.applyFilters();
+    },
+    // Lắng nghe thay đổi của danh mục
+    selectedCategories: {
+      handler() {
         this.applyFilters();
       },
-      maxPrice() {
+      deep: true, // Để phát hiện thay đổi bên trong mảng
+    },
+    // Lắng nghe thay đổi của địa điểm bán
+    selectedLocations: {
+      handler() {
         this.applyFilters();
       },
-      selectedLocations: {
-        handler() {
-          this.applyFilters();
-        },
-        deep: true,
-      },
-      selectedCategories: {
-        handler() {
-          this.applyFilters();
-        },
-        deep: true,
-      },
+      deep: true, // Để phát hiện thay đổi bên trong mảng
     },
   },
   methods: {
+    async getAddressShop() {
+      const response = await productServices.getAddressShopProduct();
+      if (response && response.success === true) {
+        this.addressShopProduct = response.data;
+        console.log("lấy địa chỉ shop", this.addressShopProduct);
+      }
+    },
     async searchResult() {
       const IdType = this.$route.params.id;
       try {
@@ -216,20 +228,34 @@ export default {
           const response = await typeProductServices.getAllProductByType(
             IdType
           );
+          console.log("Dữ liệu trả về từ API:", response.data);
           this.categories = response.data;
           if (response) {
-            const product = response.data[0].products;
+            // Gộp tất cả sản phẩm từ các danh mục
+            const allProducts = response.data.flatMap(
+              (category) => category.products
+            );
+
             const productsWithFavorites = await Promise.all(
-              product.map(async (product) => {
+              allProducts.map(async (product) => {
                 const responseFavorite = await this.getFavorite(product._id);
+                const responseUserByAccount =
+                  await userServices.getUserByAccountId(product.ACCOUNT__ID);
+                const responseUserByAddress =
+                  await addressServices.getAddressByUserId(
+                    responseUserByAccount.data[0].user._id
+                  );
+                product.addressShop = responseUserByAddress.data[0].PROVINCE;
                 product.isFavorite = responseFavorite
                   ? responseFavorite.IS_FAVORITE
                   : false;
                 return product;
               })
             );
+
             this.products = productsWithFavorites || [];
             this.filteredProducts = [...this.products]; // Khởi tạo filteredProducts
+            console.log("Dữ liệu lấy sản phẩm:", this.products);
           } else {
             this.products = [];
             this.filteredProducts = [];
@@ -367,9 +393,8 @@ export default {
       this.applyFilters();
     },
     applyFilters() {
-      // Kiểm tra danh mục đã chọn
+      // Nếu có danh mục được chọn
       if (this.selectedCategories.length > 0) {
-        // Lọc sản phẩm theo danh mục
         const categoryPromises = this.selectedCategories.map((categoryId) =>
           this.getProductByCategory(categoryId)
         );
@@ -380,11 +405,10 @@ export default {
 
             responses.forEach((response) => {
               if (response) {
-                productsByCategories = [...productsByCategories, ...response]; // Gộp tất cả sản phẩm lại với nhau
+                productsByCategories = [...productsByCategories, ...response];
               }
             });
 
-            // Cập nhật `filteredProducts`
             this.filteredProducts =
               productsByCategories.length > 0 ? productsByCategories : [];
 
@@ -397,18 +421,16 @@ export default {
 
               const locationMatch =
                 this.selectedLocations.length === 0 ||
-                this.selectedLocations.includes(product.LOCATION);
+                this.selectedLocations.includes(product.addressShop);
 
               return priceMatch && locationMatch;
             });
-
-            console.log("Sản phẩm sau khi lọc:", this.filteredProducts);
           })
           .catch((error) => {
             console.error("Lỗi khi lấy sản phẩm theo danh mục:", error);
           });
       } else {
-        // Lọc theo giá và địa điểm nếu không có danh mục
+        // Nếu không có danh mục, chỉ lọc theo giá và nơi bán
         this.filteredProducts = this.products.filter((product) => {
           const price = this.getPrice(product._id);
           const priceMatch =
@@ -417,7 +439,7 @@ export default {
 
           const locationMatch =
             this.selectedLocations.length === 0 ||
-            this.selectedLocations.includes(product.LOCATION);
+            this.selectedLocations.includes(product.addressShop);
 
           return priceMatch && locationMatch;
         });
@@ -445,11 +467,11 @@ export default {
   border: 1px solid #e5e7eb;
   box-sizing: border-box;
   overflow: hidden;
-  width: 210px;
+  width: 223px;
   min-height: 348px;
 }
 .card-product-img {
-  width: 210px;
+  width: 222px;
   height: 210px;
   object-fit: cover;
 }

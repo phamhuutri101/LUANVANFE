@@ -33,6 +33,7 @@
               <option value="4">đã gửi hàng</option>
 
               <option value="6">đã nhận hàng</option>
+              <option value="7">đã hủy</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -60,6 +61,10 @@
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
+          <h4>Tổng quan lợi nhuận</h4>
+          <div class="d-flex">
+            <div class="totalProfit">{{ formatPrice(totalOrderProfit) }}</div>
+          </div>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -70,6 +75,7 @@
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
                 <th>cập nhật trạng thái</th>
+                <th>Lợi nhuận</th>
               </tr>
             </thead>
             <tbody>
@@ -94,6 +100,13 @@
 
                     <button
                       v-if="getLatestStatus(order) === 6"
+                      class="btn btn-sm btn-danger"
+                      @click="deleteOrder(order._id, order.ORDER_CODE)"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                    <button
+                      v-if="getLatestStatus(order) === 7"
                       class="btn btn-sm btn-danger"
                       @click="deleteOrder(order._id, order.ORDER_CODE)"
                     >
@@ -136,8 +149,19 @@
                     >
                       Đơn hàng hoàn thành
                     </button>
+                    <button
+                      v-if="getLatestStatus(order) === 7"
+                      class="btn btn-sm btn-status btn-success"
+                      disabled
+                    >
+                      Đơn hàng đã hủy
+                    </button>
                   </div>
                 </td>
+                <td v-if="getLatestStatus(order) === 6">
+                  {{ formatPrice(order.ORDER_PROFIT) }}
+                </td>
+                <td v-else>0đ</td>
               </tr>
             </tbody>
           </table>
@@ -287,7 +311,7 @@ export default {
       limit: 5,
       currentMaxPage: 1, // Số trang tối đa đã biết
       orderDetailModal: null,
-
+      totalOrderProfit: "",
       filters: {
         orderCode: "",
         status: "",
@@ -309,12 +333,23 @@ export default {
 
   created() {
     this.getOrder();
+    this.getTotalOrderProfit();
   },
 
   methods: {
     async getOrder() {
       const response = await orderServices.getOrderUser(this.page, this.limit);
       this.orders = response.data;
+      this.orders.sort(
+        (a, b) => new Date(b.TIME_PAYMENT) - new Date(a.TIME_PAYMENT)
+      );
+      // Determine if we are on the last page by checking if we received fewer items than `limit`
+      if (this.orders.length < this.limit) {
+        this.currentMaxPage = this.page;
+      } else {
+        // Set currentMaxPage to allow for another page
+        this.currentMaxPage = this.page + 1;
+      }
       for (const item of this.orders) {
         const response = await userServices.getUserByAccountId(
           item.ACCOUNT__ID
@@ -322,6 +357,10 @@ export default {
         if (response && response.data) {
           const user = response.data[0];
           item.FULL_NAME = user.user.FULL_NAME;
+        }
+        const OrderProfit = await orderServices.calculateOrderProfit(item._id);
+        if (OrderProfit && OrderProfit.success == true) {
+          item.ORDER_PROFIT = OrderProfit.data.profit;
         }
       }
       console.log("dữ liệu order sau khi chạy vòng lặp", this.orders);
@@ -344,7 +383,8 @@ export default {
         3: "Đã xác nhận",
         4: "Đã gửi hàng",
         5: "Đã thanh toán Online",
-        6: "Đã nhận hàng",
+        6: "Hoàn thành ",
+        7: "Đã hủy",
       };
       return statusMap[statusCode] || "Chưa xác nhận";
     },
@@ -456,10 +496,9 @@ export default {
       this.orderDetailModal.show();
     },
 
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-      }
+    onPageChange(newPage) {
+      this.page = newPage;
+      this.getOrder();
     },
 
     getStatusBadgeClass(status) {
@@ -553,11 +592,21 @@ export default {
         }
       } catch (error) {}
     },
+    async getTotalOrderProfit() {
+      const result = await orderServices.getTotalOrderProfit();
+      if (result && result.data) {
+        this.totalOrderProfit = result.data.totalProfit;
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
+.totalProfit {
+  padding: 20px;
+  border: 1px solid black;
+}
 /* Main container styles */
 .container {
   padding: 2rem;

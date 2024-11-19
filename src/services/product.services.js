@@ -101,5 +101,68 @@ class ProductService {
       console.log(error);
     }
   }
+  async getAddressShopProduct() {
+    try {
+      const response = await this.api.get("/getAddressShopProduct");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async updateProduct(id_product, payload) {
+    try {
+      const response = await this.api.put(
+        `/updateProduct/${id_product}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async deleteImgProduct(id_product, payload) {
+    try {
+      const response = await this.api.put(
+        `/deleteFileImgProduct/${id_product}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async deleteImgProductDefault(id_product, payload) {
+    try {
+      const response = await this.api.put(
+        `/deleteFileImgProductDefault/${id_product}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async uploadImgProduct(id_product, payload) {
+    try {
+      const response = await this.api.post(
+        `/uploadImgProduct/${id_product}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async uploadImgProductDefault(id_product, payload) {
+    try {
+      const response = await this.api.post(
+        `/uploadImgProductDefault/${id_product}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new ProductService();

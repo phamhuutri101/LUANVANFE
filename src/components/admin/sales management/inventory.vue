@@ -365,6 +365,10 @@ export default {
         const response = await inventoryServices.getInventory();
         if (response && response.data) {
           this.dataInventory = response.data;
+          // sắp xếp ngày hiển thị
+          this.dataInventory.sort(
+            (a, b) => new Date(b.CRATED_DATE) - new Date(a.CRATED_DATE)
+          );
           for (const inventory of this.dataInventory) {
             const supplerID = inventory.ID_SUPPLIERS;
             const resSupper = await supplierServices.getById(supplerID);

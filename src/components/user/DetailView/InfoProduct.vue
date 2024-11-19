@@ -223,61 +223,13 @@ export default {
       return keyIndex !== -1 && this.payload.value[keyIndex] === value;
     },
     async addToCart() {
-      if (this.quantity > this.product.NUMBER_INVENTORY_PRODUCT) {
-        const Toast = Swal.mixin({
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-          },
-        });
-        Toast.fire({
-          icon: "error",
-          title: "số lượng sản phẩm trong kho không đủ",
-        });
-        return; // Ngừng xử lý nếu số lượng không đủ
-      }
-      this.$store.dispatch("addToCart", {
-        product: this.product,
-        payload: this.payload,
-      });
-
-      if (this.payload.key.length === 0 || this.payload.value.length === 0) {
-        const Toast = Swal.mixin({
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-          },
-        });
-        Toast.fire({
-          icon: "error",
-          title: "Bạn vẫn chưa chọn phân loại sản phẩm",
-        });
-        return; // Ngừng xử lý nếu chưa chọn biến thể
-      }
-
-      const token = getCookie("access_token");
-      if (isTokenValid(token)) {
-        const response = await cartServices.addToCart(
-          this.product._id,
-          this.payload
-        );
-
-        if (response && response.data) {
+      try {
+        if (this.quantity > this.product.NUMBER_INVENTORY_PRODUCT) {
           const Toast = Swal.mixin({
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 800,
+            timer: 1000,
             timerProgressBar: true,
             didOpen: (toast) => {
               toast.onmouseenter = Swal.stopTimer;
@@ -285,15 +237,22 @@ export default {
             },
           });
           Toast.fire({
-            icon: "success",
-            title: "Thêm sản phẩm vào giỏ hàng thành công",
+            icon: "error",
+            title: "số lượng sản phẩm trong kho không đủ",
           });
-        } else {
+          return; // Ngừng xử lý nếu số lượng không đủ
+        }
+        this.$store.dispatch("addToCart", {
+          product: this.product,
+          payload: this.payload,
+        });
+
+        if (this.payload.key.length === 0 || this.payload.value.length === 0) {
           const Toast = Swal.mixin({
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 3000,
+            timer: 1000,
             timerProgressBar: true,
             didOpen: (toast) => {
               toast.onmouseenter = Swal.stopTimer;
@@ -304,11 +263,58 @@ export default {
             icon: "error",
             title: "Bạn vẫn chưa chọn phân loại sản phẩm",
           });
+          return; // Ngừng xử lý nếu chưa chọn biến thể
         }
-      } else {
+
+        const token = getCookie("access_token");
+        if (isTokenValid(token)) {
+          const response = await cartServices.addToCart(
+            this.product._id,
+            this.payload
+          );
+
+          if (response && response.data) {
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 800,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+              },
+            });
+            Toast.fire({
+              icon: "success",
+              title: "Thêm sản phẩm vào giỏ hàng thành công",
+            });
+          } else {
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+              },
+            });
+            Toast.fire({
+              icon: "error",
+              title: "Bạn vẫn chưa chọn phân loại sản phẩm",
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Bạn cần đăng nhập để mua hàng",
+          });
+        }
+      } catch (error) {
         Swal.fire({
-          icon: "error",
-          title: "Bạn cần đăng nhập để mua hàng",
+          title: "Sản phẩm chưa có giá nên không thể thêm vào giỏ hàng",
         });
       }
     },
@@ -323,6 +329,9 @@ export default {
         }
       } catch (error) {
         console.error("Lỗi khi lấy giá:", error);
+        Swal.fire({
+          title: "Sản phẩm chưa thêm giá ",
+        });
       }
     },
     async getPriceRange() {

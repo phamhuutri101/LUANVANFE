@@ -279,7 +279,7 @@ export default {
       price_array: [],
       searchQuery: "",
       page: 1,
-      limit: 5,
+      limit: 2,
       currentMaxPage: 1,
       products: [],
     };
@@ -297,20 +297,41 @@ export default {
   },
   methods: {
     async getAllProduct() {
-      const response = await productServices.getProductShop(
-        this.page,
-        this.limit
-      );
-      if (response && response.data) {
-        this.products = response.data;
-        for (const product of this.products) {
-          const categoryResponse = await categoryServices.getById(
-            product.CATEGORY_ID
-          );
-          if (categoryResponse && categoryResponse.data) {
-            product.CATEGORY_NAME = categoryResponse.data[0].CATEGORY_NAME; // Gán CATEGORY_NAME cho từng sản phẩm
+      try {
+        const response = await productServices.getProductShop(
+          this.page,
+          this.limit
+        );
+        if (response && response.data) {
+          this.products = response.data;
+          for (const product of this.products) {
+            try {
+              const categoryResponse = await categoryServices.getById(
+                product.CATEGORY_ID
+              );
+              if (
+                categoryResponse &&
+                categoryResponse.data &&
+                Array.isArray(categoryResponse.data) &&
+                categoryResponse.data.length > 0
+              ) {
+                product.CATEGORY_NAME = categoryResponse.data[0].CATEGORY_NAME; // Gán CATEGORY_NAME cho từng sản phẩm
+              } else {
+                product.CATEGORY_NAME = "Chưa có danh mục";
+              }
+            } catch (error) {
+              console.error("Lỗi khi lấy danh mục:", error);
+              product.CATEGORY_NAME = "Chưa có danh mục";
+            }
+          }
+          if (this.products.length < this.limit) {
+            this.currentMaxPage = this.page;
+          } else {
+            this.currentMaxPage = this.page + 1;
           }
         }
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm:", error);
       }
     },
     async getProductById() {
@@ -420,11 +441,11 @@ export default {
     },
     async submitForm() {
       try {
-        const payload = {
-          price_number: this.priceForm.price_number,
-          id_list_price: this.price_array.LIST_PRICE[0]._id,
-        };
-        if (this.isEditing) {
+        if (this.isEditing === true) {
+          const payload = {
+            price_number: this.priceForm.price_number,
+            id_list_price: this.price_array.LIST_PRICE[0]._id,
+          };
           await priceServices.updatePrice(this.PriceGet.ID_PRODUCT, payload);
         } else {
           await priceServices.addPriceProduct(
@@ -453,6 +474,10 @@ export default {
         this.priceForm.price_number =
           this.price_array.LIST_PRICE[0].PRICE_NUMBER;
       }
+    },
+    onPageChange(newPage) {
+      this.page = newPage;
+      this.getAllProduct();
     },
   },
 };

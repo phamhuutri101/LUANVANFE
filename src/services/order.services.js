@@ -116,5 +116,37 @@ class OrderService {
       console.error(error);
     }
   }
+  async cancelOrder(payload) {
+    try {
+      const response = await this.api.post("/cancelOrder", payload);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async calculateOrderProfit(id) {
+    try {
+      const response = await this.api.get(`/calculateOrderProfit/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getOrderProfitInDay() {
+    try {
+      const response = await this.api.get("/getOrderProfitInDay");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getTotalOrderProfit() {
+    try {
+      const response = await this.api.get("/getTotalOrderProfit");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new OrderService();

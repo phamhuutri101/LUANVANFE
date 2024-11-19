@@ -55,5 +55,13 @@ class ReviewServices {
       console.error(error);
     }
   }
+  async is_review(id) {
+    try {
+      const response = await this.api.get(`/isReview/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new ReviewServices();
