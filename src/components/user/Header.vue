@@ -107,7 +107,7 @@
 <script>
 import getCookie from "@/utils/getCookie";
 import deleteCookie from "@/utils/deleteCookie";
-
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -176,9 +176,8 @@ export default {
     isLoggedIn() {
       return !!getCookie("access_token");
     },
-    cartItemCount() {
-      return this.$store.getters.cartItemCount;
-    },
+
+    ...mapGetters(["cartItemCount"]), // Kết nối getter cartItemCount từ Vuex
   },
   mounted() {
     // Kiểm tra nếu trình duyệt hỗ trợ Web Speech API

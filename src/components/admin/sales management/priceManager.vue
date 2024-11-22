@@ -576,4 +576,98 @@ export default {
   object-fit: cover;
   border-radius: 10px;
 }
+.Pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 0.5rem;
+}
+
+.PaginationControl {
+  display: flex;
+  align-items: center;
+}
+
+.Control {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.Control:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Control svg {
+  width: 20px;
+  height: 20px;
+  fill: #374151;
+}
+
+.Page {
+  min-width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin: 0 0.25rem;
+}
+
+.Page:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Page-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+}
+
+.Page-active:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Style cho nút disable */
+.Control[disabled],
+.Page[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .Control,
+  .Page {
+    min-width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .Control svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .Pagination {
+    gap: 0.25rem;
+  }
+}
 </style>

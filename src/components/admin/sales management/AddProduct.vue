@@ -2,7 +2,7 @@
   <div class="container py-3">
     <form @submit.prevent>
       <div class="row">
-        <div class="col-6">
+        <div class="col-6" v-if="is_show">
           <div class="card mb-3">
             <div class="card-header">
               <h5 class="title-text">Thông tin cơ bản</h5>
@@ -111,7 +111,7 @@
             </div>
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-6" v-if="is_show">
           <div class="card mb-3">
             <div class="card-header">
               <h5>Phân loại hàng</h5>
@@ -149,7 +149,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12">
+        <div class="col-12" v-if="is_show">
           <div class="card mb-3">
             <div class="card-header">
               <h5>Mô tả sản phẩm</h5>
@@ -175,7 +175,7 @@
             </div>
             <div class="p-3 text-end">
               <button @click="submitForm()" class="btn btn-success mx-3">
-                Tạo mới sản phẩm
+                Tiếp tục
               </button>
               <button
                 type="reset"
@@ -187,7 +187,7 @@
             </div>
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-6" v-if="isProductCreated">
           <div class="card mb-3">
             <div class="card-header">
               <h5>Nhập kho</h5>
@@ -306,7 +306,7 @@
             </table>
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-6" v-if="isInventoryAdded">
           <div class="card mb-3">
             <div class="card-header">
               <h5>Thêm giá sản phẩm</h5>
@@ -398,7 +398,7 @@
             </table>
           </div>
         </div>
-        <div class="col-12">
+        <div class="col-12" v-if="isInventoryAdded">
           <button @click="successAddProduct" class="btn btn-success w-100">
             Hoàn tất thêm sản phẩm
           </button>
@@ -459,6 +459,9 @@ export default {
           value: [], // giá trị đã tách thành mảng
         },
       ],
+      isProductCreated: false, // Kiểm soát hiển thị phần nhập kho
+      isInventoryAdded: false, // Kiểm soát hiển thị phần nhập giá
+      is_show: true,
     };
   },
   async created() {
@@ -542,6 +545,7 @@ export default {
       this.category = [];
       this.type_product = [];
       this.type_product_id = "";
+      this.is_show = true;
 
       // Khởi tạo sản phẩm
       this.product = {
@@ -573,6 +577,8 @@ export default {
       this.productKeyValue = [];
       this.dataViewInventory = [];
       this.dataKeyValueInPrice = [];
+      this.isProductCreated = false;
+      this.isInventoryAdded = false;
       this.metadata = [
         {
           key: "",
@@ -667,12 +673,14 @@ export default {
         const response = await productServices.create(this.product);
         this.resultSubmit = response.product;
 
-        if (response) {
+        if (response && response.product) {
+          this.isProductCreated = true;
+          this.is_show = false;
+          console.log("trạng thái tắt product", this.is_show);
           const result = await Swal.fire({
             title: "Đăng tải sản phẩm thành công",
-
+            text: "Vui lòng tiếp tục nhập kho cho sản phẩm",
             icon: "success",
-
             confirmButtonText: "OK",
           });
           if (result.isConfirmed) {
@@ -725,6 +733,7 @@ export default {
           );
 
           if (response && response.data && response.success) {
+            this.isInventoryAdded = true;
             this.getInventory(this.resultSubmit._id);
             const Toast = Swal.mixin({
               toast: true,
@@ -740,6 +749,7 @@ export default {
             Toast.fire({
               icon: "success",
               title: "Nhập kho sản phẩm thành công",
+              text: "Vui lòng tiếp tục nhập giá cho sản phẩm",
             });
           }
           this.getProductKeyValue();
@@ -813,6 +823,7 @@ export default {
       }
     },
     clearData() {
+      this.is_show = true;
       this.category = [];
       this.type_product = [];
       this.type_product_id = "";
@@ -829,6 +840,8 @@ export default {
         top: 0,
         behavior: "smooth", // hiệu ứng cuộn mượt
       });
+      this.isProductCreated = false;
+      this.isInventoryAdded = false;
     },
   },
 };

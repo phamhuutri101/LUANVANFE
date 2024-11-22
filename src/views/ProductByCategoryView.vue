@@ -393,16 +393,28 @@ export default {
       this.applyFilters();
     },
     applyFilters() {
-      // Nếu có danh mục được chọn
       if (this.selectedCategories.length > 0) {
-        const categoryPromises = this.selectedCategories.map((categoryId) =>
-          this.getProductByCategory(categoryId)
+        const categoryPromises = this.selectedCategories.map(
+          async (categoryId) => {
+            const products = await this.getProductByCategory(categoryId);
+            return Promise.all(
+              products.map(async (product) => {
+                const responseUserByAccount =
+                  await userServices.getUserByAccountId(product.ACCOUNT__ID);
+                const responseUserByAddress =
+                  await addressServices.getAddressByUserId(
+                    responseUserByAccount.data[0].user._id
+                  );
+                product.addressShop = responseUserByAddress.data[0].PROVINCE;
+                return product;
+              })
+            );
+          }
         );
 
         Promise.all(categoryPromises)
           .then((responses) => {
             let productsByCategories = [];
-
             responses.forEach((response) => {
               if (response) {
                 productsByCategories = [...productsByCategories, ...response];
@@ -410,39 +422,20 @@ export default {
             });
 
             this.filteredProducts =
-              productsByCategories.length > 0 ? productsByCategories : [];
+              productsByCategories.length > 0
+                ? [...new Set(productsByCategories)] // Loại bỏ sản phẩm trùng lặp
+                : [];
 
-            // Áp dụng bộ lọc giá và nơi bán
-            this.filteredProducts = this.filteredProducts.filter((product) => {
-              const price = this.getPrice(product._id);
-              const priceMatch =
-                (this.minPrice === null || price >= this.minPrice) &&
-                (this.maxPrice === null || price <= this.maxPrice);
-
-              const locationMatch =
-                this.selectedLocations.length === 0 ||
-                this.selectedLocations.includes(product.addressShop);
-
-              return priceMatch && locationMatch;
-            });
+            // Áp dụng tiếp các bộ lọc giá và địa điểm
+            this.applyPriceAndLocationFilters();
           })
           .catch((error) => {
             console.error("Lỗi khi lấy sản phẩm theo danh mục:", error);
           });
       } else {
         // Nếu không có danh mục, chỉ lọc theo giá và nơi bán
-        this.filteredProducts = this.products.filter((product) => {
-          const price = this.getPrice(product._id);
-          const priceMatch =
-            (this.minPrice === null || price >= this.minPrice) &&
-            (this.maxPrice === null || price <= this.maxPrice);
-
-          const locationMatch =
-            this.selectedLocations.length === 0 ||
-            this.selectedLocations.includes(product.addressShop);
-
-          return priceMatch && locationMatch;
-        });
+        this.filteredProducts = [...this.products];
+        this.applyPriceAndLocationFilters();
       }
     },
 
@@ -452,6 +445,20 @@ export default {
       this.selectedLocations = [];
       this.selectedCategories = [];
       this.filteredProducts = [...this.products];
+    },
+    applyPriceAndLocationFilters() {
+      this.filteredProducts = this.filteredProducts.filter((product) => {
+        const price = this.getPrice(product._id);
+        const priceMatch =
+          (this.minPrice === null || price >= this.minPrice) &&
+          (this.maxPrice === null || price <= this.maxPrice);
+
+        const locationMatch =
+          this.selectedLocations.length === 0 ||
+          this.selectedLocations.includes(product.addressShop);
+
+        return priceMatch && locationMatch;
+      });
     },
   },
 };

@@ -154,6 +154,13 @@
           </div>
         </div>
       </div>
+      <VPagination
+        v-model="page"
+        :pages="currentMaxPage"
+        :range-size="5"
+        active-color="#DCEDFF"
+        @update:modelValue="onPageChange"
+      />
     </div>
     <div class="img_empty" v-else>
       <img src="../../../../public/img/empty_shop/cart-empty.png" alt="" />
@@ -167,14 +174,20 @@ import cartServices from "@/services/cart.services";
 import Swal from "sweetalert2";
 import { formatNumber } from "@/utils/formatNumber";
 import promoServices from "@/services/promoServices";
-
+import VPagination from "@hennge/vue3-pagination";
+import "@hennge/vue3-pagination/dist/vue3-pagination.css";
 import shopServices from "@/services/shop.services";
 export default {
+  components: {
+    VPagination,
+  },
   data() {
     return {
       cart: [],
       promoCode: "", // Biến lưu mã giảm giá
-
+      page: 1,
+      limit: 10,
+      currentMaxPage: 1,
       payloadUpdate: {
         priceReduce: 0,
         shipping: 0,
@@ -194,9 +207,18 @@ export default {
       return ""; // Trả về chuỗi rỗng nếu không có kết quả
     },
     async getCart() {
-      const response = await cartServices.getCart();
+      const response = await cartServices.getCart(this.page, this.limit);
       if (response && response.data.length > 0) {
         this.cart = response.data;
+        if (this.cart.length < this.limit) {
+          this.hasMorePages = false;
+          this.currentMaxPage = this.page;
+        }
+        // Nếu đang ở trang cuối cùng đã biết và vẫn có đủ số sản phẩm
+        else if (this.page >= this.currentMaxPage) {
+          this.hasMorePages = true;
+          this.currentMaxPage = this.page + 1;
+        }
         this.updateCartCount();
         // Gọi getNameShopByAccountId cho mỗi sản phẩm trong giỏ hàng và lưu tên shop vào cart
         for (let item of this.cart) {
@@ -307,6 +329,7 @@ export default {
               if (result.isConfirmed) {
                 await cartServices.deleteCart(item_id);
                 this.cart.splice(itemIndex, 1);
+                await this.$store.dispatch("fetchCartItemCount"); // Cập nhật số lượng sản phẩm trong giỏ hàng
               }
             } else {
               // Update QUANTITY trong ITEM
@@ -416,6 +439,10 @@ export default {
       await cartServices.updatePriceReducedAndShipping(this.payloadUpdate);
       this.$router.push("/checkout");
     },
+    async onPageChange(newPage) {
+      this.page = newPage;
+      await this.getCart();
+    },
   },
 };
 </script>
@@ -426,7 +453,8 @@ export default {
   background-color: #f5f5f5;
 }
 .container {
-  height: 100vh;
+  min-height: 100vh;
+  padding-bottom: 2rem;
 }
 .img-product img {
   width: 80px;
@@ -682,7 +710,7 @@ export default {
 }
 
 .height-cart {
-  min-height: 600px;
+  min-height: 400px;
 }
 
 /* Thêm animation cho các thay đổi số lượng */
@@ -700,5 +728,72 @@ export default {
 
 .number-product input:focus {
   animation: quantityChange 0.3s ease;
+}
+.Pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 0.5rem;
+}
+
+.PaginationControl {
+  display: flex;
+  align-items: center;
+}
+
+.Control {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.Control:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Control svg {
+  width: 20px;
+  height: 20px;
+  fill: #374151;
+}
+
+.Page {
+  min-width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin: 0 0.25rem;
+}
+
+.Page:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Page-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+}
+
+.Page-active:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 }
 </style>

@@ -11,9 +11,9 @@ class InventoryServices {
       console.error(error);
     }
   }
-  async getInventory() {
+  async getInventory(page, limit) {
     try {
-      const response = await this.api.get("/");
+      const response = await this.api.get(`/?page=${page}&limit=${limit}`);
       return response.data;
     } catch (error) {
       console.error(error);

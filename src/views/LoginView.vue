@@ -9,14 +9,10 @@
             class="my-5 display-5 fw-bold ls-tight"
             style="color: hsl(218, 81%, 95%)"
           >
-            The best offer <br />
-            <span style="color: hsl(218, 81%, 75%)">for your business</span>
+            Đăng nhập tài khoản <br />
           </h1>
           <p class="mb-4 opacity-70" style="color: hsl(218, 81%, 85%)">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-            Temporibus, expedita iusto veniam atque, magni tempora mollitia
-            dolorum consequatur nulla, neque debitis eos reprehenderit quasi ab
-            ipsum nisi dolorem modi. Quos?
+            Nền tảng thương mại điện tử
           </p>
         </div>
 
@@ -32,29 +28,43 @@
 
           <div class="card bg-glass">
             <div class="card-body px-4 py-5 px-md-5">
-              <form @submit.prevent="login">
+              <Form @submit="login" :validation-schema="schema">
                 <!-- Email input -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input
+                  <label class="form-label" for="form3Example3"
+                    >tài khoản</label
+                  >
+                  <Field
+                    name="user_name"
                     v-model="formData.user_name"
                     type="text"
                     id="form3Example3"
                     class="form-control"
                   />
-                  <label class="form-label" for="form3Example3"
-                    >tài khoản</label
-                  >
+                  <ErrorMessage name="user_name" class="text-danger" />
                 </div>
 
                 <!-- Password input -->
+                <!-- Password input -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input
-                    type="password"
-                    id="form3Example4"
-                    class="form-control"
-                    v-model="formData.password"
-                  />
                   <label class="form-label" for="form3Example4">Mật khẩu</label>
+                  <div class="relative">
+                    <Field
+                      name="password"
+                      :type="showPassword ? 'text' : 'password'"
+                      id="form3Example4"
+                      class="form-control"
+                      v-model="formData.password"
+                    />
+                    <button type="button" @click="togglePassword">
+                      <i
+                        :class="
+                          showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'
+                        "
+                      ></i>
+                    </button>
+                  </div>
+                  <ErrorMessage name="password" class="text-danger" />
                 </div>
                 <!-- Submit button -->
                 <button
@@ -65,47 +75,11 @@
                 >
                   Đăng nhập
                 </button>
-
-                <!-- Register buttons -->
-                <div class="text-center">
-                  <p>Hoặc</p>
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-facebook-f"></i>
-                  </button>
-
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-google"></i>
-                  </button>
-
-                  <button
-                    type="button"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-twitter"></i>
-                  </button>
-
-                  <button
-                    type="submit"
-                    data-mdb-button-init
-                    data-mdb-ripple-init
-                    class="btn btn-link btn-floating mx-1"
-                  >
-                    <i class="fab fa-github"></i>
-                  </button>
-                </div>
-              </form>
+              </Form>
+              <span class="d-flex justify-content-center">
+                Bạn chưa có tài khoản?
+                <router-link class="px-1" to="/register">Đăng ký</router-link>
+              </span>
             </div>
           </div>
         </div>
@@ -117,27 +91,47 @@
 </template>
 
 <script>
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 import Swal from "sweetalert2";
 import authServices from "@/services/auth.services";
 import Cookies from "js-cookie";
 import Header from "@/components/user/Header.vue";
 import Footer from "@/components/user/Footer.vue";
 export default {
-  components: { Header, Footer },
+  components: { Header, Footer, Form, Field, ErrorMessage },
   name: "LoginForm",
+
   data() {
+    const schema = yup.object().shape({
+      user_name: yup.string().required("Tài khoản không được để trống"),
+      password: yup
+        .string()
+        .required("Mật khẩu không được để trống")
+        .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+        .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+        .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+        .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+        .matches(
+          /[!@#$%^&*(),.?":{}|<>]/,
+          "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
+        ),
+    });
     return {
       formData: {
         user_name: "",
         password: "",
       },
+      showPassword: false,
+      schema,
     };
   },
   created() {},
+
   methods: {
-    async login() {
+    async login(values) {
       try {
-        const data = await authServices.login(this.formData);
+        const data = await authServices.login(values);
         console.log("đăng nhập", data);
         if (data && data.data && data.data.accessToken) {
           Cookies.set("access_token", data.data.accessToken, { expires: 1 });
@@ -152,8 +146,14 @@ export default {
           });
         }
       } catch (error) {
-        console.error(error);
+        Swal.fire({
+          icon: "error",
+          title: "Tên đăng nhập hoặc mật khẩu không chính xác",
+        });
       }
+    },
+    togglePassword() {
+      this.showPassword = !this.showPassword;
     },
   },
 };
@@ -418,5 +418,51 @@ p::after {
   color: #ff4757;
   font-size: 12px;
   margin-top: 5px;
+}
+/* css mắt password */
+/* Thêm vào phần <style scoped> */
+
+/* Position for password input container */
+.form-outline .relative {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the eye button */
+.form-outline .relative button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  cursor: pointer;
+}
+
+/* Adjust padding for password input */
+.form-outline .relative .form-control {
+  padding-right: 45px; /* Make space for the eye icon */
+}
+
+/* Style for the icon */
+.form-outline .relative button i {
+  font-size: 18px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.form-outline .relative button:hover i {
+  color: #374151;
+}
+
+/* Remove button outline */
+.form-outline .relative button:focus {
+  outline: none;
 }
 </style>

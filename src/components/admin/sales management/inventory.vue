@@ -155,6 +155,15 @@
   <div class="container">
     <h1>Chi tiết nhập kho</h1>
     <div class="filter">
+      <div class="search-container">
+        <label for="search">Tìm kiếm sản phẩm:</label>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Nhập tên sản phẩm..."
+          class="search-input"
+        />
+      </div>
       <label for="start-date">Ngày bắt đầu:</label>
       <input type="date" v-model="startDate" />
 
@@ -173,7 +182,7 @@
           <th scope="col">Nhà cung cấp</th>
         </tr>
       </thead>
-      <tbody v-for="(item, index) in dataInventory" :key="item._id">
+      <tbody v-for="(item, index) in filteredDataInventory" :key="item._id">
         <tr
           data-bs-toggle="modal"
           data-bs-target="#detailInventory"
@@ -194,6 +203,13 @@
         </tr>
       </tbody>
     </table>
+    <VPagination
+      v-model="page"
+      :pages="currentMaxPage"
+      :range-size="5"
+      active-color="#DCEDFF"
+      @update:modelValue="onPageChange"
+    />
   </div>
 </template>
 
@@ -213,17 +229,25 @@ import {
 } from "chart.js";
 
 Chart.register(CategoryScale, LinearScale, BarElement, BarController);
-
+import VPagination from "@hennge/vue3-pagination";
+import "@hennge/vue3-pagination/dist/vue3-pagination.css";
 export default {
+  components: {
+    VPagination,
+  },
   data() {
     return {
       dataInventory: [],
       detailsInventory: {},
       ProductById: {},
+      searchQuery: "",
       startDate: "", // Ngày bắt đầu
       endDate: "", // Ngày kết thúc
       totalImportCost: "",
       productQuantityMap: {},
+      page: 1,
+      limit: 10,
+      currentMaxPage: 1,
     };
   },
 
@@ -362,13 +386,26 @@ export default {
 
     async getInventory() {
       try {
-        const response = await inventoryServices.getInventory();
+        const response = await inventoryServices.getInventory(
+          this.page,
+          this.limit
+        );
         if (response && response.data) {
           this.dataInventory = response.data;
+
           // sắp xếp ngày hiển thị
           this.dataInventory.sort(
             (a, b) => new Date(b.CRATED_DATE) - new Date(a.CRATED_DATE)
           );
+          if (this.dataInventory.length < this.limit) {
+            this.hasMorePages = false;
+            this.currentMaxPage = this.page;
+          }
+          // Nếu đang ở trang cuối cùng đã biết và vẫn có đủ số sản phẩm
+          else if (this.page >= this.currentMaxPage) {
+            this.hasMorePages = true;
+            this.currentMaxPage = this.page + 1;
+          }
           for (const inventory of this.dataInventory) {
             const supplerID = inventory.ID_SUPPLIERS;
             const resSupper = await supplierServices.getById(supplerID);
@@ -398,30 +435,54 @@ export default {
       }
     },
     applyFilterDate() {
-      this.dataInventory = this.filteredDataInventory;
+      console.log("Ngày bắt đầu:", this.startDate);
+      console.log("Ngày kết thúc:", this.endDate);
+      console.log("Kết quả lọc:", this.filteredDataInventory);
+    },
+    onPageChange(newPage) {
+      this.page = newPage;
+      this.getInventory();
     },
   },
   computed: {
-    computed: {
-      filteredDataInventory() {
-        // Kiểm tra xem dataInventory có dữ liệu hay không
-        if (!this.dataInventory || this.dataInventory.length === 0) return [];
+    filteredDataInventory() {
+      let filteredData = this.dataInventory;
 
-        // Kiểm tra xem startDate và endDate có giá trị hay không
-        if (!this.startDate || !this.endDate) return this.dataInventory;
+      // Lọc theo từ khóa
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        filteredData = filteredData.filter((inventory) =>
+          inventory.LIST_PRODUCT_CREATED.some((product) =>
+            product.NAME_PRODUCT?.toLowerCase().includes(query)
+          )
+        );
+      }
 
-        const start = new Date(this.startDate);
-        const end = new Date(this.endDate);
+      // Lọc theo ngày
+      if (this.startDate || this.endDate) {
+        const start = this.startDate ? new Date(this.startDate) : null;
+        const end = this.endDate ? new Date(this.endDate) : null;
 
-        // Đặt end thành 23:59:59 của ngày kết thúc
-        end.setHours(23, 59, 59, 999);
-
-        // Lọc dữ liệu
-        return this.dataInventory.filter((item) => {
-          const inventoryDate = new Date(item.CRATED_DATE);
-          return inventoryDate >= start && inventoryDate <= end;
+        filteredData = filteredData.filter((inventory) => {
+          const createdDate = inventory.CRATED_DATE
+            ? new Date(inventory.CRATED_DATE)
+            : null;
+          if (start && end) {
+            return createdDate >= start && createdDate <= end;
+          } else if (start) {
+            return createdDate >= start;
+          } else if (end) {
+            return createdDate <= end;
+          }
+          return true;
         });
-      },
+      }
+
+      console.log("Dữ liệu sau khi lọc:", filteredData);
+      console.log("Ngày bắt đầu:", this.startDate);
+      console.log("Ngày kết thúc:", this.endDate);
+      console.log("Kết quả lọc:", this.filteredDataInventory);
+      return filteredData;
     },
   },
 };
@@ -710,5 +771,120 @@ export default {
   animation: slideIn 0.2s ease-out forwards;
   opacity: 0;
   animation-delay: calc(var(--row-index, 0) * 0.05s);
+}
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  width: 250px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+/* CSS cho phân trang */
+.Pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 0.5rem;
+}
+
+.PaginationControl {
+  display: flex;
+  align-items: center;
+}
+
+.Control {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.Control:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Control svg {
+  width: 20px;
+  height: 20px;
+  fill: #374151;
+}
+
+.Page {
+  min-width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin: 0 0.25rem;
+}
+
+.Page:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Page-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+}
+
+.Page-active:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Style cho nút disable */
+.Control[disabled],
+.Page[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .Control,
+  .Page {
+    min-width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .Control svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .Pagination {
+    gap: 0.25rem;
+  }
 }
 </style>

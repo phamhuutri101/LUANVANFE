@@ -1,34 +1,30 @@
 import { createStore } from "vuex";
 import cartServices from "@/services/cart.services";
-
-// Tạo store
 const store = createStore({
   state: {
-    cart: [],
+    cartItemCount: 0, // Số lượng sản phẩm trong giỏ hàng
   },
   mutations: {
-    setCart(state, cartItems) {
-      state.cart = cartItems;
-    },
-    addToCart(state, item) {
-      state.cart.push(item);
-    },
-    removeFromCart(state, itemId) {
-      state.cart = state.cart.filter((item) => item._id !== itemId);
-    },
-    updateItemQuantity(state, { itemId, quantity }) {
-      const item = state.cart.find((item) => item._id === itemId);
-      if (item) item.quantity = quantity;
+    // Cập nhật số lượng sản phẩm trong giỏ hàng
+    setCartItemCount(state, count) {
+      state.cartItemCount = count;
     },
   },
   getters: {
-    cartItemCount: (state) => state.cart.length,
+    // Lấy số lượng sản phẩm trong giỏ hàng
+    cartItemCount: (state) => state.cartItemCount,
   },
   actions: {
-    async fetchCart({ commit }) {
-      const response = await cartServices.getCart();
-      if (response && response.data.length > 0) {
-        commit("setCart", response.data);
+    // Đồng bộ số lượng sản phẩm trong giỏ hàng từ server
+    async fetchCartItemCount({ commit }) {
+      try {
+        const response = await cartServices.getAllCart(); // Gọi API để lấy dữ liệu giỏ hàng
+        if (response && response.data) {
+          const totalItems = response.data.length;
+          commit("setCartItemCount", totalItems); // Cập nhật số lượng sản phẩm vào state
+        }
+      } catch (error) {
+        console.error("Lỗi khi đồng bộ số lượng sản phẩm:", error);
       }
     },
   },

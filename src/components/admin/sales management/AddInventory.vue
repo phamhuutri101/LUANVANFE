@@ -35,7 +35,7 @@
             <table class="table table-hover mb-0">
               <thead class="bg-light">
                 <tr>
-                  <th class="border-0 text-uppercase small fw-bold">Mã SP</th>
+                  <th class="border-0 text-uppercase small fw-bold">STT</th>
                   <th class="border-0 text-uppercase small fw-bold">
                     Tên sản phẩm
                   </th>
@@ -134,7 +134,39 @@
                 </p>
               </div>
             </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Thuộc tính</th>
 
+                  <th scope="col">Số lượng</th>
+                </tr>
+              </thead>
+              <tbody
+                v-for="(item, index) in productByID.QUANTITY_BY_KEY_VALUE"
+                :key="index"
+              >
+                <tr>
+                  <th scope="row">{{ index + 1 }}</th>
+                  <td>
+                    <div v-for="item1 in item.LIST_MATCH_KEY" :key="item1._id">
+                      <span>{{ item1.KEY }}</span> -
+                      <span v-for="item2 in item1.VALUE" :key="item2._id">{{
+                        item2
+                      }}</span>
+                    </div>
+                  </td>
+
+                  <td
+                    class="text-center text-white"
+                    :class="item.QUANTITY <= 2 ? 'bg-danger' : 'bg-success'"
+                  >
+                    {{ item.QUANTITY }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
             <!-- Import Form -->
             <form @submit.prevent>
               <!-- Dynamic Attributes -->
@@ -338,6 +370,7 @@ export default {
         console.log(this.products);
       }
     },
+
     async getAllSupplier() {
       const response = await supplierServices.getAllSuppliers();
       if (response && response.data) {

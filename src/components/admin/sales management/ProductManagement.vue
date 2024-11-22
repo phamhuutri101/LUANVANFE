@@ -212,22 +212,34 @@
 
     <!-- modal sửa sp -->
     <div class="product">
-      <div class="header pb-4 d-flex justify-content-between">
-        <h4>Quản lý sản phẩm</h4>
+      <div class="header pb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4>Quản lý sản phẩm</h4>
+          <div class="search-container">
+            <input
+              type="text"
+              v-model="searchQuery"
+              @input="handleSearch"
+              placeholder="Tìm kiếm sản phẩm..."
+              class="search-input"
+            />
+          </div>
+        </div>
       </div>
 
       <div class="top-product">
         <div class="row">
           <div class="col-3 text-center">Thông tin sản phẩm</div>
           <div class="col-3 text-center">Giá</div>
-          <div class="col-3 text-center">Kho</div>
-          <div class="col-3 text-center">Thao tác</div>
+          <div class="col-2 text-center">Kho</div>
+          <div class="col-2 text-center">Danh mục</div>
+          <div class="col-2 text-center">Thao tác</div>
         </div>
       </div>
       <div class="bottom-product">
         <div
           class="row border-bottom py-3"
-          v-for="item in products"
+          v-for="item in filteredProducts"
           :key="item._id"
         >
           <div class="col-3 text-start">
@@ -252,10 +264,13 @@
           <div class="col-3 text-center">
             {{ item.Price }}
           </div>
-          <div class="col-3 text-center">
+          <div class="col-2 text-center">
             {{ item.NUMBER_INVENTORY_PRODUCT }}
           </div>
-          <div class="col-3 text-center">
+          <div class="col-2 text-center">
+            {{ item.CATEGORY_NAME }}
+          </div>
+          <div class="col-2 text-center">
             <i
               class="fa-solid fa-pen-to-square"
               data-bs-toggle="modal"
@@ -279,6 +294,7 @@
 </template>
 
 <script>
+import categoryServices from "@/services/category.services";
 import PriceService from "@/services/price.services";
 import productServices from "@/services/product.services";
 import uploadServices from "@/services/upload.services";
@@ -292,11 +308,12 @@ export default {
   },
   data() {
     return {
+      searchQuery: "",
       productDetail: {},
       prices: [],
       products: [],
       page: 1,
-      limit: 2,
+      limit: 10,
       currentMaxPage: 1, // Số trang tối đa đã biết
       hasMorePages: true, // Flag kiểm tra còn trang tiếp không
       metadata: [
@@ -319,6 +336,17 @@ export default {
   created() {
     this.getProduct();
   },
+  computed: {
+    filteredProducts() {
+      if (!this.searchQuery) return this.products;
+      const query = this.searchQuery.toLowerCase();
+      return this.products.filter(
+        (product) =>
+          product.NAME_PRODUCT?.toLowerCase().includes(query) ||
+          product.CATEGORY_NAME?.toLowerCase().includes(query)
+      );
+    },
+  },
   methods: {
     async getProduct() {
       try {
@@ -340,6 +368,7 @@ export default {
           }
           for (const item of this.products) {
             const priceRange = await PriceService.getPriceRange(item._id);
+            const categoryId = await categoryServices.getById(item.CATEGORY_ID);
             if (priceRange && priceRange.data) {
               this.priceRange = priceRange.data;
               this.priceMin = Math.min(
@@ -356,7 +385,14 @@ export default {
                 currency: "VND",
               })}`;
             }
+            if (categoryId && categoryId.data && categoryId.data.length > 0) {
+              item.CATEGORY_NAME =
+                categoryId.data[0].CATEGORY_NAME || "chưa thêm danh mục";
+            } else {
+              item.CATEGORY_NAME = "chưa thêm danh mục";
+            }
           }
+          console.log(this.products);
         }
       } catch (error) {
         console.error(error);
@@ -1028,5 +1064,139 @@ textarea.form-control {
 
 .modal.show .modal-dialog {
   transform: scale(1);
+}
+.search-container {
+  width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+.search-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.search-input {
+  padding-left: 40px;
+}
+/* css phân trang */
+/* CSS cho phân trang */
+.Pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 0.5rem;
+}
+
+.PaginationControl {
+  display: flex;
+  align-items: center;
+}
+
+.Control {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.Control:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Control svg {
+  width: 20px;
+  height: 20px;
+  fill: #374151;
+}
+
+.Page {
+  min-width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin: 0 0.25rem;
+}
+
+.Page:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.Page-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+}
+
+.Page-active:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Style cho nút disable */
+.Control[disabled],
+.Page[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .Control,
+  .Page {
+    min-width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .Control svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .Pagination {
+    gap: 0.25rem;
+  }
 }
 </style>

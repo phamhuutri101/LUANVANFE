@@ -13,6 +13,22 @@
           <option value="4">4 sao</option>
           <option value="5">5 sao</option>
         </select>
+        <div class="date-filters">
+          <input
+            type="date"
+            v-model="startDate"
+            class="date-input"
+            :max="endDate || today"
+          />
+          <span>đến</span>
+          <input
+            type="date"
+            v-model="endDate"
+            class="date-input"
+            :min="startDate"
+            :max="today"
+          />
+        </div>
 
         <input
           type="text"
@@ -80,13 +96,13 @@
 
       <!-- Phân trang -->
       <div class="pagination">
-        <button :disabled="currentPage === 1" @click="currentPage--">
-          Trước
-        </button>
-        <span>Trang {{ currentPage }}/{{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages" @click="currentPage++">
-          Sau
-        </button>
+        <VPagination
+          v-model="page"
+          :pages="currentMaxPage"
+          :range-size="5"
+          active-color="#DCEDFF"
+          @update:modelValue="onPageChange"
+        />
       </div>
     </div>
   </div>
@@ -94,7 +110,12 @@
 
 <script>
 import reviewServices from "@/services/review.services";
+import VPagination from "@hennge/vue3-pagination";
+import "@hennge/vue3-pagination/dist/vue3-pagination.css";
 export default {
+  components: {
+    VPagination,
+  },
   data() {
     return {
       // Danh sách đánh giá
@@ -107,7 +128,12 @@ export default {
       // Phân trang
       currentPage: 1,
       itemsPerPage: 10,
-
+      startDate: "", // Ngày bắt đầu
+      endDate: "", // Ngày kết thúc
+      today: new Date().toISOString().split("T")[0], // Ngày hiện tại
+      page: 1,
+      limit: 10,
+      currentMaxPage: 1, // Số trang tối đa đã biết
       // Modal chỉnh sửa
       showEditModal: false,
       editingReview: null,
@@ -133,7 +159,17 @@ export default {
           review.product.NAME_PRODUCT.toLowerCase().includes(query)
         );
       }
-
+      if (this.startDate) {
+        result = result.filter(
+          (review) => new Date(review.REVIEW_DATE) >= new Date(this.startDate)
+        );
+      }
+      if (this.endDate) {
+        result = result.filter(
+          (review) =>
+            new Date(review.REVIEW_DATE) <= new Date(this.endDate + " 23:59:59")
+        );
+      }
       // Phân trang
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
@@ -179,13 +215,29 @@ export default {
       return new Date(date).toLocaleDateString("vi-VN");
     },
     async getAllReview() {
-      const response = await reviewServices.getAllReviewShop(1, 10);
+      const response = await reviewServices.getAllReviewShop(
+        this.page,
+        this.limit
+      );
       if (response && response.data) {
         this.reviews = response.data;
+        if (this.reviews.length < this.limit) {
+          this.hasMorePages = false;
+          this.currentMaxPage = this.page;
+        }
+        // Nếu đang ở trang cuối cùng đã biết và vẫn có đủ số sản phẩm
+        else if (this.page >= this.currentMaxPage) {
+          this.hasMorePages = true;
+          this.currentMaxPage = this.page + 1;
+        }
         console.log(this.reviews);
       } else {
         console.error("L��i lấy dữ liệu đánh giá:", response);
       }
+    },
+    onPageChange(newPage) {
+      this.page = newPage;
+      this.getAllReview();
     },
   },
 

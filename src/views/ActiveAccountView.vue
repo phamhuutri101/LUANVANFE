@@ -2,25 +2,25 @@
   <Header />
   <div class="activation-container pt-5 my-5">
     <h3 class="text-center">Kích hoạt tài khoản</h3>
-    <div>
-      <input
-        type="text"
-        maxlength="6"
-        class="form-control text-center"
-        v-model="activationCode"
-        placeholder="Nhập mã kích hoạt"
-        @keydown.enter="submitActivationCode"
-      />
-      <div class="text-center">
-        <button
-          @click="submitActivationCode"
-          type="submit "
-          class="btn btn-primary mt-3"
-        >
-          Kích hoạt Tài khoản
-        </button>
+    <Form @submit="submitActivationCode" :validation-schema="schema">
+      <div>
+        <ErrorMessage name="activationCode" class="text-danger" />
+        <Field
+          name="activationCode"
+          type="text"
+          maxlength="6"
+          class="form-control text-center"
+          v-model="activationCode"
+          placeholder="Nhập mã kích hoạt"
+          @keydown.enter="submitActivationCode"
+        />
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary mt-3">
+            Kích hoạt Tài khoản
+          </button>
+        </div>
       </div>
-    </div>
+    </Form>
 
     <p class="mt-3 text-center">
       Thời gian còn lại: {{ minutes }}:{{ seconds < 10 ? "0" : ""
@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 import authServices from "@/services/auth.services";
 import emailServices from "@/services/email.services";
 import Swal from "sweetalert2";
@@ -43,11 +45,22 @@ export default {
   components: {
     Header,
     Footer,
+    Form,
+    Field,
+    ErrorMessage,
   },
   data() {
+    const schema = yup.object().shape({
+      activationCode: yup
+        .string()
+        .required("Vui lòng nhập mã kích hoạt")
+        .length(6, "Mã kích hoạt phải có 6 ký tự")
+        .matches(/^[0-9]+$/, "Mã kích hoạt chỉ được chứa số"),
+    });
     return {
       activationCode: "",
       timeLeft: 300, // 5 minutes in seconds
+      schema,
     };
   },
   computed: {
@@ -66,12 +79,12 @@ export default {
         clearInterval(this.timer);
       }
     },
-    async submitActivationCode() {
+    async submitActivationCode(values) {
       if (this.activationCode.length === 6) {
         try {
           const response = await authServices.activeOtp(
             localStorage.getItem("registeredEmail"),
-            this.activationCode
+            values
           );
           Swal.fire({
             title: "Kích hoạt tài khoản thành công",

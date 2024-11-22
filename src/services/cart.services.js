@@ -20,9 +20,9 @@ class CartService {
       throw error;
     }
   }
-  async getCart() {
+  async getCart(page, limit) {
     try {
-      const response = await this.api.get("/?page=1&limit=4");
+      const response = await this.api.get(`/?page=${page}&limit=${limit}`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -47,6 +47,14 @@ class CartService {
   async updatePriceReducedAndShipping(payload) {
     try {
       const response = await this.api.put("/updatePriceAndShipping", payload);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getAllCart() {
+    try {
+      const response = await this.api.get("/getAll");
+      return response.data;
     } catch (error) {
       console.error(error);
     }

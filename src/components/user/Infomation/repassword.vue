@@ -9,61 +9,114 @@
       </div>
     </div>
     <div class="body py-4">
-      <form @submit.prevent="changePassword">
+      <Form @submit="changePassword" :validation-schema="schema">
         <div class="form-group">
           <label for="currentPassword">Mật khẩu hiện tại:</label>
-          <input
-            type="password"
+          <Field
+            name="currentPassword"
+            :type="showCurrentPassword ? 'text' : 'password'"
             class="form-control"
             id="currentPassword"
             v-model="currentPassword"
             required
           />
+          <button type="button" @click="toggleCurrentPassword">
+            <i
+              :class="showCurrentPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+            ></i>
+          </button>
+          <ErrorMessage name="currentPassword" class="text-danger" />
         </div>
         <div class="form-group">
           <label for="newPassword">Mật khẩu mới:</label>
-          <input
-            type="password"
+          <Field
+            name="newPassword"
+            :type="showNewPassword ? 'text' : 'password'"
             class="form-control"
             id="newPassword"
             v-model="newPassword"
             required
           />
+          <button type="button" @click="toggleNewPassword">
+            <i :class="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+          <ErrorMessage name="newPassword" class="text-danger" />
         </div>
         <div class="form-group">
           <label for="confirmPassword">Xác nhận mật khẩu mới:</label>
-          <input
-            type="password"
+          <Field
+            name="confirmPassword"
+            :type="showConfirmPassword ? 'text' : 'password'"
             class="form-control"
             id="confirmPassword"
             v-model="confirmPassword"
             required
           />
+          <button type="button" @click="toggleConfirmPassword">
+            <i
+              :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+            ></i>
+          </button>
+          <ErrorMessage name="confirmPassword" class="text-danger" />
         </div>
         <button type="submit" class="btn btn-primary">xác nhận</button>
-      </form>
+      </Form>
     </div>
   </div>
 </template>
 
 <script>
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 import Swal from "sweetalert2";
 import authServices from "@/services/auth.services";
 export default {
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
+  },
   data() {
+    const schema = yup.object().shape({
+      currentPassword: yup
+        .string()
+        .required("Mật khẩu hiện tại không được để trống"),
+      newPassword: yup
+        .string()
+        .required("Mật khẩu mới không được để trống")
+        .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+        .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+        .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+        .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+        .matches(
+          /[!@#$%^&*(),.?":{}|<>]/,
+          "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
+        ),
+      confirmPassword: yup
+        .string()
+        .required("Xác nhận mật khẩu mới không được để trống")
+        .oneOf(
+          [yup.ref("newPassword"), null],
+          "Mật khẩu xác nhận phải trùng với mật khẩu mới"
+        ),
+    });
     return {
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
+      schema,
+      showCurrentPassword: false,
+      showNewPassword: false,
+      showConfirmPassword: false,
     };
   },
   methods: {
-    async changePassword() {
+    async changePassword(values) {
       try {
-        if ((this.newPassword = this.confirmPassword)) {
+        if (this.newPassword == this.confirmPassword) {
           const payload = {
-            old_password: this.currentPassword,
-            new_password: this.newPassword,
+            old_password: values.currentPassword,
+            new_password: values.newPassword,
           };
           const changePassword = await authServices.changePassword(payload);
           console.log(changePassword);
@@ -93,6 +146,15 @@ export default {
         });
         console.error(error);
       }
+    },
+    toggleCurrentPassword() {
+      this.showCurrentPassword = !this.showCurrentPassword;
+    },
+    toggleNewPassword() {
+      this.showNewPassword = !this.showNewPassword;
+    },
+    toggleConfirmPassword() {
+      this.showConfirmPassword = !this.showConfirmPassword;
     },
   },
 };
@@ -316,5 +378,37 @@ input[type="password"] {
   .title p:nth-child(1) {
     font-size: 20px;
   }
+}
+.form-group {
+  position: relative;
+}
+
+.form-group button {
+  position: absolute;
+  right: 12px;
+  top: 38px; /* Điều chỉnh vị trí so với label */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.form-group button:hover {
+  color: #09884d;
+}
+
+.form-group button i {
+  font-size: 16px;
+}
+
+/* Điều chỉnh padding cho input để tránh icon bị đè */
+.form-group input[type="text"],
+.form-group input[type="password"] {
+  padding-right: 40px;
 }
 </style>

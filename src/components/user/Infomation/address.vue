@@ -75,110 +75,123 @@
     aria-labelledby="AddAddressModalLabel"
     aria-hidden="true"
   >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="AddAddressModalLabel">
-            Địa chỉ mới
-          </h1>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-6 p-3">
-              <input type="text" v-model="full_name" placeholder="Họ và tên" />
-            </div>
-            <div class="col-6 p-3">
-              <input
-                type="text"
-                v-model="phone_number"
-                placeholder="Số điện thoại"
-              />
-            </div>
-            <div class="col-4 p-3">
-              <label for="form-control">Tỉnh/Thành Phố</label>
-              <!-- Dropdown chọn tỉnh -->
+    <Form @submit="saveAddress" :validation-schema="schemaAddress">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="AddAddressModalLabel">
+              Địa chỉ mới
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-6 p-3">
+                <Field
+                  name="full_name"
+                  type="text"
+                  v-model="full_name"
+                  placeholder="Họ và tên"
+                />
+                <ErrorMessage name="full_name" class="text-danger" />
+              </div>
+              <div class="col-6 p-3">
+                <Field
+                  name="phone_number"
+                  type="text"
+                  v-model="phone_number"
+                  placeholder="Số điện thoại"
+                />
+                <ErrorMessage name="phone_number" class="text-danger" />
+              </div>
+              <div class="col-4 p-3">
+                <label for="form-control">Tỉnh/Thành Phố</label>
+                <!-- Dropdown chọn tỉnh -->
 
-              <select
-                class="form-select country"
-                aria-label="Chọn tỉnh"
-                v-model="selectedProvince"
-                @change="onProvinceChange"
-              >
-                <option
-                  v-for="province in addressAPIProvince"
-                  :key="province.code"
-                  :value="province.code"
+                <select
+                  class="form-select country"
+                  aria-label="Chọn tỉnh"
+                  v-model="selectedProvince"
+                  @change="onProvinceChange"
                 >
-                  {{ province.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-4 p-3">
-              <label for="form-control">Quận/Huyện</label>
-              <!-- Dropdown chọn huyện -->
-              <select
-                class="form-select country"
-                aria-label="Chọn huyện"
-                v-model="selectedDistrict"
-                @change="onDistrictChange"
-                :disabled="!addressAPIDistrict.length"
-              >
-                <option
-                  v-for="district in addressAPIDistrict"
-                  :key="district.code"
-                  :value="district.code"
+                  <option
+                    v-for="province in addressAPIProvince"
+                    :key="province.code"
+                    :value="province.code"
+                  >
+                    {{ province.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-4 p-3">
+                <label for="form-control">Quận/Huyện</label>
+                <!-- Dropdown chọn huyện -->
+
+                <select
+                  class="form-select country"
+                  aria-label="Chọn huyện"
+                  v-model="selectedDistrict"
+                  @change="onDistrictChange"
+                  :disabled="!addressAPIDistrict.length"
                 >
-                  {{ district.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-4 p-3">
-              <label for="form-control">Xã/Phường</label>
-              <!-- Dropdown chọn xã -->
-              <select
-                class="form-select country"
-                aria-label="Chọn xã"
-                v-model="selectedCommune"
-                :disabled="!addressAPICommune.length"
-              >
-                <option
-                  v-for="commune in addressAPICommune"
-                  :key="commune.code"
-                  :value="commune.code"
+                  <option
+                    v-for="district in addressAPIDistrict"
+                    :key="district.code"
+                    :value="district.code"
+                  >
+                    {{ district.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-4 p-3">
+                <label for="form-control">Xã/Phường</label>
+                <!-- Dropdown chọn xã -->
+
+                <select
+                  class="form-select country"
+                  aria-label="Chọn xã"
+                  v-model="selectedCommune"
+                  :disabled="!addressAPICommune.length"
                 >
-                  {{ commune.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-12 p-3">
-              <input
-                class="w-100"
-                type="text"
-                placeholder="Địa chỉ cụ thể"
-                v-model="desc"
-              />
+                  <option
+                    v-for="commune in addressAPICommune"
+                    :key="commune.code"
+                    :value="commune.code"
+                  >
+                    {{ commune.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-12 p-3">
+                <Field
+                  name="desc"
+                  class="w-100"
+                  type="text"
+                  placeholder="Địa chỉ cụ thể"
+                  v-model="desc"
+                />
+                <ErrorMessage name="desc" class="text-danger" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button
-            type="button"
-            data-bs-dismiss="modal"
-            class="btn btn-success w-100"
-            @click="saveAddress()"
-          >
-            Lưu
-          </button>
+          <div class="modal-footer">
+            <button
+              type="submit"
+              data-bs-dismiss="modal"
+              class="btn btn-success w-100"
+            >
+              Lưu
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Form>
   </div>
   <!-- UpdateAddressModal -->
   <div
@@ -188,119 +201,149 @@
     aria-labelledby="UpdateAddressModalLabel"
     aria-hidden="true"
   >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="UpdateAddressModalLabel">
-            Cập nhật chỉ
-          </h1>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-6 p-3">
-              <input type="text" v-model="full_name" placeholder="Họ và tên" />
-            </div>
-            <div class="col-6 p-3">
-              <input
-                type="text"
-                v-model="phone_number"
-                placeholder="Số điện thoại"
-              />
-            </div>
-            <div class="col-4 p-3">
-              <label for="form-control">Tỉnh/Thành Phố</label>
-              <!-- Dropdown chọn tỉnh -->
+    <Form @submit="saveAddressUpdate" :validation-schema="schemaAddress">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="UpdateAddressModalLabel">
+              Cập nhật chỉ
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-6 p-3">
+                <Field
+                  name="full_name"
+                  type="text"
+                  v-model="full_name"
+                  placeholder="Họ và tên"
+                />
+                <ErrorMessage name="full_name" class="text-danger" />
+              </div>
+              <div class="col-6 p-3">
+                <Field
+                  name="phone_number"
+                  type="text"
+                  v-model="phone_number"
+                  placeholder="Số điện thoại"
+                />
+                <ErrorMessage name="phone_number" class="text-danger" />
+              </div>
+              <div class="col-4 p-3">
+                <label for="form-control">Tỉnh/Thành Phố</label>
+                <!-- Dropdown chọn tỉnh -->
 
-              <select
-                class="form-select country"
-                aria-label="Chọn tỉnh"
-                v-model="selectedProvince"
-                @change="onProvinceChange"
-              >
-                <option
-                  v-for="province in addressAPIProvince"
-                  :key="province.code"
-                  :value="province.code"
+                <select
+                  class="form-select country"
+                  aria-label="Chọn tỉnh"
+                  v-model="selectedProvince"
+                  @change="onProvinceChange"
                 >
-                  {{ province.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-4 p-3">
-              <label for="form-control">Quận/Huyện</label>
-              <!-- Dropdown chọn huyện -->
-              <select
-                class="form-select country"
-                aria-label="Chọn huyện"
-                v-model="selectedDistrict"
-                @change="onDistrictChange"
-                :disabled="!addressAPIDistrict.length"
-              >
-                <option
-                  v-for="district in addressAPIDistrict"
-                  :key="district.code"
-                  :value="district.code"
+                  <option
+                    v-for="province in addressAPIProvince"
+                    :key="province.code"
+                    :value="province.code"
+                  >
+                    {{ province.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-4 p-3">
+                <label for="form-control">Quận/Huyện</label>
+                <!-- Dropdown chọn huyện -->
+
+                <select
+                  class="form-select country"
+                  aria-label="Chọn huyện"
+                  v-model="selectedDistrict"
+                  @change="onDistrictChange"
+                  :disabled="!addressAPIDistrict.length"
                 >
-                  {{ district.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-4 p-3">
-              <label for="form-control">Xã/Phường</label>
-              <!-- Dropdown chọn xã -->
-              <select
-                class="form-select country"
-                aria-label="Chọn xã"
-                v-model="selectedCommune"
-                :disabled="!addressAPICommune.length"
-              >
-                <option
-                  v-for="commune in addressAPICommune"
-                  :key="commune.code"
-                  :value="commune.code"
+                  <option
+                    v-for="district in addressAPIDistrict"
+                    :key="district.code"
+                    :value="district.code"
+                  >
+                    {{ district.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-4 p-3">
+                <label for="form-control">Xã/Phường</label>
+                <!-- Dropdown chọn xã -->
+
+                <select
+                  class="form-select country"
+                  aria-label="Chọn xã"
+                  v-model="selectedCommune"
+                  :disabled="!addressAPICommune.length"
                 >
-                  {{ commune.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-12 p-3">
-              <input
-                class="w-100"
-                type="text"
-                placeholder="Địa chỉ cụ thể"
-                v-model="desc"
-              />
+                  <option
+                    v-for="commune in addressAPICommune"
+                    :key="commune.code"
+                    :value="commune.code"
+                  >
+                    {{ commune.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-12 p-3">
+                <Field
+                  name="desc"
+                  class="w-100"
+                  type="text"
+                  placeholder="Địa chỉ cụ thể"
+                  v-model="desc"
+                />
+                <ErrorMessage name="desc" class="text-danger" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button
-            type="button"
-            data-bs-dismiss="modal"
-            class="btn btn-success w-100"
-            @click="saveAddressUpdate()"
-          >
-            Cập nhật
-          </button>
+          <div class="modal-footer">
+            <button
+              type="submit"
+              data-bs-dismiss="modal"
+              class="btn btn-success w-100"
+            >
+              Cập nhật
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Form>
   </div>
 </template>
 
 <script>
 import addressServices from "@/services/address.services";
 import axios from "axios";
-
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 export default {
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
+  },
   data() {
+    const schemaAddress = yup.object().shape({
+      full_name: yup.string().required("Họ và tên không được bỏ trống"),
+      phone_number: yup
+        .string()
+        .required("Số điện thoại không được bỏ trống")
+        .matches(
+          /^0[0-9]{9}$/,
+          "Số điện thoại phải là số điện thoại gồm 10 số"
+        ),
+      desc: yup.string().required("địa chỉ chi tiết không được bỏ trống"),
+    });
     return {
       addresses: [],
       addressAPIProvince: [],
@@ -313,6 +356,7 @@ export default {
       phone_number: "",
       desc: "",
       id: "",
+      schemaAddress,
     };
   },
   async created() {
@@ -398,14 +442,21 @@ export default {
       const commune = this.addressAPICommune.find((c) => c.code === code);
       return commune ? commune.name : "Không tìm thấy";
     },
-    async saveAddress() {
+    async saveAddress(values) {
+      if (
+        !this.selectedProvince ||
+        !this.selectedDistrict ||
+        !this.selectedCommune
+      ) {
+        return;
+      }
       const payload = {
         provide: this.getProvinceName(this.selectedProvince),
         district: this.getDistrictName(this.selectedDistrict),
         commune: this.getCommuneName(this.selectedCommune),
-        full_name: this.full_name,
-        phone_number: this.phone_number,
-        desc: this.desc,
+        full_name: values.full_name,
+        phone_number: values.phone_number,
+        desc: values.desc,
       };
       await addressServices.createAddress(payload);
       this.fetchAddresses();

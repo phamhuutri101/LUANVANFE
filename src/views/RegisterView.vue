@@ -28,76 +28,96 @@
 
           <div class="card bg-glass">
             <div class="card-body px-4 py-5 px-md-5">
-              <form @submit.prevent="register">
+              <Form @submit="register" :validation-schema="schema">
                 <!-- 2 column grid layout with text inputs for the first and last names -->
                 <div class="row">
                   <div class="col-md-12 mb-4">
                     <div data-mdb-input-init class="form-outline">
-                      <input
+                      <label class="form-label" for="form3Example2"
+                        >Họ & Tên người dùng</label
+                      >
+                      <Field
+                        name="full_name"
                         autocomplete="off"
                         v-model="fromData.full_name"
                         type="text"
                         id="form3Example2"
                         class="form-control"
                       />
-                      <label class="form-label" for="form3Example2"
-                        >Họ & Tên người dùng</label
-                      >
+
+                      <ErrorMessage name="full_name" class="text-danger" />
                     </div>
                   </div>
                 </div>
                 <!-- user name -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input
+                  <label class="form-label" for="form3Example3"
+                    >Tên đăng nhập</label
+                  >
+                  <Field
                     autocomplete="off"
+                    name="user_name"
                     type="text"
                     id="form3Example3"
                     class="form-control"
                     v-model="fromData.user_name"
                   />
-                  <label class="form-label" for="form3Example3"
-                    >Tên đăng nhập</label
-                  >
+                  <ErrorMessage name="user_name" class="text-danger" />
                 </div>
                 <!-- Email input -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input
+                  <label class="form-label" for="form3Example3"
+                    >Địa chỉ Email</label
+                  >
+                  <Field
+                    name="email_user"
                     autocomplete="off"
                     type="email"
                     id="form3Example3"
                     class="form-control"
                     v-model="fromData.email_user"
                   />
-                  <label class="form-label" for="form3Example3"
-                    >Địa chỉ Email</label
-                  >
+                  <ErrorMessage name="email_user" class="text-danger" />
                 </div>
                 <!-- phone number -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input
+                  <label class="form-label" for="form3Example3"
+                    >Số điện thoại</label
+                  >
+                  <Field
+                    name="phone_number"
                     autocomplete="off"
                     type="text"
                     id="form3Example3"
                     class="form-control"
                     v-model="fromData.phone_number"
                   />
-                  <label class="form-label" for="form3Example3"
-                    >Số điện thoại</label
-                  >
+                  <ErrorMessage name="phone_number" class="text-danger" />
                 </div>
 
                 <!-- Password input -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input
-                    autocomplete="off"
-                    v-model="fromData.password"
-                    type="password"
-                    id="form3Example4"
-                    class="form-control"
-                  />
                   <label class="form-label" for="form3Example4 "
                     >Mật khẩu</label
                   >
+                  <div class="relative">
+                    <Field
+                      name="password"
+                      autocomplete="off"
+                      v-model="fromData.password"
+                      :type="showPassword ? 'text' : 'password'"
+                      id="form3Example4"
+                      class="form-control"
+                    />
+                    <button type="button" @click="togglePassword">
+                      <i
+                        :class="
+                          showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'
+                        "
+                      ></i>
+                    </button>
+                  </div>
+                  <ErrorMessage name="password" class="text-danger" />
                 </div>
 
                 <!-- Submit button -->
@@ -111,7 +131,7 @@
                 </button>
 
                 <!-- Register buttons -->
-              </form>
+              </Form>
               <span class="d-flex justify-content-center">
                 Bạn đã có tài khoản?
                 <router-link class="px-1" to="/login">Đăng nhập</router-link>
@@ -127,15 +147,52 @@
 </template>
 
 <script>
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 import Swal from "sweetalert2";
 import authServices from "@/services/auth.services";
 import Header from "@/components/user/Header.vue";
 import Footer from "@/components/user/Footer.vue";
+
 export default {
-  components: { Header, Footer },
+  components: { Header, Footer, Form, Field, ErrorMessage },
 
   name: "RegisterForm",
   data() {
+    const schema = yup.object().shape({
+      full_name: yup
+        .string()
+        .required("Họ tên không được để trống")
+        .min(2, "Họ tên phải có ít nhất 2 ký tự")
+        .max(50, "Họ tên không được vượt quá 50 ký tự"),
+      user_name: yup
+        .string()
+        .required("Tên đăng nhập không được để trống")
+        .min(3, "Tên đăng nhập phải có ít nhất 3 ký tự")
+        .matches(
+          /^[a-zA-Z0-9_]+$/,
+          "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới"
+        ),
+      email_user: yup
+        .string()
+        .required("Email không được để trống")
+        .email("Email không hợp lệ"),
+      phone_number: yup
+        .string()
+        .required("Số điện thoại không được để trống")
+        .matches(/^(0[3|5|7|8|9])+([0-9]{8})$/, "Số điện thoại không hợp lệ"),
+      password: yup
+        .string()
+        .required("Mật khẩu không được để trống")
+        .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+        .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+        .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+        .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+        .matches(
+          /[!@#$%^&*(),.?":{}|<>]/,
+          "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
+        ),
+    });
     return {
       fromData: {
         full_name: "",
@@ -144,18 +201,20 @@ export default {
         user_name: "",
         password: "",
       },
+      showPassword: false,
+      schema,
     };
   },
   methods: {
-    async register() {
+    async register(values) {
       try {
-        await authServices.register(this.fromData);
+        await authServices.register(values);
         const sweetalert2 = Swal.fire({
           title: "Bạn đã đăng ký tài khoản thành công",
           text: "Vui lòng kiểm tra Email để kích hoạt tài khoản",
           icon: "success",
         });
-        localStorage.setItem("registeredEmail", this.fromData.email_user);
+        localStorage.setItem("registeredEmail", values.email_user);
         this.$router.push({ name: "ActiveAccount" });
       } catch (error) {
         console.error(error);
@@ -172,11 +231,8 @@ export default {
         }
       }
     },
-    validatePhoneNumber() {
-      this.formData.phone_number = this.formData.phone_number.replace(
-        /[^0-9]/g,
-        ""
-      );
+    togglePassword() {
+      this.showPassword = !this.showPassword;
     },
   },
 };
@@ -441,5 +497,51 @@ p::after {
   color: #ff4757;
   font-size: 12px;
   margin-top: 5px;
+}
+/* css mắt password */
+/* Thêm vào phần <style scoped> */
+
+/* Position for password input container */
+.form-outline .relative {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the eye button */
+.form-outline .relative button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  cursor: pointer;
+}
+
+/* Adjust padding for password input */
+.form-outline .relative .form-control {
+  padding-right: 45px; /* Make space for the eye icon */
+}
+
+/* Style for the icon */
+.form-outline .relative button i {
+  font-size: 18px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.form-outline .relative button:hover i {
+  color: #374151;
+}
+
+/* Remove button outline */
+.form-outline .relative button:focus {
+  outline: none;
 }
 </style>
