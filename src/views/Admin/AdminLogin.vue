@@ -24,7 +24,7 @@
                 class="form-control"
                 id="Username"
                 aria-describedby="emailHelp"
-                placeholder="User Name"
+                placeholder="Tên đăng nhập"
                 v-model="user_name"
               />
             </div>
@@ -33,7 +33,7 @@
                 type="password"
                 class="form-control"
                 id="password"
-                placeholder="password"
+                placeholder="Mật khẩu"
                 v-model="password"
               />
             </div>
@@ -69,6 +69,7 @@ export default {
           password: this.password,
         };
         const response = await authServices.loginAdmin(payload);
+        console.log(response);
         if (response && response.success === true) {
           Cookies.set("access_token", response.accessToken, {
             expires: 1,
@@ -89,11 +90,24 @@ export default {
         } else {
           Swal.fire({
             icon: "error",
-            title: "Bạn đã nhập sai tài khoản hoặc mật khẩu",
+            title:
+              "Sai tài khoản, mật khẩu hoặc bạn chưa có quyền truy cập vào trang quản trị",
+            text: "Hãy đăng nhập lại",
           });
         }
       } catch (error) {
-        console.error(error);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          console.error(error);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi khi đăng nhập tài khoản",
+            text: error.code,
+          });
+        }
       }
     },
   },
@@ -101,6 +115,9 @@ export default {
 </script>
 
 <style scoped>
+.container {
+  height: 100vh;
+}
 .btn-color {
   background-color: #0e1c36;
   color: #fff;

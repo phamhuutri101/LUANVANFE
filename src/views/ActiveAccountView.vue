@@ -2,15 +2,13 @@
   <Header />
   <div class="activation-container pt-5 my-5">
     <h3 class="text-center">Kích hoạt tài khoản</h3>
-    <Form @submit="submitActivationCode" :validation-schema="schema">
+    <form @submit.prevent="submitActivationCode">
       <div>
-        <ErrorMessage name="activationCode" class="text-danger" />
-        <Field
-          name="activationCode"
+        <input
           type="text"
           maxlength="6"
           class="form-control text-center"
-          v-model="activationCode"
+          v-model="code"
           placeholder="Nhập mã kích hoạt"
           @keydown.enter="submitActivationCode"
         />
@@ -20,7 +18,7 @@
           </button>
         </div>
       </div>
-    </Form>
+    </form>
 
     <p class="mt-3 text-center">
       Thời gian còn lại: {{ minutes }}:{{ seconds < 10 ? "0" : ""
@@ -34,8 +32,6 @@
 </template>
 
 <script>
-import { Form, Field, ErrorMessage } from "vee-validate";
-import * as yup from "yup";
 import authServices from "@/services/auth.services";
 import emailServices from "@/services/email.services";
 import Swal from "sweetalert2";
@@ -45,22 +41,11 @@ export default {
   components: {
     Header,
     Footer,
-    Form,
-    Field,
-    ErrorMessage,
   },
   data() {
-    const schema = yup.object().shape({
-      activationCode: yup
-        .string()
-        .required("Vui lòng nhập mã kích hoạt")
-        .length(6, "Mã kích hoạt phải có 6 ký tự")
-        .matches(/^[0-9]+$/, "Mã kích hoạt chỉ được chứa số"),
-    });
     return {
-      activationCode: "",
+      code: "",
       timeLeft: 300, // 5 minutes in seconds
-      schema,
     };
   },
   computed: {
@@ -80,12 +65,13 @@ export default {
       }
     },
     async submitActivationCode(values) {
-      if (this.activationCode.length === 6) {
+      if (this.code.length === 6) {
         try {
           const response = await authServices.activeOtp(
             localStorage.getItem("registeredEmail"),
-            values
+            this.code
           );
+
           Swal.fire({
             title: "Kích hoạt tài khoản thành công",
             icon: "success",
@@ -93,10 +79,10 @@ export default {
           localStorage.removeItem("registeredEmail");
           this.$router.push("/login");
         } catch (error) {
+          2;
           Swal.fire({
             icon: "error",
             title: "Sai mã kích hoạt.",
-            footer: '<a href="#">Gửi lại mã kích hoạt?</a>',
           });
         }
       } else {
@@ -109,9 +95,9 @@ export default {
     // reActive test chưa thành công
     async reActive() {
       try {
-        const response = await emailServices.sendMailOTP(
-          localStorage.getItem("registeredEmail")
-        );
+        const response = await emailServices.sendMailOTP({
+          email: localStorage.getItem("registeredEmail"),
+        });
       } catch (error) {
         console.error(error);
       }

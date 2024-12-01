@@ -9,10 +9,7 @@
               <span class="text-muted hover-orange">Trung Tâm Trợ Giúp</span>
             </li>
             <li>
-              <span class="text-muted hover-orange">Shopee Blog</span>
-            </li>
-            <li>
-              <span class="text-muted hover-orange">Shopee Mall</span>
+              <span class="text-muted hover-orange">Shopay Blog</span>
             </li>
             <li>
               <span class="text-muted hover-orange">Hướng Dẫn Mua Hàng</span>
@@ -22,9 +19,6 @@
             </li>
             <li>
               <span class="text-muted hover-orange">Thanh Toán</span>
-            </li>
-            <li>
-              <span class="text-muted hover-orange">Shopee Xu</span>
             </li>
             <li>
               <span class="text-muted hover-orange">Vận Chuyển</span>
@@ -41,18 +35,18 @@
           </ul>
         </div>
         <div class="col-lg-3 col-md-6">
-          <h6 class="text-uppercase fw-bold mb-4">VỀ SHOPEE</h6>
+          <h6 class="text-uppercase fw-bold mb-4">VỀ SHOPAY</h6>
           <ul class="list-unstyled footer-links">
             <li>
               <span class="text-muted hover-orange"
-                >Giới Thiệu Về Shopee Việt Nam</span
+                >Giới Thiệu Về Shopay Việt Nam</span
               >
             </li>
             <li>
               <span class="text-muted hover-orange">Tuyển Dụng</span>
             </li>
             <li>
-              <span class="text-muted hover-orange">Điều Khoản Shopee</span>
+              <span class="text-muted hover-orange">Điều Khoản Shopay</span>
             </li>
             <li>
               <span class="text-muted hover-orange">Chính Sách Bảo Mật</span>
@@ -66,11 +60,7 @@
             <li>
               <span class="text-muted hover-orange">Flash Sales</span>
             </li>
-            <li>
-              <span class="text-muted hover-orange"
-                >Chương Trình Tiếp Thị Liên Kết Shopee</span
-              >
-            </li>
+
             <li>
               <span class="text-danger hover-orange"
                 >Liên Hệ Với Truyền Thông</span
@@ -83,37 +73,12 @@
           <div class="payment-methods mb-4">
             <img
               src="path_to_visa_logo.png"
-              alt="Visa"
+              alt="Momo"
               class="me-2 mb-2 payment-icon"
             />
             <img
               src="path_to_mastercard_logo.png"
-              alt="Mastercard"
-              class="me-2 mb-2 payment-icon"
-            />
-            <img
-              src="path_to_jcb_logo.png"
-              alt="JCB"
-              class="me-2 mb-2 payment-icon"
-            />
-            <img
-              src="path_to_amex_logo.png"
-              alt="American Express"
-              class="me-2 mb-2 payment-icon"
-            />
-            <img
-              src="path_to_cod_logo.png"
-              alt="COD"
-              class="me-2 mb-2 payment-icon"
-            />
-            <img
-              src="path_to_installment_logo.png"
-              alt="Installment"
-              class="me-2 mb-2 payment-icon"
-            />
-            <img
-              src="path_to_shopeepay_logo.png"
-              alt="ShopeePay"
+              alt="ZaloPay"
               class="me-2 mb-2 payment-icon"
             />
           </div>

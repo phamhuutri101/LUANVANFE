@@ -10,7 +10,17 @@
       <span class="title-icon"><i class="fas fa-chart-pie"></i></span>
       Tổng quan cửa hàng
     </h1>
+    <div class="dashboard-charts pb-5">
+      <!-- Bar Chart -->
+      <div class="chart-container">
+        <canvas id="statsBarChart"></canvas>
+      </div>
 
+      <!-- Line Chart -->
+      <div class="chart-container">
+        <canvas id="revenueLineChart"></canvas>
+      </div>
+    </div>
     <div class="dashboard-grid">
       <!-- Sản phẩm -->
       <div class="dashboard-box product-box animate__animated animate__fadeIn">
@@ -171,173 +181,239 @@
 </template>
 
 <script>
+// Script section
+// Cập nhật phần script
 import orderServices from "@/services/order.services";
 import productServices from "@/services/product.services";
 import shopServices from "@/services/shop.services";
-
+import Chart from "chart.js/auto";
 import { formatNumber } from "@/utils/formatNumber";
+
 export default {
   name: "DashboardOverview",
   data() {
     return {
       orderInDay: [],
-      priceInDay: "",
-      priceInMonth: "",
-      totalProduct: "",
+      priceInDay: 0,
+      priceInMonth: 0,
+      totalProduct: 0,
       shopName: "",
-      orderProfitInDay: "",
-      TotalOrderProfit: "",
-      recentOrders: [
-        {
-          code: "ORD001",
-          customer: "Nguyễn Văn A",
-          items: "iPhone 14 Pro Max",
-          total: "30,990,000₫",
-          status: "pending",
-          statusText: "Chờ xử lý",
-          time: "10:30 AM",
-        },
-        {
-          code: "ORD002",
-          customer: "Trần Thị B",
-          items: "MacBook Air M2",
-          total: "28,990,000₫",
-          status: "completed",
-          statusText: "Hoàn thành",
-          time: "09:15 AM",
-        },
-        {
-          code: "ORD003",
-          customer: "Lê Văn C",
-          items: "iPad Pro 12.9",
-          total: "25,990,000₫",
-          status: "processing",
-          statusText: "Đang xử lý",
-          time: "Yesterday",
-        },
-        {
-          code: "ORD004",
-          customer: "Phạm Thị D",
-          items: "AirPods Pro 2",
-          total: "6,790,000₫",
-          status: "completed",
-          statusText: "Hoàn thành",
-          time: "Yesterday",
-        },
-      ],
-      topProducts: [
-        {
-          name: "iPhone 14 Pro Max",
-          price: "26,990,000₫",
-          sold: 150,
-          image: "https://placeholder.com/300x300",
-        },
-        {
-          name: "MacBook Pro M2",
-          price: "35,990,000₫",
-          sold: 89,
-          image: "https://placeholder.com/300x300",
-        },
-        {
-          name: "iPad Air 5",
-          price: "15,990,000₫",
-          sold: 76,
-          image: "https://placeholder.com/300x300",
-        },
-        {
-          name: "Apple Watch Series 8",
-          price: "10,990,000₫",
-          sold: 65,
-          image: "https://placeholder.com/300x300",
-        },
-      ],
+      orderProfitInDay: 0,
+      TotalOrderProfit: 0,
+      barChart: null,
+      lineChart: null,
+      chartData: {
+        loaded: false,
+        error: null,
+      },
     };
   },
-  created() {
-    this.getOrderInDay();
-    this.getPriceInDay();
-    this.getTotalProduct();
-    this.getPriceInMonth();
-    this.getNameShop();
-    this.getOrderProfitInDay();
-    this.getTotalOrderProfit();
-  },
+
   methods: {
-    async getNameShop() {
-      try {
-        const response = await shopServices.getNameShopByAccountIdShopper();
-        if (response && response.data) {
-          this.shopName = response.data;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async getOrderInDay() {
-      try {
-        const response = await orderServices.getOrderInDay();
-        if (response && response.data) {
-          this.orderInDay = response.data;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async getPriceInDay() {
-      try {
-        const response = await orderServices.getOrderPriceInDay();
-        if (response && response.data) {
-          this.priceInDay = response.data;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async getPriceInMonth() {
-      try {
-        const response = await orderServices.getOrderPriceInMonth();
-        if (response && response.data) {
-          this.priceInMonth = response.data;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async getTotalProduct() {
-      try {
-        const response = await productServices.getTotalProductShopper();
-        if (response && response.data) {
-          this.totalProduct = response.data;
-          console.log(this.totalProduct);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
     formatPrice(price) {
-      const Price = new Number(price);
-      return formatNumber(Price);
+      return formatNumber(Number(price) || 0);
     },
-    async getOrderProfitInDay() {
+
+    async fetchData() {
       try {
-        const response = await orderServices.getOrderProfitInDay();
-        if (response && response.data) {
-          this.orderProfitInDay = response.data.totalProfit;
-        }
+        // Fetch all data
+        const [
+          orderResponse,
+          priceInDayResponse,
+          totalProductResponse,
+          priceInMonthResponse,
+          shopNameResponse,
+          profitInDayResponse,
+          totalProfitResponse,
+        ] = await Promise.all([
+          orderServices.getOrderInDay(),
+          orderServices.getOrderPriceInDay(),
+          productServices.getTotalProductShopper(),
+          orderServices.getOrderPriceInMonth(),
+          shopServices.getNameShopByAccountIdShopper(),
+          orderServices.getOrderProfitInDay(),
+          orderServices.getTotalOrderProfit(),
+        ]);
+
+        // Update state
+        this.orderInDay = orderResponse.data || [];
+        this.priceInDay = Number(priceInDayResponse.data) || 0;
+        this.totalProduct = Number(totalProductResponse.data) || 0;
+        this.priceInMonth =
+          Number(priceInMonthResponse.data?.totalOrderPrice) || 0;
+        this.shopName = shopNameResponse.data || "";
+        this.orderProfitInDay =
+          Number(profitInDayResponse.data?.totalProfit) || 0;
+        this.TotalOrderProfit =
+          Number(totalProfitResponse.data?.totalProfit) || 0;
+
+        this.chartData.loaded = true;
+
+        // Initialize charts after data is loaded and DOM is updated
+        this.$nextTick(() => {
+          this.initializeCharts();
+        });
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching data:", error);
+        this.chartData.error = error;
       }
     },
-    async getTotalOrderProfit() {
-      try {
-        const response = await orderServices.getTotalOrderProfit();
-        if (response && response.data) {
-          this.TotalOrderProfit = response.data.totalProfit;
-        }
-      } catch (error) {
-        console.error(error);
-      }
+
+    initializeCharts() {
+      if (!this.chartData.loaded) return;
+
+      this.initBarChart();
+      this.initLineChart();
     },
+
+    initBarChart() {
+      const canvas = document.getElementById("statsBarChart");
+      if (!canvas) {
+        console.error("Bar chart canvas not found");
+        return;
+      }
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.error("Could not get 2d context for bar chart");
+        return;
+      }
+
+      if (this.barChart) {
+        this.barChart.destroy();
+      }
+
+      const data = [this.orderProfitInDay, this.TotalOrderProfit];
+
+      this.barChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Lợi nhuận ngày", "Tổng lợi nhuận"],
+          datasets: [
+            {
+              label: "Thống kê cửa hàng",
+              data: data,
+              backgroundColor: [
+                "rgba(99, 102, 241, 0.8)",
+                "rgba(245, 158, 11, 0.8)",
+                "rgba(16, 185, 129, 0.8)",
+                "rgba(59, 130, 246, 0.8)",
+              ],
+              borderColor: [
+                "rgb(99, 102, 241)",
+                "rgb(245, 158, 11)",
+                "rgb(16, 185, 129)",
+                "rgb(59, 130, 246)",
+              ],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: "Thống kê tổng quan cửa hàng",
+              font: { size: 16, weight: "bold" },
+            },
+            legend: {
+              display: true,
+              position: "bottom",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value) {
+                  return formatNumber(value);
+                },
+              },
+            },
+          },
+        },
+      });
+    },
+
+    initLineChart() {
+      const canvas = document.getElementById("revenueLineChart");
+      if (!canvas) {
+        console.error("Line chart canvas not found");
+        return;
+      }
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.error("Could not get 2d context for line chart");
+        return;
+      }
+
+      if (this.lineChart) {
+        this.lineChart.destroy();
+      }
+
+      this.lineChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Doanh thu ngày", "Doanh thu tháng"],
+          datasets: [
+            {
+              label: "Doanh thu",
+              data: [this.priceInDay, this.priceInMonth],
+              fill: false,
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+              pointBackgroundColor: "rgb(75, 192, 192)",
+              pointBorderColor: "#fff",
+              pointBorderWidth: 2,
+              pointRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: "Biểu đồ doanh thu",
+              font: { size: 16, weight: "bold" },
+            },
+            legend: {
+              display: true,
+              position: "bottom",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value) {
+                  return formatNumber(value);
+                },
+              },
+            },
+          },
+        },
+      });
+    },
+  },
+
+  mounted() {
+    this.fetchData();
+  },
+
+  beforeUnmount() {
+    if (this.barChart) {
+      this.barChart.destroy();
+      this.barChart = null;
+    }
+    if (this.lineChart) {
+      this.lineChart.destroy();
+      this.lineChart = null;
+    }
   },
 };
 </script>
@@ -641,5 +717,26 @@ dashboard-container {
 .btn-icon:hover {
   background-color: #6366f1;
   color: white;
+}
+/* chart */
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  height: 400px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-charts {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

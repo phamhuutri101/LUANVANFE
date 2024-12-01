@@ -61,10 +61,6 @@
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
-          <h4>Tổng quan lợi nhuận</h4>
-          <div class="d-flex">
-            <div class="totalProfit">{{ formatPrice(totalOrderProfit) }}</div>
-          </div>
           <table class="table table-hover">
             <thead>
               <tr>
@@ -308,7 +304,7 @@ export default {
       originalOrders: [],
       selectedOrder: null,
       page: 1,
-      limit: 5,
+      limit: 20,
       currentMaxPage: 1, // Số trang tối đa đã biết
       orderDetailModal: null,
       totalOrderProfit: "",
@@ -338,7 +334,7 @@ export default {
 
   methods: {
     async getOrder() {
-      const response = await orderServices.getOrderUser(this.page, this.limit);
+      const response = await orderServices.getShopOrder(this.page, this.limit);
       this.orders = response.data;
       this.orders.sort(
         (a, b) => new Date(b.TIME_PAYMENT) - new Date(a.TIME_PAYMENT)
@@ -409,34 +405,28 @@ export default {
       }
 
       // Filter by date range
-      if (this.filters.startDate && this.filters.endDate) {
-        const startDate = new Date(this.filters.startDate);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(this.filters.endDate);
-        endDate.setHours(23, 59, 59, 999);
+      if (this.filters.startDate || this.filters.endDate) {
+        const startDate = this.filters.startDate
+          ? new Date(this.filters.startDate).setHours(0, 0, 0, 0)
+          : null;
+        const endDate = this.filters.endDate
+          ? new Date(this.filters.endDate).setHours(23, 59, 59, 999)
+          : null;
 
         filteredOrders = filteredOrders.filter((order) => {
-          const orderDate = new Date(order.orderDate);
-          return orderDate >= startDate && orderDate <= endDate;
-        });
-      } else if (this.filters.startDate) {
-        const startDate = new Date(this.filters.startDate);
-        startDate.setHours(0, 0, 0, 0);
-
-        filteredOrders = filteredOrders.filter((order) => {
-          const orderDate = new Date(order.orderDate);
-          return orderDate >= startDate;
-        });
-      } else if (this.filters.endDate) {
-        const endDate = new Date(this.filters.endDate);
-        endDate.setHours(23, 59, 59, 999);
-
-        filteredOrders = filteredOrders.filter((order) => {
-          const orderDate = new Date(order.orderDate);
-          return orderDate <= endDate;
+          const orderDate = new Date(order.LIST_STATUS?.[0]?.FROM_DATE); // Dùng ngày từ trạng thái đầu tiên
+          if (startDate && endDate) {
+            return orderDate >= startDate && orderDate <= endDate;
+          } else if (startDate) {
+            return orderDate >= startDate;
+          } else if (endDate) {
+            return orderDate <= endDate;
+          }
+          return true; // Không lọc nếu không có ngày
         });
       }
 
+      // Cập nhật danh sách hiển thị
       this.orders = filteredOrders;
     },
 

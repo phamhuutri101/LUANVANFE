@@ -90,6 +90,59 @@
       <span class="visually-hidden">Next</span>
     </button>
   </div>
+  <div class="container pt-3">
+    <div class="d-flex justify-content-between">
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/vn-50009109-f6c34d719c3e4d33857371458e7a7059_xhdpi"
+          alt=""
+        />
+        <span>Voucher Giảm Đến 1 Triệu</span>
+      </div>
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/vn-50009109-c7a2e1ae720f9704f92f72c9ef1a494a_xhdpi"
+          alt=""
+        />
+        <span>Miễn Phí Ship - Có Shopay</span>
+      </div>
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/vn-50009109-5bf65d4dc0eb8f6b42074751e8b736a7_xhdpi"
+          alt=""
+        />
+        <span>Mua Nhiều Giảm Sâu</span>
+      </div>
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/vn-50009109-8a387d78a7ad954ec489d3ef9abd60b4_xhdpi"
+          alt=""
+        />
+        <span>Mã Giảm Giá</span>
+      </div>
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/vn-50009109-c02353c969d19918c53deaa4ea15bdbe_xhdpi"
+          alt=""
+        />
+        <span>Shopay Style Voucher 30%</span>
+      </div>
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/vn-11134258-7ras8-m2ujo91vppty7f_xhdpi"
+          alt=""
+        />
+        <span>Hàng Quốc Tế</span>
+      </div>
+      <div class="img-header">
+        <img
+          src="https://cf.shopee.vn/file/9df57ba80ca225e67c08a8a0d8cc7b85_xhdpi"
+          alt=""
+        />
+        <span>Nạp Thẻ, Dịch Vụ & Vé Máy Bay</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -98,7 +151,7 @@ export default {};
 
 <style scoped>
 .carousel-item img {
-  height: 300px; /* Adjust height as needed */
+  /* Adjust height as needed */
   object-fit: cover;
   object-position: center;
 }
@@ -111,5 +164,22 @@ export default {};
   width: 8px;
   height: 8px;
   border-radius: 50%;
+}
+.img-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.img-header img {
+  width: 75px;
+
+  object-fit: cover;
+  object-position: center;
+}
+.img-header span {
+  font-size: 14px;
+  color: #555;
+  margin-top: 5px;
 }
 </style>

@@ -37,7 +37,11 @@
           >
             (mặc định)</span
           >
-          <a href="#" class="shopee-link change-address small">
+          <a
+            href="#"
+            class="shopee-link change-address small"
+            v-if="defaultAddress.length > 0"
+          >
             <button
               type="button"
               data-bs-toggle="modal"
@@ -150,6 +154,20 @@
               <p class="m-0 product-name">
                 {{ trumCatName(item.ITEM.PRODUCT_DETAILS.NAME_PRODUCT) }}
               </p>
+              <br />
+              <div
+                v-for="KV in item.ITEM.LIST_MATCH_KEY"
+                :key="KV"
+                class="text-key-value"
+              >
+                <span>
+                  {{ KV.KEY }}
+                </span>
+                -
+                <span>
+                  {{ KV.VALUE }}
+                </span>
+              </div>
             </div>
           </div>
           <div class="col-3 text-end">
@@ -189,6 +207,11 @@
             :class="{ 'selected-payment': selectedPaymentMethod === 'ZaloPay' }"
           >
             ZaloPay
+            <img
+              class="img-payment"
+              src="https://upload.wikimedia.org/wikipedia/vi/7/77/ZaloPay_Logo.png"
+              alt=""
+            />
           </button>
           <button
             class="btn btn-payment me-2 mb-2"
@@ -196,6 +219,11 @@
             :class="{ 'selected-payment': selectedPaymentMethod === 'MoMo' }"
           >
             MoMo
+            <img
+              class="img-payment"
+              src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+              alt=""
+            />
           </button>
           <button
             class="btn btn-payment mb-2"
@@ -203,6 +231,11 @@
             :class="{ 'selected-payment': selectedPaymentMethod === 'COD' }"
           >
             Thanh toán khi nhận hàng
+            <img
+              class="img-payment"
+              src="https://bizweb.dktcdn.net/100/131/770/files/cod-credit-debit-bank-transaction-32259.png?v=1547623978151"
+              alt=""
+            />
           </button>
         </div>
       </div>
@@ -229,39 +262,13 @@
         </div>
         <p class="text-muted small">
           Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo
-          <a href="#" class="shopee-link">Điều khoản Shopee</a>
+          <a href="#" class="shopee-link">Điều khoản shopay</a>
         </p>
         <button class="btn btn-shopee w-100" @click="placeOrder">
           Đặt hàng
         </button>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="shopee-footer mt-4 pt-4 pb-2">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-3">
-            <h6 class="footer-heading">CHĂM SÓC KHÁCH HÀNG</h6>
-            <ul class="list-unstyled">
-              <li><a href="#" class="footer-link">Trung Tâm Trợ Giúp</a></li>
-              <li><a href="#" class="footer-link">Shopee Blog</a></li>
-              <li><a href="#" class="footer-link">Shopee Mall</a></li>
-              <!-- More items... -->
-            </ul>
-          </div>
-          <!-- More columns... -->
-        </div>
-        <hr />
-        <div class="row">
-          <div class="col-md-12 text-center">
-            <p class="text-muted small">
-              © 2024 Shopee. Tất cả các quyền được bảo lưu.
-            </p>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -282,16 +289,18 @@ export default {
       defaultAddress: {},
       selectedAddress: null,
       selectedPaymentMethod: null,
+      products: [],
     };
   },
   async created() {
     await this.getCart();
     await this.getAddress();
     await this.getDefaultAddress();
+    this.extractProducts();
   },
   methods: {
     async getCart() {
-      const response = await cartServices.getCart();
+      const response = await cartServices.getAllCart();
       if (response && response.data.length > 0) {
         this.cart = response.data;
       } else {
@@ -344,7 +353,14 @@ export default {
         const userById = await userServices.getUserById(UserLogin.data.USER_ID);
         console.log("User theo ID:", userById);
 
-        await emailServices.sendMailOrder({ email: userById.data.EMAIL_USER });
+        await emailServices.sendMailOrder({
+          email: userById.data.EMAIL_USER,
+          products: this.products,
+          address: this.defaultAddress,
+          PRICE: this.totalPayment(), // Tổng tiền của giỏ hàng
+          DISCOUNT: this.reduce(), // Mã giảm giá
+          SHIPPING: this.shipping(), // Phí ship
+        });
       } catch (error) {
         console.error(error);
       }
@@ -391,6 +407,7 @@ export default {
         if (this.selectedPaymentMethod === "COD") {
           this.onOrderClick();
         }
+        await this.$store.dispatch("fetchCartItemCount");
         sessionStorage.removeItem("priceReduce");
         sessionStorage.removeItem("priceTotalCart");
         sessionStorage.removeItem("shipping");
@@ -418,11 +435,33 @@ export default {
     trumCatName(name) {
       return trumCatName(name);
     },
+    extractProducts() {
+      this.products = this.cart.map((item) => ({
+        id: item.ITEM._id,
+        name: item.ITEM.PRODUCT_DETAILS.NAME_PRODUCT,
+        price: item.ITEM.PRICE,
+        quantity: item.ITEM.QUANTITY,
+        image:
+          item.ITEM.PRODUCT_DETAILS.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL,
+        list_match_key: item.ITEM.LIST_MATCH_KEY,
+        totalPrice: this.totalPriceCart(item.ITEM.PRICE, item.ITEM.QUANTITY),
+      }));
+    },
+  },
+  mounted() {
+    // Đồng bộ số lượng sản phẩm trong giỏ hàng từ server
+    this.$store.dispatch("fetchCartItemCount");
   },
 };
 </script>
 
 <style scoped>
+.img-payment {
+  width: 50px;
+}
+.text-key-value {
+  font-size: 13px;
+}
 .shopee-checkout {
   background-color: #f8f9fa;
   font-family: system-ui, -apple-system, sans-serif;

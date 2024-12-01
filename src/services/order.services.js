@@ -19,6 +19,16 @@ class OrderService {
       console.error(error);
     }
   }
+  async getShopOrder(page, limit) {
+    try {
+      const response = await this.api.get(
+        `/ShopOrder/?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   async getSuccessPaymentOrder() {
     try {
       const response = await this.api.get("/successPayment");

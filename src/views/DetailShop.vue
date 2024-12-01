@@ -7,19 +7,26 @@
         <!-- Shop Info Section -->
         <div class="shop-info col-12">
           <div class="container-fluid">
-            <div class="flex items-center justify-between">
-              <div class="shop-profile">
+            <div class="row">
+              <div class="shop-profile col-4">
                 <h1 class="shop-name">{{ nameShop }}</h1>
               </div>
-              <div class="shop-stats flex items-center space-x-6">
+              <div class="shop-stats flex items-center space-x-6 col-4">
                 <div class="stat-item">
                   <i class="fa-solid fa-box"></i>
                   <span>Sản phẩm: {{ totalProductShop }}</span>
                 </div>
-                <button class="chat-btn">
-                  <i class="fa-solid fa-comment"></i>
-                  Chat
-                </button>
+              </div>
+              <div class="col-4" v-if="dataUser && dataUser.user">
+                <p>
+                  <i class="fa-solid fa-mobile"></i>: 0{{
+                    dataUser.user.PHONE_NUMBER
+                  }}
+                </p>
+                <p>
+                  <i class="fa-solid fa-envelope"></i>:
+                  {{ dataUser.user.EMAIL_USER }}
+                </p>
               </div>
             </div>
           </div>
@@ -27,8 +34,8 @@
         <div class="col-12">
           <Voucher :ID_ACCOUNT="this.$route.params.id" />
         </div>
-        <div class="col-3">
-          <!-- Sidebar Categories -->
+        <!-- <div class="col-3">
+        
           <div class="sidebar">
             <div class="category-menu">
               <h3 class="menu-title">
@@ -45,9 +52,9 @@
               </ul>
             </div>
           </div>
-        </div>
+        </div> -->
 
-        <div class="col-9">
+        <div class="col-12">
           <!-- Filter Section -->
           <div class="filter-section">
             <div class="filter-wrapper">
@@ -181,6 +188,7 @@ export default {
       addressShop: [],
       products: [],
       prices: [],
+
       shop: {
         name: "ESSAGER flagship store",
         logo: "/path-to-logo.jpg",

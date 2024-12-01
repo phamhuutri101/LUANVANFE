@@ -11,15 +11,18 @@
           required
           class="input"
         />
-        <label for="shop-name" class="label">Nhập mô tả shop</label>
-        <input
-          type="text"
-          id="shop-name"
-          v-model="shopDesc"
-          placeholder="shop bán mặt hàng gì?"
-          required
-          class="input"
-        />
+
+        <label for="shop-type" class="label">Bạn muốn bán ngành hàng nào</label>
+        <select id="shop-type" v-model="shopType" class="select" required>
+          <option disabled value="">Chọn ngành hàng</option>
+          <option
+            v-for="type in listType"
+            :key="type._id"
+            :value="type.TYPE_PRODUCT"
+          >
+            {{ type.TYPE_PRODUCT }}
+          </option>
+        </select>
       </div>
       <button type="submit" class="submit-btn">Đăng ký bán hàng</button>
     </form>
@@ -28,7 +31,7 @@
 
 <script>
 import shopServices from "@/services/shop.services";
-
+import typeProductServices from "@/services/typeProduct.services";
 import Swal from "sweetalert2";
 shopServices;
 export default {
@@ -36,13 +39,21 @@ export default {
   data() {
     return {
       shopName: "",
-      shopDesc: "",
+      shopType: "",
+      listType: [],
     };
   },
   async created() {
     await this.checkShopActive();
+    await this.getListType();
   },
   methods: {
+    async getListType() {
+      const response = await typeProductServices.getAll();
+      if (response && response.data) {
+        this.listType = response.data;
+      }
+    },
     async checkShopActive() {
       try {
         const response = await shopServices.checkActiveShop();
@@ -70,9 +81,9 @@ export default {
       try {
         const response = await shopServices.checkTimeActive({
           name_shop: this.shopName,
-          desc_shop: this.shopDesc,
+          desc_shop: this.shopType,
         });
-
+        console.log(this.shopType);
         if (response.success === true) {
           const result = await Swal.fire({
             title: "Bạn đã gửi đăng ký mở tài khoản người bán thành công ",

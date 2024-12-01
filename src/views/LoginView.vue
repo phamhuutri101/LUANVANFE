@@ -105,17 +105,15 @@ export default {
   data() {
     const schema = yup.object().shape({
       user_name: yup.string().required("Tài khoản không được để trống"),
-      password: yup
-        .string()
-        .required("Mật khẩu không được để trống")
-        .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
-        .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
-        .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
-        .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
-        .matches(
-          /[!@#$%^&*(),.?":{}|<>]/,
-          "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
-        ),
+      password: yup.string().required("Mật khẩu không được để trống"),
+      // .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+      // .matches(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 số")
+      // .matches(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+      // .matches(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+      // .matches(
+      //   /[!@#$%^&*(),.?":{}|<>]/,
+      //   "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
+      // ),
     });
     return {
       formData: {

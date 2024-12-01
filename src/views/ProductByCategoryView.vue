@@ -9,7 +9,7 @@
             <div class="filter-section">
               <h3>Danh mục</h3>
               <div
-                v-for="category in categories"
+                v-for="category in categoryShow"
                 :key="category._id"
                 class="form-check"
               >
@@ -24,6 +24,13 @@
                   {{ category.CATEGORY_NAME }}
                 </label>
               </div>
+              <button
+                v-if="categories.length > numberCategoryView"
+                @click="changeShowCategory"
+                class="btn-show-more"
+              >
+                {{ showAllCategories ? "Thu gọn" : "Xem thêm" }}
+              </button>
             </div>
             <h3>Khoảng giá</h3>
             <div class="price-range">
@@ -176,11 +183,20 @@ export default {
       selectedCategories: [],
       filteredProducts: [],
       productReviews: [],
+      numberCategoryView: 5,
+      showAllCategories: false,
     };
   },
   async created() {
     await this.searchResult();
     await this.getAddressShop();
+  },
+  computed: {
+    categoryShow() {
+      return this.showAllCategories
+        ? this.categories
+        : this.categories.slice(0, this.numberCategoryView);
+    },
   },
   watch: {
     // Từ khóa tìm kiếm
@@ -214,6 +230,9 @@ export default {
     },
   },
   methods: {
+    changeShowCategory() {
+      this.showAllCategories = !this.showAllCategories;
+    },
     async getAddressShop() {
       const response = await productServices.getAddressShopProduct();
       if (response && response.success === true) {
@@ -465,6 +484,25 @@ export default {
 </script>
 
 <style scoped>
+/* category */
+.btn-show-more {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  background: none;
+  border: 1px solid #09884d;
+  color: #09884d;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-show-more:hover {
+  background: #09884d;
+  color: white;
+}
+/* category */
 .text-product {
   font-weight: bold;
   font-size: 20px;

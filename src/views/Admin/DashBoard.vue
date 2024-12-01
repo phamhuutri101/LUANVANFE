@@ -113,6 +113,11 @@
             ><i class="fa-regular fa-circle-check"></i> Xác nhận mở shop</a
           >
         </li>
+        <li class="nav-item position-relative" role="presentation">
+          <a class="nav-link text-white" @click="logout"
+            ><i class="fa-solid fa-right-from-bracket"></i> đăng xuất</a
+          >
+        </li>
       </ul>
     </div>
 
@@ -257,6 +262,7 @@ import authServices from "@/services/auth.services";
 import emailServices from "@/services/email.services";
 import shopServices from "@/services/shop.services";
 
+import deleteCookie from "@/utils/deleteCookie";
 export default {
   name: "Dashboard",
   data() {
@@ -441,6 +447,12 @@ export default {
           title: "Lỗi khi kích hoạt lại tài khoản",
         });
       }
+    },
+    logout() {
+      deleteCookie("access_token");
+      deleteCookie("refresh_token");
+      this.$router.push("/Admin/Login");
+      this.accessToken = null;
     },
   },
 };

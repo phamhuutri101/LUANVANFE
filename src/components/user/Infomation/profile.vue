@@ -41,6 +41,7 @@
             >
             <div class="col-md-9">
               <input
+                disabled
                 type="email"
                 class="form-control"
                 id="email"
@@ -133,6 +134,7 @@
 <script>
 import userServices from "@/services/user.services";
 import uploadServices from "@/services/upload.services";
+import Swal from "sweetalert2";
 export default {
   name: "UserProfile",
   data() {
@@ -183,7 +185,24 @@ export default {
       };
 
       try {
-        await userServices.updateInfo(payload);
+        const response = await userServices.updateInfo(payload);
+        if (response) {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.onmouseenter = Swal.stopTimer;
+              toast.onmouseleave = Swal.resumeTimer;
+            },
+          });
+          Toast.fire({
+            icon: "success",
+            title: "Cập nhật thông tin tài khoản thành công",
+          });
+        }
         console.log(payload);
       } catch (error) {
         console.error("Failed to update info:", error);

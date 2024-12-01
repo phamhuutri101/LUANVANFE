@@ -119,6 +119,29 @@
                   </div>
                   <ErrorMessage name="password" class="text-danger" />
                 </div>
+                <div data-mdb-input-init class="form-outline mb-4">
+                  <label class="form-label" for="form3Example4 "
+                    >Nhập lại mật khẩu</label
+                  >
+                  <div class="relative">
+                    <Field
+                      name="re_password"
+                      autocomplete="off"
+                      v-model="re_password"
+                      :type="showRePassword ? 'text' : 'password'"
+                      id="form3Example4"
+                      class="form-control"
+                    />
+                    <button type="button" @click="toggleRePassword">
+                      <i
+                        :class="
+                          showRePassword ? 'fas fa-eye-slash' : 'fas fa-eye'
+                        "
+                      ></i>
+                    </button>
+                  </div>
+                  <ErrorMessage name="re_password" class="text-danger" />
+                </div>
 
                 <!-- Submit button -->
                 <button
@@ -192,6 +215,13 @@ export default {
           /[!@#$%^&*(),.?":{}|<>]/,
           "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
         ),
+      re_password: yup
+        .string()
+        .required("Xác nhận mật khẩu mới không được để trống")
+        .oneOf(
+          [yup.ref("password"), null],
+          "Mật khẩu xác nhận phải trùng với mật khẩu mới"
+        ),
     });
     return {
       fromData: {
@@ -201,7 +231,9 @@ export default {
         user_name: "",
         password: "",
       },
+      re_password: "",
       showPassword: false,
+      showRePassword: false,
       schema,
     };
   },
@@ -233,6 +265,9 @@ export default {
     },
     togglePassword() {
       this.showPassword = !this.showPassword;
+    },
+    toggleRePassword() {
+      this.showRePassword = !this.showRePassword;
     },
   },
 };

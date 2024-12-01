@@ -7,7 +7,7 @@ class AddressService {
 
   async getAddress() {
     try {
-      const response = await this.api.get("/?page=1&limit=10");
+      const response = await this.api.get("/?page=1&limit=20");
       return response.data;
     } catch (error) {
       console.error("Error fetching address:", error);

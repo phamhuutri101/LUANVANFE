@@ -11,12 +11,12 @@ class EmailService {
       console.error(error);
     }
   }
-  async sendMailOrder(email) {
+  async sendMailOrder(payload) {
     try {
-      const response = await this.api.post("/order", email);
+      const response = await this.api.post("/order", payload);
       return response;
     } catch (error) {
-      console.error(error);
+      console.error("Lỗi gửi email:", error);
     }
   }
   async StopAccount(payload) {
