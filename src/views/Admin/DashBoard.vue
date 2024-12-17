@@ -110,7 +110,27 @@
             role="tab"
             aria-controls="pills-confirm"
             aria-selected="true"
-            ><i class="fa-regular fa-circle-check"></i> Xác nhận mở shop</a
+            ><i class="fa-regular fa-circle-check"></i> Xác nhận mở cửa hàng</a
+          >
+        </li>
+        <li class="nav-item position-relative" role="presentation">
+          <span
+            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+          >
+            {{ shop.length }}</span
+          >
+          <a
+            class="nav-link text-white"
+            aria-current="page"
+            id="pills-shops-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#pills-shops"
+            type="button"
+            role="tab"
+            aria-controls="pills-shops"
+            aria-selected="true"
+            ><i class="fa-regular fa-circle-check"></i> các cửa hàng trên sàn
+            giao dịch</a
           >
         </li>
         <li class="nav-item position-relative" role="presentation">
@@ -244,7 +264,53 @@
                   >
                     Xác nhận mở shop
                   </button>
+                  <button
+                    @click="deleteActive(item.ID_ACCOUNT)"
+                    class="btn btn-danger"
+                  >
+                    Không xác nhận
+                  </button>
                 </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="pills-shops"
+          role="tabpanel"
+          aria-labelledby="pills-shops-tab"
+        >
+          <table class="table table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tài khoản</th>
+                <th scope="col">Tên shop</th>
+                <th scope="col">Mô tả shop</th>
+                <th scope="col">Ngày kích hoạt</th>
+              </tr>
+            </thead>
+            <tbody v-for="(item, index) in shop" :key="index">
+              <tr>
+                <th scope="row">{{ index + 1 }}</th>
+                <td
+                  data-bs-toggle="modal"
+                  data-bs-target="#detailUser"
+                  @click="getUserById(item.ID_USER)"
+                >
+                  {{ item.USER_NAME }}
+                </td>
+                <td
+                  data-bs-toggle="modal"
+                  data-bs-target="#detailUser"
+                  @click="getUserById(item.ID_USER)"
+                >
+                  {{ item.SHOP_NAME }}
+                </td>
+                <td>{{ item.SHOP_DESC }}</td>
+                <td v-if="item.FROM_DATE">{{ formatDay(item.FROM_DATE) }}</td>
+                <td v-else>chưa kích hoạt</td>
               </tr>
             </tbody>
           </table>
@@ -271,15 +337,35 @@ export default {
       numberUser: [], // Mảng chứa dữ liệu số lượng người dùng
       infoUser: [],
       shopNonActive: [], // Mảng chứa dữ liệu shop không kích hoạt
+      shop: [], // Mảng chứa dữ liệu shop
     };
   },
   async created() {
     await this.getAllUser();
     await this.getUserRealtime();
     await this.getShopNonActive();
+    await this.getAllShop();
   },
 
   methods: {
+    async getAllShop() {
+      try {
+        const response = await shopServices.getAllShop();
+        if (response && response.data) {
+          this.shop = response.data;
+          for (const shop of this.shop) {
+            const user = await userServices.getUserByAccountId(shop.ID_ACCOUNT);
+            if (user) {
+              const response = user.data;
+              shop.USER_NAME = response[0].USER_NAME;
+            }
+          }
+        }
+        console.log(this.shop);
+      } catch (error) {
+        console.error(error);
+      }
+    },
     formatDay(day) {
       return dayjs(day).format("DD/MM/YYYY, HH:mm");
     },
@@ -453,6 +539,36 @@ export default {
       deleteCookie("refresh_token");
       this.$router.push("/Admin/Login");
       this.accessToken = null;
+    },
+    async deleteActive(id) {
+      try {
+        const result = await Swal.fire({
+          title: `Bạn có muốn xóa `,
+          confirmButtonColor: "#DD6B55",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "OK",
+          cancelButtonText: "Hủy",
+        });
+        if (result.isConfirmed) {
+          const response = await shopServices.cancelActiveShop(id);
+          if (response && response.success) {
+            this.getShopNonActive();
+            Swal.fire({
+              icon: "success",
+              title: `Xóa yêu cầu mở cửa hàng tài khoản thành công`,
+            });
+          }
+        } else if (result.isDismissed) {
+          Swal.fire({
+            icon: "info",
+            title: "Hủy bỏ",
+            text: "Bạn đã hủy hành động xóa tài khoản.",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };

@@ -389,24 +389,29 @@ export default {
     },
     sortProducts(event) {
       const sortBy = event.target.value;
+
+      let sortedProducts = [...this.filteredProducts]; // Tạo bản sao để sắp xếp
       if (sortBy === "name-asc") {
-        this.products.sort((a, b) =>
+        sortedProducts.sort((a, b) =>
           a.NAME_PRODUCT.localeCompare(b.NAME_PRODUCT)
         );
       } else if (sortBy === "name-desc") {
-        this.products.sort((a, b) =>
+        sortedProducts.sort((a, b) =>
           b.NAME_PRODUCT.localeCompare(a.NAME_PRODUCT)
         );
       } else if (sortBy === "price-asc") {
-        this.products.sort(
+        sortedProducts.sort(
           (a, b) => this.getPrice(a._id) - this.getPrice(b._id)
         );
       } else if (sortBy === "price-desc") {
-        this.products.sort(
+        sortedProducts.sort(
           (a, b) => this.getPrice(b._id) - this.getPrice(a._id)
         );
       }
+
+      this.filteredProducts = sortedProducts; // Cập nhật danh sách hiển thị
     },
+
     // lọc
     applyPriceFilter() {
       this.applyFilters();

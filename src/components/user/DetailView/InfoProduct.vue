@@ -37,7 +37,12 @@
       <div class="col-10">
         <div class="add-cart d-flex">
           <span @click="decreaseQuantity">-</span>
-          <input class="quantity" type="text" :value="payload.number" />
+          <input
+            class="quantity"
+            type="text"
+            :value="payload.number"
+            @input="validateInput"
+          />
           <span @click="increaseQuantity">+</span>
           <p
             v-if="product.NUMBER_INVENTORY_PRODUCT > 0"
@@ -68,7 +73,7 @@
       <div class="shop-stats">
         <div class="stat-item">
           <span class="stat-label">Đánh giá</span>
-          <span class="stat-value highlight">{{ totalRatingShop }}</span>
+          <span class="stat-value highlight">{{ totalRatingShop }} sao</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">Sản phẩm</span>
@@ -243,7 +248,31 @@ export default {
           });
           return; // Ngừng xử lý nếu số lượng không đủ
         }
+        const cartResponse = await cartServices.getAllCart();
+        if (cartResponse && cartResponse.data) {
+          const cartItems = cartResponse.data;
 
+          // Tính tổng số lượng sản phẩm trong giỏ hàng có cùng ID_PRODUCT và LIST_MATCH_KEY
+          const totalInCart = cartItems
+            .filter(
+              (item) =>
+                item.ITEM.ID_PRODUCT === this.product._id &&
+                this.isMatchingKeys(item.ITEM.LIST_MATCH_KEY)
+            )
+            .reduce((sum, item) => sum + item.ITEM.QUANTITY, 0);
+
+          // Kiểm tra tổng số lượng (trong giỏ + muốn thêm) so với tồn kho
+          if (
+            totalInCart + this.payload.number >
+            this.product.NUMBER_INVENTORY_PRODUCT
+          ) {
+            Swal.fire({
+              icon: "error",
+              title: "Số lượng sản phẩm trong kho không đủ",
+            });
+            return;
+          }
+        }
         if (this.payload.key.length === 0 || this.payload.value.length === 0) {
           const Toast = Swal.mixin({
             toast: true,
@@ -389,6 +418,22 @@ export default {
     },
     gotoDetailShop(id_account) {
       this.$router.push({ name: "ShopDetail", params: { id: id_account } });
+    },
+    isMatchingKeys(cartKeys) {
+      // So sánh LIST_MATCH_KEY của sản phẩm trong giỏ với payload
+      if (!cartKeys || cartKeys.length !== this.payload.key.length)
+        return false;
+
+      return cartKeys.every((cartKey) => {
+        const index = this.payload.key.indexOf(cartKey.KEY);
+        return index !== -1 && this.payload.value[index] === cartKey.VALUE;
+      });
+    },
+    validateInput(event) {
+      const value = event.target.value;
+      const validValue = value.replace(/\D/g, ""); // Loại bỏ tất cả ký tự không phải số
+      this.payload.number = validValue ? parseInt(validValue, 10) : 1; // Cập nhật giá trị, đảm bảo ít nhất là 1
+      event.target.value = this.payload.number; // Cập nhật lại giá trị hiển thị
     },
   },
 };

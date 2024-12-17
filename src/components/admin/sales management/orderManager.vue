@@ -1,5 +1,53 @@
 <template>
   <div class="container">
+    <!-- modal hủy đơn -->
+    <div
+      class="modal fade"
+      id="cancelOrder"
+      tabindex="-1"
+      aria-labelledby="cancelOrderLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="cancelOrderLabel">Hủy đơn hàng</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <label for="color" class="form-label">Lý do hủy đơn</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Viết lý do hủy đơn cho khách hàng"
+              v-model="payloadCancelOrder.content_cancel"
+            />
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Đóng
+            </button>
+            <button
+              @click="cancelOrder()"
+              type="button"
+              class="btn btn-primary"
+            >
+              Hủy đơn
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- modal hủy đơn -->
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>Quản lý đơn hàng</h2>
@@ -129,7 +177,15 @@
                     >
                       Gửi hàng
                     </button>
-
+                    <button
+                      v-if="getLatestStatus(order) < 4"
+                      class="btn btn-sm btn-status btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#cancelOrder"
+                      @click="getIdOrderCancelOrder(order._id)"
+                    >
+                      Hủy đơn hàng
+                    </button>
                     <!-- Nút nhận hàng -->
                     <button
                       v-if="getLatestStatus(order) === 4"
@@ -300,6 +356,10 @@ export default {
   },
   data() {
     return {
+      payloadCancelOrder: {
+        id_order: "",
+        content_cancel: "",
+      },
       orders: [],
       originalOrders: [],
       selectedOrder: null,
@@ -586,6 +646,23 @@ export default {
       const result = await orderServices.getTotalOrderProfit();
       if (result && result.data) {
         this.totalOrderProfit = result.data.totalProfit;
+      }
+    },
+    getIdOrderCancelOrder(id) {
+      this.payloadCancelOrder.id_order = id;
+      console.log(this.payloadCancelOrder);
+    },
+    async cancelOrder() {
+      const result = await Swal.fire({
+        title: "Bạn có chắc chắn muốn hủy đơn hàng ?",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Có",
+        denyButtonText: `Không`,
+      });
+      if (result.isConfirmed) {
+        await orderServices.cancelOrder(this.payloadCancelOrder);
+        this.getOrder();
       }
     },
   },

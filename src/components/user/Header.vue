@@ -71,7 +71,11 @@
             class="dropdown-menu dropdown-menu-right"
             aria-labelledby="navbarDropdown"
           >
-            <router-link to="/user" v-if="getCookie()">
+            <router-link
+              class="text-decoration-none"
+              to="/user"
+              v-if="getCookie()"
+            >
               <a class="dropdown-item" href="#">Tài khoản của tôi</a>
             </router-link>
 

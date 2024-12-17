@@ -73,12 +73,20 @@
               </button>
             </div>
             <div class="total">
-              <span>{{
-                formatPriceCart(
-                  totalPriceCart(item.ITEM.PRICE, item.ITEM.QUANTITY)
-                )
-              }}</span>
+              <span
+                >{{
+                  formatPriceCart(
+                    totalPriceCart(item.ITEM.PRICE, item.ITEM.QUANTITY)
+                  )
+                }}
+              </span>
             </div>
+            <button
+              @click="deleteCart(item.ITEM._id)"
+              class="bg-danger text-white"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -361,6 +369,7 @@ export default {
             );
             if (itemIndex !== -1) {
               this.cart.splice(itemIndex, 1);
+              await this.$store.dispatch("fetchCartItemCount");
             }
             this.updateCartCount();
           } else {

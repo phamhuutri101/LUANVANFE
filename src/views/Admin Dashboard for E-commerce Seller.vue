@@ -22,7 +22,7 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Quản lý Sản phẩm
+                <i class="fa-solid fa-chart-simple"></i> Quản lý Sản phẩm
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <li>
@@ -52,7 +52,7 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Quản lý kho
+                <i class="fa-solid fa-warehouse"></i> Quản lý kho
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <li>
@@ -80,8 +80,7 @@
                 href="#"
                 @click="currentView = 'voucherManager'"
               >
-                <i class="fa-solid fa-money-bill-wave"></i> Quản lý mã giảm
-                giá</a
+                <i class="fa-solid fa-ticket-simple"></i> Quản lý mã giảm giá</a
               >
             </li>
             <li class="nav-item px-2">
@@ -90,7 +89,7 @@
                 href="#"
                 @click="currentView = 'priceManager'"
               >
-                <i class="fa-solid fa-money-bill-wave"></i> Quản lý giá
+                <i class="fa-solid fa-money-bill"></i> Quản lý giá
               </a>
             </li>
             <li class="nav-item px-2">
@@ -99,7 +98,7 @@
                 href="#"
                 @click="currentView = 'orderManager'"
               >
-                <i class="fa-solid fa-money-bill-wave"></i> Quản lý đơn hàng
+                <i class="fa-solid fa-clipboard"></i> Quản lý đơn hàng
               </a>
             </li>
             <li class="nav-item px-2">
@@ -108,7 +107,12 @@
                 href="#"
                 @click="currentView = 'RatingManager'"
               >
-                <i class="fa-solid fa-star"></i> Danh sách đánh giá</a
+                <i class="fa-solid fa-comment"></i> Danh sách đánh giá</a
+              >
+            </li>
+            <li class="nav-item px-2">
+              <a class="nav-link text-white" href="#" @click="backHome">
+                <i class="fa-solid fa-rotate-left"></i>Trang người dùng</a
               >
             </li>
           </ul>
@@ -158,6 +162,15 @@ export default {
     handleAddProductSuccess() {
       // Khi nhận được sự kiện từ AddProduct, chuyển sang ProductManagement
       this.currentView = "ProductManagement";
+    },
+    backHome() {
+      this.$router.push("/");
+    },
+    deleteCookie() {
+      deleteCookie("access_token");
+      deleteCookie("refresh_token");
+      this.$router.push("/login");
+      this.accessToken = null;
     },
   },
 };

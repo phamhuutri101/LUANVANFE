@@ -1,5 +1,51 @@
 <template>
   <div class="col-md-9 background-component background-height p-4">
+    <!-- modal xem chi tiết đơn hàng -->
+    <div
+      class="modal fade"
+      id="detailOrder"
+      tabindex="-1"
+      aria-labelledby="detailOrderLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="detailOrderLabel">
+              Trạng thái đơn hàng
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Trạng thái</th>
+                  <th scope="col">Thời gian</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(item, index) in detailOrder.LIST_STATUS"
+                  :key="index"
+                >
+                  <th scope="row">{{ index + 1 }}</th>
+                  <td>{{ item.STATUS_NAME }}</td>
+                  <td>{{ formatDate(item.FROM_DATE) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- modal xem chi tiết đơn hàng -->
     <!-- modal đánh giá sp -->
     <div
       class="modal modal-lg fade"
@@ -178,14 +224,14 @@
               class="btn btn-secondary"
               data-bs-dismiss="modal"
             >
-              Close
+              Đóng
             </button>
             <button
               @click="cancelOrder()"
               type="button"
               class="btn btn-primary"
             >
-              Save changes
+              Hủy đơn
             </button>
           </div>
         </div>
@@ -305,7 +351,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  :src="getProductImage(classify.ID_PRODUCT)"
                   alt="Hình ảnh"
                 />
               </div>
@@ -406,7 +452,7 @@
           <div class="title-order d-flex border-bottom">
             <span>{{ item.shopName }}</span>
             <span class="show-shop" @click="gotoDetailShop(item.ACCOUNT__ID)">
-              ><i class="fa-solid fa-shop"></i> Xem shop</span
+              <i class="fa-solid fa-shop"></i> Xem shop</span
             >
           </div>
           <div
@@ -417,7 +463,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  :src="getProductImage(classify.ID_PRODUCT)"
                   alt="Hình ảnh"
                 />
               </div>
@@ -502,7 +548,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  :src="getProductImage(classify.ID_PRODUCT)"
                   alt="Hình ảnh"
                 />
               </div>
@@ -587,7 +633,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  :src="getProductImage(classify.ID_PRODUCT)"
                   alt="Hình ảnh"
                 />
               </div>
@@ -675,7 +721,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  :src="getProductImage(classify.ID_PRODUCT)"
                   alt="Hình ảnh"
                 />
               </div>
@@ -735,6 +781,14 @@
                   Đánh giá
                 </button>
                 <button v-else>Đã đánh giá</button>
+                <button
+                  @click="getOrderById(item._id)"
+                  class="detailOrder d-flex"
+                  data-bs-toggle="modal"
+                  data-bs-target="#detailOrder"
+                >
+                  Xem chi tiết đơn
+                </button>
               </div>
             </div>
           </div>
@@ -761,7 +815,7 @@
             <div class="img_name_product d-flex py-4">
               <div class="img">
                 <img
-                  :src="item.PRODUCT.LIST_FILE_ATTACHMENT_DEFAULT[0].FILE_URL"
+                  :src="getProductImage(classify.ID_PRODUCT)"
                   alt="Hình ảnh"
                 />
               </div>
@@ -806,11 +860,12 @@
               </div>
             </div>
             <div class="notification d-flex justify-content-between">
+              <span> <b>Lý do hủy:</b> {{ item.CANCEL_REASON }}</span>
               <div class="confirm d-flex">
                 <button
                   data-bs-toggle="modal"
-                  data-bs-target="#ratingModal"
-                  @click="getOrderSuccessById(item._id)"
+                  data-bs-target="#detailOrder"
+                  @click="getOrderById(item._id)"
                 >
                   Chi tiết đơn hủy
                 </button>
@@ -842,6 +897,7 @@ import { formatNumber } from "@/utils/formatNumber";
 import uploadServices from "@/services/upload.services";
 import shopServices from "@/services/shop.services";
 import reviewServices from "@/services/review.services";
+import { formatDate } from "@/utils/formatDate";
 export default {
   components: {
     VPagination,
@@ -861,6 +917,7 @@ export default {
       page: 1,
       limit: 10,
       currentMaxPage: 1,
+      detailOrder: {},
     };
   },
   created() {
@@ -960,6 +1017,9 @@ export default {
     },
     formatNumber(number) {
       return formatNumber(number);
+    },
+    formatDate(date) {
+      return formatDate(date);
     },
     setRating(n, item) {
       item.rating = n;
@@ -1075,6 +1135,24 @@ export default {
     },
     gotoDetailShop(id_account) {
       this.$router.push({ name: "ShopDetail", params: { id: id_account } });
+    },
+    async getOrderById(id) {
+      const response = await orderServices.getOrderById(id);
+      if (response && response.data) {
+        this.detailOrder = response.data;
+      }
+    },
+    getProductImage(productId) {
+      // Tìm order chứa sản phẩm
+      const order = this.orders.find(
+        (order) => order.PRODUCT && order.PRODUCT._id === productId
+      );
+
+      // Kiểm tra nếu tìm thấy order và LIST_FILE_ATTACHMENT_DEFAULT tồn tại
+      return (
+        order?.PRODUCT?.LIST_FILE_ATTACHMENT_DEFAULT?.[0]?.FILE_URL ||
+        "default-image.jpg"
+      );
     },
   },
 };
@@ -1198,7 +1276,18 @@ export default {
   cursor: pointer;
   transition: all 0.2s;
 }
-
+.detailOrder {
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #2874a6;
+  margin-left: 10px;
+  color: #fff;
+}
 button[data-bs-target="#cancelOrder"] {
   background: #dc3545;
   color: white;

@@ -51,6 +51,21 @@ class Shop {
       console.error(error);
     }
   }
- 
+  async cancelActiveShop(id) {
+    try {
+      const response = await this.api.post(`/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async getAllShop() {
+    try {
+      const response = await this.api.get("/");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 export default new Shop();

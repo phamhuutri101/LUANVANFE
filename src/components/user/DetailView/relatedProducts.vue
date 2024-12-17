@@ -93,7 +93,7 @@ export default {
       productReviews: [],
       addressShop: [],
       page: 1,
-      limit: 4,
+      limit: 6,
       currentMaxPage: 1,
     };
   },
